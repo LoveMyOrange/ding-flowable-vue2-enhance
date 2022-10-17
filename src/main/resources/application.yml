@@ -1,0 +1,23 @@
+spring:  #环境 dev|test|pro|preview
+  profiles:
+    active: dev
+  servlet:
+    multipart: #文件传输配置
+      max-file-size: 100MB #单个数据大小限制
+      max-request-size: 100MB #请求总数据大小限制
+      enabled: true  #是否启用分段上传支持
+  mvc:
+    hiddenmethod: #隐式方法过滤器
+      filter:
+        enabled: true #默认关闭。开启以支持：PUT,DELETE表单提交方法
+  jackson: #序列化和反序列化json框架
+    serialization:
+      write-dates-as-timestamps: true #是否写入日期时间时间戳格式
+    time-zone: GMT+8 #指定日期格式化时区
+  main:
+    allow-bean-definition-overriding: true #允许同名bean后者覆盖,默认：true
+    allow-circular-references: true #允许Bean相互引用,默认：false    
+server:
+  error:
+    whitelabel:
+      enabled: false

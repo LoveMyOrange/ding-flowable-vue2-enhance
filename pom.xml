@@ -1,0 +1,483 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.fight</groupId>
+  <artifactId>dingding-mid</artifactId>
+  <version>1.0-RELEASE</version>
+
+  <properties>
+    <java.version>1.8</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <!-- spring依赖 -->
+    <spring-boot.version>2.6.7</spring-boot.version>
+    <spring-security-oauth2.version>2.5.2.RELEASE</spring-security-oauth2.version>
+    <spring-plugin-core.version>2.0.0.RELEASE</spring-plugin-core.version>
+    <!-- swagger -->
+    <swagger.version>3.0.0</swagger.version>
+    <swagger-model.version>1.6.6</swagger-model.version>
+    <swagger-ui.version>1.9.6</swagger-ui.version>
+    <!-- 数据库配置 -->
+    <druid.version>1.2.9</druid.version>
+    <mybatis-plus.vesion>3.5.1</mybatis-plus.vesion>
+    <mybatis-plus.generator.vesion>3.4.1</mybatis-plus.generator.vesion>
+    <mybatis-plus.dynamic.vesion>3.5.1</mybatis-plus.dynamic.vesion>
+    <mysql.version>8.0.29</mysql.version>
+    <dm18.version>1.8.0</dm18.version>
+    <kingbase.version>2.0</kingbase.version>
+    <postgre.version>42.2.23</postgre.version>
+    <sqlserver.version>4.0</sqlserver.version>
+    <oracle.version>21.5.0.0</oracle.version>
+    <!-- 其他 -->
+    <jna.version>5.11.0</jna.version>
+    <commons-io.version>2.11.0</commons-io.version>
+    <weixin.version>3.3.0</weixin.version>
+    <thumbnailator.version>0.4.17</thumbnailator.version>
+    <pinyin4j.version>2.5.1</pinyin4j.version>
+    <zxing.version>3.5.0</zxing.version>
+    <poi.version>4.1.2</poi.version>
+    <fastjson.version>1.2.83</fastjson.version>
+    <common-lang3.version>3.12.0</common-lang3.version>
+    <common-pool.version>2.11.1</common-pool.version>
+    <commons-text.version>1.9</commons-text.version>
+    <poi.version>4.0.0</poi.version>
+    <jackson.version>2.13.2</jackson.version>
+    <itextpdf.version>5.5.13.3</itextpdf.version>
+    <yitter-idgenerator.version>1.0.6</yitter-idgenerator.version>
+    <itext-asian.version>5.2.0</itext-asian.version>
+    <velocity.version>2.3</velocity.version>
+    <oshi-core.version>5.4.0</oshi-core.version>
+    <hutool-all.version>5.8.0</hutool-all.version>
+    <guava.version>31.1-jre</guava.version>
+    <nimbus-jose-jwt.version>9.22</nimbus-jose-jwt.version>
+    <commons-fileupload.version>1.4</commons-fileupload.version>
+    <antisamy.varsion>1.6.4</antisamy.varsion>
+    <okhttp3.version>4.9.3</okhttp3.version>
+    <lombok.version>1.18.20</lombok.version>
+    <pagehelper.version>5.3.0</pagehelper.version>
+
+    <tencentcloud-sdk-java>3.1.278</tencentcloud-sdk-java>
+    <taobao-sdk-java>1.0</taobao-sdk-java>
+    <dysmsapi.version>2.0.8</dysmsapi.version>
+    <tea-openapi.version>0.2.4</tea-openapi.version>
+    <minio.version>8.4.0</minio.version>
+    <yozosign.version>3.0.1</yozosign.version>
+    <flowable.version>6.7.2</flowable.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+
+
+      <dependency>
+        <groupId>io.minio</groupId>
+        <artifactId>minio</artifactId>
+        <version>${minio.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>${commons-fileupload.version}</version>
+      </dependency>
+
+      <!-- SpringBoot 依赖配置 -->
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-dependencies</artifactId>
+        <version>${spring-boot.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <!-- Swagger 依赖配置 -->
+      <dependency>
+        <groupId>com.github.xiaoymin</groupId>
+        <artifactId>swagger-bootstrap-ui</artifactId>
+        <version>${swagger-ui.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.springfox</groupId>
+        <artifactId>springfox-boot-starter</artifactId>
+        <version>${swagger.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.plugin</groupId>
+        <artifactId>spring-plugin-core</artifactId>
+        <version>${spring-plugin-core.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-annotations</artifactId>
+        <version>${swagger-model.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.swagger</groupId>
+        <artifactId>swagger-models</artifactId>
+        <version>${swagger-model.version}</version>
+      </dependency>
+      <!-- druid -->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>${druid.version}</version>
+      </dependency>
+
+      <!-- mybatisplus -->
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-boot-starter</artifactId>
+        <version>${mybatis-plus.vesion}</version>
+      </dependency>
+      <!-- 代码生成 -->
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>mybatis-plus-generator</artifactId>
+        <version>${mybatis-plus.generator.vesion}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>mybatis-plus-extension</artifactId>
+            <groupId>com.baomidou</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>com.baomidou</groupId>
+        <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
+        <version>${mybatis-plus.dynamic.vesion}</version>
+      </dependency>
+
+      <!-- mysql -->
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql.version}</version>
+      </dependency>
+
+
+
+
+
+      <!-- JSON 解析器和生成器 -->
+      <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>fastjson</artifactId>
+        <version>${fastjson.version}</version>
+      </dependency>
+
+      <!-- commons-lang3 -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${common-lang3.version}</version>
+      </dependency>
+
+      <!-- commons-text -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-text</artifactId>
+        <version>${commons-text.version}</version>
+      </dependency>
+
+      <!-- 公共资源池 -->
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-pool2</artifactId>
+        <version>${common-pool.version}</version>
+      </dependency>
+
+
+
+
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
+      </dependency>
+
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.module</groupId>
+        <artifactId>jackson-module-jaxb-annotations</artifactId>
+        <version>${jackson.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.google.guava</groupId>
+        <artifactId>guava</artifactId>
+        <version>${guava.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-io</groupId>
+        <artifactId>commons-io</artifactId>
+        <version>${commons-io.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>cn.hutool</groupId>
+        <artifactId>hutool-all</artifactId>
+        <version>${hutool-all.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>${commons-fileupload.version}</version>
+      </dependency>
+
+      <!-- okhttp -->
+      <dependency>
+        <groupId>com.squareup.okhttp3</groupId>
+        <artifactId>okhttp</artifactId>
+        <version>${okhttp3.version}</version>
+      </dependency>
+
+      <!--反之XSS注入-->
+      <dependency>
+        <groupId>org.owasp.antisamy</groupId>
+        <artifactId>antisamy</artifactId>
+        <version>${antisamy.varsion}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-simple</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <!-- PageHelper -->
+      <dependency>
+        <groupId>com.github.pagehelper</groupId>
+        <artifactId>pagehelper</artifactId>
+        <version>${pagehelper.version}</version>
+      </dependency>
+
+
+    </dependencies>
+  </dependencyManagement>
+
+
+  <dependencies>
+
+    <dependency>
+      <groupId>io.minio</groupId>
+      <artifactId>minio</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>cn.hutool</groupId>
+      <artifactId>hutool-all</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-pool2</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-jaxb-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.springfox</groupId>
+      <artifactId>springfox-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat.embed</groupId>
+      <artifactId>tomcat-embed-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.baomidou</groupId>
+      <artifactId>mybatis-plus-boot-starter</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>druid</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.swagger</groupId>
+      <artifactId>swagger-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.validator</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpmime</artifactId>
+    </dependency>
+    <!-- mysql -->
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>${mysql.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.owasp.antisamy</groupId>
+      <artifactId>antisamy</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.github.pagehelper</groupId>
+      <artifactId>pagehelper</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.alibaba</groupId>
+      <artifactId>fastjson</artifactId>
+    </dependency>
+
+
+    <!-- flowable -->
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-spring-boot-starter</artifactId>
+      <version>${flowable.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.flowable</groupId>
+          <artifactId>flowable-spring-boot-starter-app</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.flowable</groupId>
+          <artifactId>flowable-form-spring-configurator</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.flowable</groupId>
+          <artifactId>flowable-idm-spring-configurator</artifactId>
+        </exclusion>
+        <exclusion>
+          <artifactId>mybatis</artifactId>
+          <groupId>org.mybatis</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-bpmn-model</artifactId>
+      <version>${flowable.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-json-converter</artifactId>
+      <version>${flowable.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-bpmn-converter</artifactId>
+      <version>${flowable.version}</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <!--activiti modeler 5.22 end-->
+    <!-- 自动布局jar 包-->
+    <dependency>
+      <groupId>org.flowable</groupId>
+      <artifactId>flowable-bpmn-layout</artifactId>
+      <version>${flowable.version}</version>
+    </dependency>
+
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.0</version>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>${spring-boot.version}</version>
+        <configuration>
+          <mainClass>com.dingding.mid.DingDingAdminApplication</mainClass>
+          <layout>ZIP</layout>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+
+</project>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
