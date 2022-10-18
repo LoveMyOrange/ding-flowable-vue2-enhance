@@ -37,11 +37,11 @@ public class TaskCreatedListener implements TaskListener {
             if("100000".equals(delegateTask.getAssignee())){
                 Object autoRefuse = delegateTask.getVariable("autoRefuse");
                 if(autoRefuse==null){
-                    taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),"option","审批人为空,自动通过");
+                    taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),"opinion","审批人为空,自动通过");
                     taskService.complete(delegateTask.getId());
                 }
                 else{
-                    taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),"option","审批人为空,自动驳回");
+                    taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),"opinion","审批人为空,自动驳回");
                     RuntimeService runtimeService = SpringContextHolder.getBean(RuntimeService.class);
                     runtimeService.deleteProcessInstance(delegateTask.getProcessInstanceId(),"审批人为空,自动驳回");
                 }

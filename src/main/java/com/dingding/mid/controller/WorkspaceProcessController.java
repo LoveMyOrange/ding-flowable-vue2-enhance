@@ -279,10 +279,13 @@ public class WorkspaceProcessController {
         String taskId = handleDataDTO.getTaskId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         Map<String,Object> map=new HashMap<>();
-        Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
-        });
-        map.putAll(formValue);
-        map.put(FORM_VAR,formData);
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
+
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         Authentication.setAuthenticatedUserId(currentUserInfo.getId());
         if(StringUtils.isNotBlank(comments)){
@@ -314,10 +317,12 @@ public class WorkspaceProcessController {
         String taskId = handleDataDTO.getTaskId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         Map<String,Object> map=new HashMap<>();
-        Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
-        });
-        map.putAll(formValue);
-        map.put(FORM_VAR,formData);
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
         map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
@@ -347,10 +352,12 @@ public class WorkspaceProcessController {
         String taskId = handleDataDTO.getTaskId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         Map<String,Object> map=new HashMap<>();
-        Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
-        });
-        map.putAll(formValue);
-        map.put(FORM_VAR,formData);
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
         map.put(PROCESS_STATUS,BUSINESS_STATUS_2);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
@@ -381,10 +388,12 @@ public class WorkspaceProcessController {
         String taskId = handleDataDTO.getTaskId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         Map<String,Object> map=new HashMap<>();
-        Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
-        });
-        map.putAll(formValue);
-        map.put(FORM_VAR,formData);
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
         map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
@@ -415,10 +424,12 @@ public class WorkspaceProcessController {
         String taskId = handleDataDTO.getTaskId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         Map<String,Object> map=new HashMap<>();
-        Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
-        });
-        map.putAll(formValue);
-        map.put(FORM_VAR,formData);
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
         map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
@@ -452,10 +463,12 @@ public class WorkspaceProcessController {
         String taskId = handleDataDTO.getTaskId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         Map<String,Object> map=new HashMap<>();
-        Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
-        });
-        map.putAll(formValue);
-        map.put(FORM_VAR,formData);
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
         map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
@@ -489,10 +502,12 @@ public class WorkspaceProcessController {
         String taskId = handleDataDTO.getTaskId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
         Map<String,Object> map=new HashMap<>();
-        Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
-        });
-        map.putAll(formValue);
-        map.put(FORM_VAR,formData);
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
         map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
@@ -648,6 +663,7 @@ public class WorkspaceProcessController {
             }
         }
         handleDataVO.setProcessTemplates(processTemplates);
+        handleDataVO.setDetailVOList(deatailMap);
         return Result.OK(handleDataVO);
     }
 
@@ -680,7 +696,7 @@ public class WorkspaceProcessController {
                 taskDetailVO.setAttachmentVOList(attachmentVOList);
             }
 
-            List<Comment> options = processInstanceComments.stream().filter(h -> h.getTaskId().equals(historicActivityInstance.getTaskId()) && h.getType().equals("option")).collect(Collectors.toList());
+            List<Comment> options = processInstanceComments.stream().filter(h -> h.getTaskId().equals(historicActivityInstance.getTaskId()) && h.getType().equals("opinion")).collect(Collectors.toList());
             if(CollUtil.isNotEmpty(options)){
                 List<OptionVO> optionVOList =new ArrayList<>();
                 for (Comment option : options) {
