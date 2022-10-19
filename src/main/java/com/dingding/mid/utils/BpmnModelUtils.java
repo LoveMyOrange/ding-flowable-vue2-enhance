@@ -279,6 +279,9 @@ public class BpmnModelUtils {
 //                return id;
 //            }
         }
+        else if(Type.TRIGGER.isEqual(nodeType)){
+            throw new WorkFlowException("还不想写这个功能");
+        }
         else if(Type.CC.isEqual(nodeType)){
             throw new WorkFlowException("放星期再写这个功能,2022年10月19日");
         }
