@@ -97,7 +97,7 @@ public class CounterSignListener implements ExecutionListener {
                     execution.setVariable(variable,assigneeList);
                 }
                 else if("TO_REFUSE".equals(handler)){
-                    execution.setVariable(execution.getProcessInstanceId(),"autoRefuse",Boolean.TRUE);
+                    execution.setVariable("autoRefuse",Boolean.TRUE);
                     assigneeList.add("100000");
                     execution.setVariable(variable,assigneeList);
                 }
