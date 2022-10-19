@@ -10,6 +10,7 @@ import com.dingding.mid.dto.json.GroupsInfo;
 import com.dingding.mid.dto.json.Properties;
 import com.dingding.mid.entity.Users;
 import com.dingding.mid.enums.ModeEnums;
+import com.dingding.mid.exception.WorkFlowException;
 import com.dingding.mid.service.UserService;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -265,17 +266,21 @@ public class BpmnModelUtils {
             }
         }
         else if(Type.DELAY.isEqual(nodeType)){
-            childNodeMap.put(flowNode.getId(),flowNode);
-            JSONObject incoming = flowNode.getIncoming();
-            incoming.put("incoming", Collections.singletonList(fromId));
-            String id = createTask(process,flowNode,sequenceFlows,childNodeMap);
-            // 如果当前任务还有后续任务，则遍历创建后续任务
-            ChildNode children = flowNode.getChildren();
-            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
-                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
-            } else {
-                return id;
-            }
+            throw new WorkFlowException("还不想写这个功能");
+//            childNodeMap.put(flowNode.getId(),flowNode);
+//            JSONObject incoming = flowNode.getIncoming();
+//            incoming.put("incoming", Collections.singletonList(fromId));
+//            String id = createTask(process,flowNode,sequenceFlows,childNodeMap);
+//            // 如果当前任务还有后续任务，则遍历创建后续任务
+//            ChildNode children = flowNode.getChildren();
+//            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
+//                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
+//            } else {
+//                return id;
+//            }
+        }
+        else if(Type.CC.isEqual(nodeType)){
+            throw new WorkFlowException("放星期再写这个功能,2022年10月19日");
         }
         else {
             throw new RuntimeException("未知节点类型: nodeType=" + nodeType);
