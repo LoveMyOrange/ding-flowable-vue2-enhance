@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dingding.mid.common.Result;
 import com.dingding.mid.dto.*;
 import com.dingding.mid.dto.json.ChildNode;
+import com.dingding.mid.dto.json.FormOperates;
 import com.dingding.mid.dto.json.SettingsInfo;
 import com.dingding.mid.dto.json.UserInfo;
 import com.dingding.mid.entity.ProcessTemplates;
@@ -542,7 +543,8 @@ public class WorkspaceProcessController {
         Map<String, Object> processVariables = historicProcessInstance.getProcessVariables();
 
         handleDataVO.setProcessInstanceId(historicProcessInstance.getId());
-        handleDataVO.setFormData((JSONObject) processVariables.get(FORM_VAR));
+        JSONObject jsonObject = (JSONObject) processVariables.get(FORM_VAR);
+        handleDataVO.setFormData(jsonObject);
         String process = processTemplates.getProcess();
         ChildNode childNode = JSONObject.parseObject(process, new TypeReference<ChildNode>(){});
         SettingsInfo settingsInfo = JSONObject.parseObject(processTemplates.getSettings(), new TypeReference<SettingsInfo>() {});
@@ -551,6 +553,19 @@ public class WorkspaceProcessController {
         if(StringUtils.isNotBlank(HandleDataDTO.getTaskId())){
             HistoricTaskInstance historicTaskInstance = historyService.createHistoricTaskInstanceQuery().taskId(HandleDataDTO.getTaskId()).singleResult();
             currentNode = getChildNode(childNode, historicTaskInstance.getTaskDefinitionKey());
+            List<FormOperates> formPerms = currentNode.getProps().getFormPerms();
+            if(CollUtil.isNotEmpty(formPerms)){
+                Iterator<FormOperates> iterator = formPerms.iterator();
+                while (iterator.hasNext()){
+                    FormOperates next = iterator.next();
+                    if("H".equals(next.getPerm())){
+                        iterator.remove();
+                        if(jsonObject!=null){
+                            jsonObject.remove(next.getId());
+                        }
+                    }
+                }
+            }
             handleDataVO.setCurrentNode(currentNode);
             handleDataVO.setTaskId(HandleDataDTO.getTaskId());
         }
