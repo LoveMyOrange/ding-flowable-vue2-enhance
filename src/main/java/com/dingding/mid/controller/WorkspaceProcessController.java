@@ -13,8 +13,10 @@ import com.dingding.mid.dto.json.FormOperates;
 import com.dingding.mid.dto.json.SettingsInfo;
 import com.dingding.mid.dto.json.UserInfo;
 import com.dingding.mid.entity.ProcessTemplates;
+import com.dingding.mid.entity.Users;
 import com.dingding.mid.exception.WorkFlowException;
 import com.dingding.mid.service.ProcessTemplateService;
+import com.dingding.mid.service.UserService;
 import com.dingding.mid.utils.MinioUploadUtil;
 import com.dingding.mid.utils.SpringContextHolder;
 import com.dingding.mid.vo.*;
@@ -79,6 +81,8 @@ public class WorkspaceProcessController {
     private HistoryService historyService;
     @Resource
     private TaskService taskService;
+    @Resource
+    private UserService userService;
 
     @ApiOperation("通过模板id查看流程信息 会附带流程定义id")
     @GetMapping("process/detail")
@@ -491,6 +495,42 @@ public class WorkspaceProcessController {
         ExecutionEntity execution = (ExecutionEntity) runtimeService.addMultiInstanceExecution(task.getTaskDefinitionKey(), task.getProcessInstanceId(), variableMap);
         return Result.OK();
     }
+
+    
+    @ApiOperation("查到签上的人")
+    @PostMapping("/queryMultiUsersInfo")
+    public Result<List<MultiVO>> queryMultiUsersInfo(@RequestBody Map<String,Object> map){
+        String taskId = MapUtil.getStr(map, "taskId");
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        List<Task> list = taskService.createTaskQuery()
+            .processInstanceId(task.getProcessInstanceId())
+            .taskDefinitionKey(task.getTaskDefinitionKey()).list();
+        Iterator<Task> iterator = list.iterator();
+        List<MultiVO> multiVOList= new ArrayList<>();
+        while (iterator.hasNext()){
+            Task next = iterator.next();
+            if(!taskId.equals(next.getId())){
+                MultiVO multiVO=new MultiVO();
+                multiVO.setTaskId(next.getId());
+                multiVO.setProcessInstanceId(next.getProcessInstanceId());
+                multiVO.setExecutionId(next.getExecutionId());
+                multiVO.setUserId(next.getAssignee());
+                multiVOList.add(multiVO);
+            }
+            
+        }
+        return Result.OK(multiVOList);
+    }
+    
+    @ApiOperation("减签按钮")
+    @PostMapping("/deleteMulti")
+    public Result deleteMulti(@RequestBody List<String> executionIds){
+        for (String executionId : executionIds) {
+            runtimeService.deleteMultiInstanceExecution(executionId,true);
+        }
+        return Result.OK();
+    }    
+    
 
     @ApiOperation("评论按钮")
     @PostMapping("/comments")
