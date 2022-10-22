@@ -1,0 +1,414 @@
+1> lazy loading outside command context
+ 因为Activiti使用了command和interceptor模式来控制上下文，所有的操作都会通过默认的interceptor进行管理，这些资源中就包含数据库jdbc连接。
+ 执行方法执行，先通过interceptor打开jdbc，在cmd中进行数据库的操作。方法返回时，通过interceptor将jdbc关闭，
+ 这样的好处是cmd的开发者无需费心管理jdbc的打开与关闭。
+ 
+ 带来的问题是，如果你不知道有interceptor的存在，在cmd执行完，jdbc关闭后，再去调用bean中需要操作jdbc数据库的方法，就会抛出这个异常。
+ 因为需要操作db，但是jdbc连接已经关闭了。
+ 
+ 想使用json工具把activiti的service返回的bean转换成json时，就会出现这个问题。因为activiti的充血模型，导致虽然你看到的是一个interface，
+ 但是实际实现类的class里充满了大量的以get开头，内部直接操作数据库的方法，而json工具会把这些get开头的方法当做是一个贫血模型，
+ 不需要操作数据库的getter反射调用，就会出现这个问题。
+ 解决方法很简单，先用map把bean中需要的数据复制出来，再使用json工具对map进行转换。这样就避过了class中隐藏的操作数据库的方法。
+ 
+ 2>如何让activiti不要自动创建三张组织机构相关的表
+为processEngineConfiguration设置：name="dbIdentityUsed value="false activiti就不会在启动时创建组织机构相关的三张ACT_ID_开头的表了。
+
+flowable就是在yml里面  flowable.idm.enabled=false
+
+
+3> 如何添加审批意见
+identityService.setAuthenticatedUserId(userId);
+
+taskService.addComment(String taskId, String processInstanceId, String message);
+
+identityService.setAuthenticatedUserId(null);
+
+4>Act_RU_TASK的parentTaskId什么时候有值
+activiti虽然在task接口中保留了parentTaskId，但是他本身完全没有使用这个字段的功能，某些同学把这个字段当做获取前一个任务节点的途径，
+算是找错地方了。 parentTaskId的作用是实现父子任务，比加签 抄送，都可以基于原任务创建了子任务而实现
+在父子任务的场景，需要注意处理父子任务不同操作时的联动场景，避免出现父任务已删除，子任务还未处理导致的脏数据  
+
+
+5>Activit为什么没有提供删除流程定义的API
+  感官上，我们每次设计一个流程，发布以后就变成一个流程定义，但是activiti竟然没有提供删除流程定义的接口。
+  
+  因为真的是感官上，我们只发步了一个流程定义，实际上，我们是发布了一个deployment，这个 deployment里恰好只包含了一个流程定义。
+  常见的例子里，除了bpmn20.xml至少还有一个png流程图。
+  
+  如果允许删除流程定义，那么png流程图就变成死资源了。因为流程定义都没了，更没有别的地方能引用到它，这就属于产生了垃圾。
+  
+  所以activiti提供了删除deployment的api，你可以把一次发布的所有资源一起删除。包括bpmn20.xml对应的流程定义，子流程，png流程图，form表单，其他各种可能的附件。
+
+
+6>Activiti怎么删除job?
+  问题原因：定时器这类的在activiti里都属于异步操作，所有异步操作都可以通过ManagementService管理
+  解决方法：deleteJob(jobId)
+  
+
+7>如何知道当前instance有没有api获取发起者发起时间之类的
+  发起者：historicProcessInstance.getStartUserId()
+  发起时间：historicProcessInstance.getStartTime();
+
+
+8> 流程发布以后，数据保存在哪儿
+   流程发布以后。
+   部署信息保存在ACT_RE_DEPLOYMENT里（可能一次部署多个资源文件，包含bpmn20.xml，png，form，其他乱七八糟的东西）
+   
+   xml, png的内容，保存在ACT_GE_BYTEARRAY表中。
+   
+   流程定义的参数，如key, version, name，保存在ACT_RE_PROCDEF表中。
+
+9> exclusiveGateway报错
+
+   exclusiveGateway的规则是：依次判断后续sequenceFlow的condition，如果为true，就选择这条sequenceFlow继续执行。
+   
+   如果设置了default，也就是默认sequence，在其他连线的condition都不为true时，也会选择default对应的sequence继续执行。
+   
+   如果既没有设置condition，也没有设置default，就会看到上面的错误。
+   
+   ------------------分隔线------------------
+   
+   第二种情况是，给一条有condition的线设置为default，另一条没有condition的线却没有设置default。按照上面描述的exclusiveGateway的逻辑，先判断condition，如果flow25为true，就选择这条线。
+   
+   但是，如果flow25的condition为false怎么办？flow26没有条件，又没有default，流程还是会报错，所以不如在设计的时候就报错，警告你这样设计实际使用中肯定会有问题。
+   
+10>怎么将业务和流程关联起来
+   可以将业务模块的主表的id字段，设置为流程实例的businessKey
+   
+   可以在流程发起时，通过runtimeService.startProcessInstanceById(processDefinitionId, businessKey)传入
+   
+   也可以直接更新一个流程实例的businessKey，runtimeService.updateBusinessKey(processInstanceId, businessKey);
+   
+11> 怎么查询一个人发起的，尚未结束的流程
+    List<HistoricProcessInstance> historicProcessInstances = historyService
+        .createHistoricProcessInstanceQuery()
+        .startedBy(userId)
+        .unfinished()
+        .list();
+
+12> 历史变量如何获取
+    首先，不建议使用历史流程变量，因为：
+    
+    1. activiti是按照key, value的方式保存变量的，历史变量会导致历史表极速膨胀。效率出问题的时候别哭。
+    
+    2. 流程变量的主要目的是辅助工作流，保存运行阶段的数据，它没有设计成易于查询统计的形式，所以基本也没办法进行查询和统计。
+    
+    然后，如果感觉还是历史流程变量适合自己的需求，需要进行如下两件事情：
+    
+    1. 设置processEngineConfiguration的属性，默认值是audit
+    
+    <property name="history" value="full" />
+    
+    或者使用  
+    
+    histroeryservcie 查询 act_hi_variable表就好        
+
+
+13> 如何完全删除一个流程定义下的所有实例和历史
+    
+    repositoryService.deleteDeployment(processDefinitionId, true);
+    
+    第二个参数cascade=true，表示级联删除这个部署下的所有流程定义，资源，实例，任务，定时任务，历史。
+    
+14>  几种参与者的含义
+     
+     assignee表示负责人，是实际在处理这个任务的人员。因为三个和尚没水吃，activiti里严格遵守专事专办。从根本上禁止一个任务多人负责，最后谁都不负责的问题。
+     
+     candidate表示候选人，适用于客服、销售之类抢单的场景。一个单子几个人都可以看到，谁抢到算谁的。谁抢单多谁赚得多。canidates里保存哪些人可以抢单，assignee为空时，这些候选人都可以抢，哪个抢到了，就把assignee设置为这个人，等于告诉别人，不用再抢了，已经有人抢走了。所有设置了assignee的任务，用candidateUser()不会查询出来，就是不想让别人看到别人抢走的单据，心生怨恨。抢到单子的人，也可以通过unclaim()释放，这样assignee又变成null了，其他人又可以抢了。
+     
+     identitylink里还有一种partcipant类型，用来记录参与者，如果一个人处理过一个任务，就会在identityLink表里记录为task对应的流程的参与者，可以通过createProcessInstanceQuery().involvedUser("zhangsan")查询到某个人经手过的所有流程。
+     
+     task里有一个owner字段，记录着这个任务的原负责人，当任务的负责人有事，无法亲手处理问题，就会把这个任务委托给其他人，被委托后的任务，assignee字段对应委托后的负责人，owner记录着委托前的原负责人。
+     
+     historicProcessInstance里有一个starterUserid字段，记录了流程发起人。    
+
+
+15> _Activiti如何分库分表
+    
+    官方不支持分表分库。
+    
+    修改为分表分库可以参考以下方案：
+    
+    1. 按照processInstanceId分表
+    
+    2. 对于根据id主键搜索的sql无需修改，分表分库之前与之后可以复用
+    
+    3. 对于范围查询，要根据分表分库的方式进行重写
+    
+    
+16> 正在运行的代办任务无法删除
+    
+    正常的工作流程时：流程到达一个userTask，暂停，生成一个任务，任务完成时，触发对应的流程继续执行。
+    
+    如果你把任务删除了，流程就会一辈子等在那个地方，这个流程就挂死了。
+    
+    所以我们不允许你删除一个与流程关联的任务，因为你删除了任务，对应的流程就永远的死掉了。
+
+17> 如何使用skipExpression
+    activiti-5.17.0后开始支持skipExpression，可以控制自动跳过哪些节点
+    
+    首先，在xml里设置activiti:skipExperssion="${shouldSkipThisNode}"的条件
+    
+    然后，在进入这个节点之前，设置变量
+    
+    shouldSkipThisNode : true
+    
+    _ACTIVITI_SKIP_EXPRESSION_ENABLED : true
+    
+    注意，一定要设置_ACTIVITI_SKIP_EXPRESSION_ENABLED，否则activiti不会判断skipExpression
+    
+18> startProcessInstanceByMessage()的应用场景
+    我们知道startEvent有好多种，其中有一种startEvent是由message触发的， 叫做消息开始事件。
+    
+    啥是消息开始事件呢，就是要由消息触发的开始事件，业务场景就是，工作流引擎接收到一个外部消息，就发起一个流程。
+    
+    对应的方法就是startProcessInstanceByMessage()。
+    
+    如果你问startProcessInstanceByMessage()和startProcessInstanceById()有什么不同，其实从技术上没有任何不同。
+    
+    区别在业务层面，我可以跟业务方聊需求的时候，让业务方给我一个messageCode，然后设置一个messageStartEvent，设置对应的messageCode可以触发它，发起一个流程。
+    
+    别的startEvent就没办法这么干，只能你告诉业务方使用流程的id或key。    
+
+19>  taskCandidateUser可以查询到分配给自己组的任务么
+    
+    taskCandidateUser()不但会返回candidate-users设置的候选任务，还会返回candidate-groups设置的候选任务。
+    
+    实际上，activiti会先通过identityService的findGroupsByUserId()获得user的所有group，再拼一个sql搜索所有的candidate-users,candidate-groups候选任务
+    
+    那taskCandidateGroup这个岂不是没啥用？
+    
+    这是一个业务问题，我想对候选任务按照业务组分类时，就需要用到taskCandidateGroups()
+
+20> JUEL表达式里可以使用哪些默认变量
+execution
+
+task
+
+authenticatedUserId
+
+在https://github.com/Activiti/Activiti/blob/master/modules/activiti-engine/src/main/java/org/activiti/engine/impl/el/VariableScopeElResolver.java里处理的。
+
+
+21> 修改了Activiti的源码,怎么发布成jar包
+安装maven
+
+执行mvn package
+
+执行成功后，jar在target目录下
+
+22> 除会签方式外，如何实现多人办理
+    
+    只有三种参与者类型
+    
+    1.负责人（单人独占）
+    
+    2.候选人（多人候选，领取后变成单人独占）
+    
+    3.会签（实际是复制多个任务，每个任务单人独占）   或者 使用 并行网关 后面带多个userTask
+    
+
+23> activiti 的API有判定流程结束的吗？
+    runtimeService.createProcessInstanceQuery().processInstanceId().singleResult()返回null，就说明流程实例已结束  
+    
+24>     历史流程变量如何获取
+        
+        processEngine.getHistoryService().createHistoricVariableInstanceQuery().list()  
+    
+25> activiti中解析流程变量的源码在什么地方？
+    调研表达式解析的入口在这里：
+    
+    https://github.com/Activiti/Activiti/blob/master/modules/activiti-engine/src/main/java/org/activiti/engine/impl/el/ExpressionManager.java
+    
+    要通过cmd，调用Context.getExpressionManager().createExpression(text);生成Expression，然后调用expression.getValue(VariableScope variableScope);获得结果
+
+
+26> activiti转移任务用哪个接口，将任务从A转到B
+   可以重新设置参与者taskService.setAssignee(taskId, userid);这个方法一般是用作后台管理。比如发现一个人出差了，或者离职了，
+   但是还是错误分配到这个人身上，在后台管理界面调整一下。
+   
+   任务协办是另一种情况，分配给领导一个任务，领导指派一个小兵干完，再把任务返回给领导，领导审核后完成任务。
+   
+   领导转发协办任务taskService.delegateTask(taskid, userid);小兵返还协办任务taskService.resolveTask(taskId); 
+   领导完成任务completeTask(taskId)
+
+
+27> 流程执行一半如何删除该流程，或者直接归档该流程？？？
+    
+    runtimeService.deleteProcessInstance(processInstanceId, "delete reason")  
+    
+28> 如何查看用户参与过，且未结束的流程列表
+    
+    involvedUser()会通过identity_link搜索指定用户参与过的所有流程实例，可能是“发起人”，“任务的负责人”，“任务的候选人”等等。默认能搜到的流程实例都是未完成的。
+    
+    List processInstances = processEngine.getRuntimeService()
+                                         .createProcessInstanceQuery()
+                                         .involvedUser("zhangsan")
+                                         .list();
+                                         
+29> 候选人和任务持有人有什么不同
+    
+    activiti坚持着专事专办的精神，一个任务只能有一个负责人，这样可以避免多头领导，最终三个和尚没水吃。
+    
+    一个任务还可以分配多个候选人，或候选组。这是为了在特定场景下，可以同时让多个人看到这条任务，但是最终只能有一个人领取，并完成这个任务。
+
+30>为什么每次必须执行setAuthenticatedUserId(null)
+   Activiti代码里，会看到这种代码。
+   
+   try {
+     identityService.setAuthenticatedUserId("zhangsan");
+     // ...
+   } finally {
+     identityService.setAuthenticatedUserid(null`);
+   }
+   为啥每次用完都要清空呢？
+   
+   这是因为我们的生产环境一般都使用了线程池。
+   
+   啥是线程池呢，就是因为处理并发请求时，先初始化好200个线程，放在一个池子里，随用随取，用完再放回池子里，这样不用为每个请求再创建线程，大家都知道创建线程很消耗系统资源，所以先把线程创建好，放在池子里的做法是提升效率的实际标准。
+   
+   既然用了线程池，池子里的线程就会出现被复用的情况，复用了就可能影响java中一个叫做ThreadLocal的使用。
+   
+   ThreadLocal是啥呢？ThreadLocal可以看做是一个和当前线程绑定的局部变量，放在ThreadLocal中的值，可以在整个线程的生命周期中直接调用，很多框架都用它来实现同一线程中传递变量的功能，controller层，service层，util工具类，都直接从当前线程中读取变量。
+   
+   线程池和ThreadLocal两者的结合导致了当前的问题。
+   
+   假设没有线程池，如果我们没手工设置过setAuthentiateduserid()，调用identityService.getAuthenticatedUserid()应该返回null。但是有了线程池，我们现在使用的线程，可能是已经有几万个请求使用过的，如果在之前几万个请求里，有人设置了setAuthentcatedUserId("zhangsan")，却没有清空。那么下一个复用这个线程的请求在调用getAuthenticatedUserId()，返回的就不是null，而是zhangsan了。出现脏数据了。                                                    
+
+
+
+
+31> 同时获得一个人的所有待办任务和代领任务
+    
+    taskService.createTaskQuery().taskCandidateOrAssigned(userId).list();  
+    
+    
+32>     可以在流程运行中指定下一个处理 人是谁吗
+        
+        前一个节点设置流程变量，completeTask(taskId, map)这样传递进一个变量，叫step3Assignee="zhangsan"
+        
+        下一个节点设置activiti:assigne="${step3Assignee}"，就实现了前一个节点指定后一个节点的负责人
+        
+        
+        
+        或者使用监听器 动态指定 比上面的方式好
+
+
+33> _如何实现自由跳转
+    代码: 一个CMD 里面封装跳转操作
+    
+    慎重慎重，如出问题，后果自负。
+    
+    可能导致的问题：导致流程图崩溃，无法显示，以及各种隐性的尚未发现的问题
+    
+    假如一个节点绑定了任务创建事件（插入一条或者更改业务数据），如果自由流随意跳转到该节点会再次触发任务创建事件，这样的结果会导致业务数据出现重复或者数据不正确
+    以此类推，所以慎用
+    
+    Flowable本身已经支持了
+    
+34>请问审批的某个节点配置了多个人，只要一个人审批通过就好了，怎么实现啊
+   一种方式是使用会签 ,把多个人配置成集合变量，设置到多实例中，然后在完成条件里判断，只要有一个人审批，就完成。
+   
+   另一种方式是使用候选人，使用candidateUsers设置多个候选人，任意一个候选人领取任务，完成任务，其他候选人就看不到这个任务了。
+   
+35> 展示流程图
+    InputStream is = ProcessDiagramGenerator.generateDiagram(bpmnModel, "png", activityIds);
+    
+36> 怎么设置流程发起人
+    activiti里设置流程发起人的功能很绕。
+    
+    
+      在activiti中使用流程发起人的步骤如下：
+      1. 在startEvent中使用activiti:initiator="initiator"设置一个变量名。
+      2. 发起流程时，先设置setAuthenticateduserId()设置流程发起人，再发起流程。
+    
+    identityService.setAuthenticatedUserId("zhangsan");
+    try{
+      runtimeService.startProcessInstanceById(id);
+    } finally {
+      identitySerivce.setAuthenticatedUserId(null);
+    }
+    
+      这样操作后，发起流程后，会创建一个initiator流程变量（变量名是由activiti:initiator指定的），变量值是zhangsan，也就是当前的流程发起人。
+      后续就可以使用expression引用这个变量，比如设置成assignee="${initiator}"
+     
+    
+    historicProcessInstance里也会保存start_user_id。可以用historicProcessInstanceQuery.startUserId("zhangsan")查询
+    
+37>      如何让spring帮助TaskListener自动注入依赖
+         
+         1. 如果想让spring对ExecutionListener实现依赖注入。就要让spring管理对应的bean，再从spring中获取这个bean。关键就是不能自己new一个class，如果你自己new了一个class，spring怎么知道这个class什么时候需要注入？
+         
+         2. 确认spring管理好bean之后，在actviiti中，使用expression表达式引用这个bean。
+         
+         不能用这种方式，这种方式就是直接new一个class，创建出的实例不是spring托管的，无法自动注入依赖：
+         
+         <activiti:executionListener class="org.activiti.engine.test.bpmn.event.IntermediateNoneEventTest$MyExecutionListener" event="start" />
+         要使用expression从spring中获取托管的bean，expression部分写bean的id：
+         
+         <activiti:executionListener delegateExpression="${myExecutionListener}" event="end" />
+         
+38> 怎么终止流程
+    删除流程实例
+    
+    runtimeService.deleteProcessInstance(String processInstanceId, String deleteReason)
+    进一步，把历史也删除
+    
+    historyService.deleteHistoricProcessInstance(String processInstanceId)
+    
+    
+    
+    
+    或者直接使用流程跳转 跳转到结束节点即可
+    
+39> Activiti打印SQL语句
+    问题原因：想看一下实际执行的sql语句
+    
+    在log4j或者logback里配置org.activiti.engine.impl.persistence.entity=DEBUG就会在日志里打印sql了。
+    
+    如果自己项目里使用了jdbcTemplate，还可以配置org.springframework.jdbc.core.JdbcTemplate=DEBUG。
+    
+    hibernate是配置hibernate.show_sql=false这个参数，不是配置日志了。
+    
+40> 查询我发起的流程
+    
+    首先要通过setAuthenticatedUserid("zhangsan")在发起流程之前设置流程发起人。
+    
+    然后可以通过processEngine.getHistoryService().createHistoricProcessInstanceQuery().starterUserid("zhangsan").list()查询我发起的流程
+    
+41> Activiti事务和命令和拦截器
+    命令和拦截器
+    可以说，流程引擎中所有的脏活累活都是由拦截器完成的。
+    
+    之前提到隐藏在Facade模式下面的所有功能都是由Command实现的，而为这些Command提供支撑的就是拦截器了。如果这么说还不好理解，我们可以先看看Command接口的定义：
+    
+    public interface Command <T> {
+      T execute(CommandContext commandContext);
+    }
+    只有一个execute()方法，用于实现实际的操作。这里请大家注意方法的参数CommandContext，实际上执行Command所需的相关资源，都是通过它来获取的，比如访问数据库，查询一下当前的流程啊，操作一下任务啊，访问一些历史之类的，都要通过这个CommandContext命令上下文来完成。而这个CommandContext就是通过Interceptor拦截器来提供的。
+    
+    拦截器作用，就是在命令执行前做一些事情，在命令执行后做一些事情。默认会使用日志，事务和准备CommandContext的拦截器。
+    
+    日志拦截器会使用debug日志打印命令的执行情况。
+    
+    事务拦截器顾名思义，是用来控制事务的，对于standalone，jta和spring环境下需要使用不同的拦截器，细节后面讨论。
+    
+    CommandContext拦截器会为命令初始化对应的CommandContext，保证Command执行过程中可以访问必要的资源，主要是数据库相关的东西。
+    
+    控制事务
+    对于standalone模式，实际上是通过TransactionContext来控制事务的，并没有使用TransactionInterceptor，在准备CommandContext时，会创建一个TransactionContext，同时开启事务，命令执行完毕后，关闭CommandContext同时提交事务。
+    
+    对于jta或spring模式下，TransactionContext只负责注册TransactionListener，原本用于提交事务的commit()被置空，事务完全由Jta(Spring)TransactionInterceptor控制，其中会调用jta(spring)的api实现对事务的控制。
+    
+    形象的比较一下standalone和jta(spring)的区别：
+    
+    standalone: 调用api -> 构造对应cmd -> 进入拦截器链 -> 打开数据库连接，开启事务 -> 调用cmd执行操作，并返回结果 -> 返回
+    
+    独立运行
+    
+    jta/spring: 先调用jta/spring托管的服务（这时已打开事务） -> 服务内调用processEngine -> 创建cmd -> 进入过滤器链 -> jta(spring)TransactionManager复用已开启的事务 -> 调用cmd执行操作，并返回结果 -> 如果出现异常，jta(spring)TransactionManager会标记当前事务需要回滚 -> 返回到jta/spring托管的事务时，事务会判断是提交还是回滚，并最终生效。
+    
+
+
+               
