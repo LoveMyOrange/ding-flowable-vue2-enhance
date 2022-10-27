@@ -1,9 +1,11 @@
 package com.dingding.mid.vo;
 
 import com.dingding.mid.dto.json.UserInfo;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import org.flowable.task.api.DelegationState;
 
 import java.util.Date;
 
@@ -34,4 +36,6 @@ public class TaskVO {
     private Date endTime;
     @ApiModelProperty("耗时")
     private String duration;
+    @ApiModelProperty("委派状态")
+    private DelegationState delegationState;
 }

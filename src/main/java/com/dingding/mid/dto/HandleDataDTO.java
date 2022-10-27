@@ -35,4 +35,7 @@ public class HandleDataDTO {
     private String rollbackId;
     @ApiModelProperty("当前用户信息")
     private UserInfo currentUserInfo;
+
+    @ApiModelProperty("委派的人")
+    private UserInfo delegateUserInfo;
 }

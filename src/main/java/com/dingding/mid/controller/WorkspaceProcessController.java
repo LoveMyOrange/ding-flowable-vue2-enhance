@@ -43,6 +43,7 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.runtime.ProcessInstanceBuilder;
 import org.flowable.engine.task.Attachment;
 import org.flowable.engine.task.Comment;
+import org.flowable.task.api.DelegationState;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.springframework.web.bind.annotation.*;
@@ -218,7 +219,12 @@ public class WorkspaceProcessController {
             taskVO.setCurrentActivityName(flowElement.getName());
             taskVO.setBusinessStatus(MapUtil.getStr(processVariables,PROCESS_STATUS));
             taskVO.setTaskCreatedTime(task.getCreateTime());
+            DelegationState delegationState = task.getDelegationState();
+            if(delegationState!=null){
+                taskVO.setDelegationState(delegationState);
+            }
             taskVOS.add(taskVO);
+
         }
         page.setRecords(taskVOS);
         page.setCurrent(taskDTO.getPageNo());
@@ -310,6 +316,80 @@ public class WorkspaceProcessController {
         taskService.complete(task.getId());
         return Result.OK();
     }
+
+    @ApiOperation("委派按钮")
+    @PostMapping("/delegateTask")
+    public Result delegateTask(@RequestBody HandleDataDTO handleDataDTO){
+        UserInfo currentUserInfo = handleDataDTO.getCurrentUserInfo();
+        List<AttachmentDTO> attachments = handleDataDTO.getAttachments();
+        String comments = handleDataDTO.getComments();
+        JSONObject formData = handleDataDTO.getFormData();
+        String taskId = handleDataDTO.getTaskId();
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        Map<String,Object> map=new HashMap<>();
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
+
+        runtimeService.setVariables(task.getProcessInstanceId(),map);
+        Authentication.setAuthenticatedUserId(currentUserInfo.getId());
+        if(StringUtils.isNotBlank(comments)){
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+        }
+        if(attachments!=null && attachments.size()>0){
+            for (AttachmentDTO attachment : attachments) {
+                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+            }
+        }
+
+        if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+        }
+
+        UserInfo delegateUserInfo = handleDataDTO.getDelegateUserInfo();
+        taskService.delegateTask(task.getId(),delegateUserInfo.getId());
+        return Result.OK();
+    }
+
+    @ApiOperation("委派人完成的按钮")
+    @PostMapping("/resolveTask")
+    public Result resolveTask(@RequestBody HandleDataDTO handleDataDTO){
+        UserInfo currentUserInfo = handleDataDTO.getCurrentUserInfo();
+        List<AttachmentDTO> attachments = handleDataDTO.getAttachments();
+        String comments = handleDataDTO.getComments();
+        JSONObject formData = handleDataDTO.getFormData();
+        String taskId = handleDataDTO.getTaskId();
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        Map<String,Object> map=new HashMap<>();
+        if(formData!=null &&formData.size()>0){
+            Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
+            });
+            map.putAll(formValue);
+            map.put(FORM_VAR,formData);
+        }
+
+        runtimeService.setVariables(task.getProcessInstanceId(),map);
+        Authentication.setAuthenticatedUserId(currentUserInfo.getId());
+        if(StringUtils.isNotBlank(comments)){
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+        }
+        if(attachments!=null && attachments.size()>0){
+            for (AttachmentDTO attachment : attachments) {
+                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+            }
+        }
+
+        if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+        }
+
+        taskService.resolveTask(taskId);
+        return Result.OK();
+    }
+
 
     @ApiOperation("拒绝按钮")
     @PostMapping("/refuse")
