@@ -26,6 +26,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.dingding.mid.common.WorkFlowConstants.*;
+import static org.flowable.bpmn.model.ImplementationType.IMPLEMENTATION_TYPE_CLASS;
+import static org.flowable.bpmn.model.ImplementationType.IMPLEMENTATION_TYPE_DELEGATEEXPRESSION;
 
 /**
  * @author LoveMyOrange
@@ -107,7 +109,7 @@ public class BpmnModelUtils {
                                                 conditionExpression.append(" "+id+" < "+str+" ");
                                             }
                                             else if("<=".equals(compare)){
-                                                conditionExpression.append(" "+id+" >= "+str+" ");
+                                                conditionExpression.append(" "+id+" <= "+str+" ");
                                             }
                                             else if("IN".equals(compare)){
                                                 conditionExpression.append(" "+ EXPRESSION_CLASS+"numberContains("+id+","+str+") " );
@@ -283,7 +285,17 @@ public class BpmnModelUtils {
             throw new WorkFlowException("还不想写这个功能");
         }
         else if(Type.CC.isEqual(nodeType)){
-            throw new WorkFlowException("放星期再写这个功能,2022年10月19日");
+            childNodeMap.put(flowNode.getId(),flowNode);
+            JSONObject incoming = flowNode.getIncoming();
+            incoming.put("incoming", Collections.singletonList(fromId));
+            String id = createServiceTask(process,flowNode,sequenceFlows,childNodeMap);
+            // 如果当前任务还有后续任务，则遍历创建后续任务
+            ChildNode children = flowNode.getChildren();
+            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
+                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
+            } else {
+                return id;
+            }
         }
         else {
             throw new RuntimeException("未知节点类型: nodeType=" + nodeType);
@@ -574,7 +586,7 @@ public class BpmnModelUtils {
             // 事件类型,
             taskListener.setEvent(TaskListener.EVENTNAME_CREATE);
             // 监听器类型
-            taskListener.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_DELEGATEEXPRESSION);
+            taskListener.setImplementationType(IMPLEMENTATION_TYPE_DELEGATEEXPRESSION);
             // 设置实现了，这里设置监听器的类型是delegateExpression，这样可以在实现类注入Spring bean.
             taskListener.setImplementation("${taskCreatedListener}");
             taskListeners.add(taskListener);
@@ -587,7 +599,7 @@ public class BpmnModelUtils {
                 // 事件类型,
                 activitiListener.setEvent(ExecutionListener.EVENTNAME_START);
                 // 监听器类型
-                activitiListener.setImplementationType(ImplementationType.IMPLEMENTATION_TYPE_DELEGATEEXPRESSION);
+                activitiListener.setImplementationType(IMPLEMENTATION_TYPE_DELEGATEEXPRESSION);
                 // 设置实现了，这里设置监听器的类型是delegateExpression，这样可以在实现类注入Spring bean.
                 activitiListener.setImplementation("${counterSignListener}");
                 listeners.add(activitiListener);
@@ -615,7 +627,21 @@ public class BpmnModelUtils {
         return id;
     }
 
-
+    private static String createServiceTask(Process process,ChildNode flowNode,List<SequenceFlow> sequenceFlows,Map<String,ChildNode> childNodeMap) {
+        JSONObject incomingJson = flowNode.getIncoming();
+        List<String> incoming = incomingJson.getJSONArray("incoming").toJavaList(String.class);
+        String id=flowNode.getId();
+        if (incoming != null && !incoming.isEmpty()) {
+            ServiceTask serviceTask = new ServiceTask();
+            serviceTask.setName(flowNode.getName());
+            serviceTask.setId(id);
+            process.addFlowElement(serviceTask);
+            process.addFlowElement(connect(incoming.get(0), id,sequenceFlows,childNodeMap,process));
+            serviceTask.setImplementationType(IMPLEMENTATION_TYPE_CLASS);
+            serviceTask.setImplementation("com.dingding.mid.listener.ServiceListener");
+        }
+        return id;
+    }
 
     private enum Type {
 
