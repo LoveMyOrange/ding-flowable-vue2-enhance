@@ -51,11 +51,10 @@ Thumbs.db
 *.swo
 *.log
 *.log.*
-*.json.gzip
+
 node_modules/
 .buildpath
 .settings
-dist
 npm-debug.log
 nohup.out
 _site
