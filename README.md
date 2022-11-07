@@ -99,7 +99,8 @@
 
 ### 感谢如下开源项目
 > - 1>https://gitee.com/willianfu/jw-workflow-engine 提供了前端源码 保留版权信息 Apache2.0协议    
-> - 2>https://gitee.com/willianfu/jw-workflow-engine-server 提供了几个用户,部门表结构  Apache2.0协议    
+> - 2>https://gitee.com/willianfu/jw-workflow-engine-server 提供了几个用户,部门表结构  Apache2.0协议
+> - 3>https://github.com/StavinLi/Workflow-Vue3 之前vue2版本是MIT
 > - 3>感谢如下个人  
     李 銍 lzgabel  lz19960321lz@gmail.com  
 以上人员可以找我领取一套 本人珍藏的Flowable\Activiti\Camunda视频教程 感谢你们的付出!
