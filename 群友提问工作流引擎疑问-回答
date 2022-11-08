@@ -410,5 +410,7 @@ authenticatedUserId
     jta/spring: 先调用jta/spring托管的服务（这时已打开事务） -> 服务内调用processEngine -> 创建cmd -> 进入过滤器链 -> jta(spring)TransactionManager复用已开启的事务 -> 调用cmd执行操作，并返回结果 -> 如果出现异常，jta(spring)TransactionManager会标记当前事务需要回滚 -> 返回到jta/spring托管的事务时，事务会判断是提交还是回滚，并最终生效。
     
 
+42> 我们在执行 诸如 repositoryServcie. xxx .deploy() 的时候 ,  如果  没有给resourceName 设置相应的后缀,(.bpmn 结尾 或者是.bpmn20.xml结尾的话 )  那么结果就是 act_re_deployment表中有数据
 
+但是 act_re_procdef表中没有数据
                
