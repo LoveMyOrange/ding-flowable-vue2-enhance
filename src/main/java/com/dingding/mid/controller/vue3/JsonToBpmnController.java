@@ -67,6 +67,7 @@ import java.util.stream.Collectors;
 
 import static com.dingding.mid.common.CommonConstants.*;
 import static com.dingding.mid.common.WorkFlowConstants.PROCESS_PREFIX;
+import static com.dingding.mid.utils.BpmnModelUtils.createExclusiveGateWayEnd;
 import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
 
 /**
@@ -221,6 +222,7 @@ public class JsonToBpmnController {
 
 
         JSONObject childNode = flowNode.getJSONObject("childNode");
+
         if (Objects.nonNull(childNode)) {
             if (incoming == null || incoming.isEmpty()) {
                 return create(exclusiveGatewayId, childNode,model,process,sequenceFlows);
@@ -230,9 +232,13 @@ public class JsonToBpmnController {
                 FlowElement flowElement = model.getFlowElement(incoming.get(0));
                 // 1.0 先进行边连接, 暂存 nextNode
                 JSONObject nextNode = childNode.getJSONObject("childNode");
+                String endExId=exclusiveGatewayId+"end";
+                if(nextNode==null){
+                    process.addFlowElement(createExclusiveGateWayEnd(endExId));
+                }
                 childNode.put("childNode", null);
-                String identifier = create(flowElement.getId(), childNode,model,process,sequenceFlows);
-                for (int i = 1; i < incoming.size(); i++) {
+                String identifier =endExId;/* create(flowElement.getId(), childNode,model,process,sequenceFlows);*/
+                for (int i = 0; i < incoming.size(); i++) {
                     process.addFlowElement(connect(incoming.get(i), identifier,sequenceFlows));
                 }
 

@@ -444,7 +444,7 @@ public class BpmnModelUtils {
         return exclusiveGatewayId;
     }
 
-    private static ExclusiveGateway createExclusiveGateWayEnd(String id){
+    public static ExclusiveGateway createExclusiveGateWayEnd(String id){
         ExclusiveGateway exclusiveGateway=new ExclusiveGateway();
         exclusiveGateway.setId(id);
         return exclusiveGateway;
