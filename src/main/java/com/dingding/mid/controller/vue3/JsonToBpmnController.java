@@ -226,13 +226,14 @@ public class JsonToBpmnController {
         if (Objects.nonNull(childNode)) {
             if (incoming == null || incoming.isEmpty()) {
                 return create(exclusiveGatewayId, childNode,model,process,sequenceFlows);
-            } else {
+            }
+            else {
                 // 所有 service task 连接 end exclusive gateway
                 childNode.put("incoming", incoming);
                 FlowElement flowElement = model.getFlowElement(incoming.get(0));
                 // 1.0 先进行边连接, 暂存 nextNode
                 JSONObject nextNode = childNode.getJSONObject("childNode");
-                String endExId=exclusiveGatewayId+"end";
+                String endExId=id("exclusiveGateway")+"end";
                 process.addFlowElement(createExclusiveGateWayEnd(endExId));
                 childNode.put("childNode", null);
                 String identifier =endExId;/*create(flowElement.getId(), childNode,model,process,sequenceFlows);*/
@@ -275,7 +276,45 @@ public class JsonToBpmnController {
                 }
             }
         }
-        return exclusiveGatewayId;
+        else{
+            // 所有 service task 连接 end exclusive gateway
+            // 1.0 先进行边连接, 暂存 nextNode
+            String endExId=id("exclusiveGateway")+"end";
+            process.addFlowElement(createExclusiveGateWayEnd(endExId));
+            String identifier =endExId;/*create(flowElement.getId(), childNode,model,process,sequenceFlows);*/
+            for (int i = 0; i < incoming.size(); i++) {
+                process.addFlowElement(connect(incoming.get(i), endExId,sequenceFlows));
+            }
+
+            //  针对 gateway 空任务分支 添加条件表达式
+            if (!conditions.isEmpty()) {
+                FlowElement flowElement1 = model.getFlowElement(identifier);
+                // 获取从 gateway 到目标节点 未设置条件表达式的节点
+                List<SequenceFlow> flows = sequenceFlows.stream().filter(flow -> StringUtils.equals(flowElement1.getId(), flow.getTargetRef()))
+                        .filter(flow -> StringUtils.equals(flow.getSourceRef(), exclusiveGatewayId))
+                        .collect(Collectors.toList());
+                flows.stream().forEach(sequenceFlow -> {
+                    if (!conditions.isEmpty()) {
+                        JSONObject condition = conditions.get(0);
+                        String nodeName = condition.getString("nodeName");
+                        String expression = condition.getString("expression");
+
+                        if (StringUtils.isBlank(sequenceFlow.getName()) && StringUtils.isNotBlank(nodeName)) {
+                            sequenceFlow.setName(nodeName);
+                        }
+                        // 设置条件表达式
+                        if (Objects.isNull(sequenceFlow.getConditionExpression()) && StringUtils.isNotBlank(expression)) {
+                            sequenceFlow.setConditionExpression(expression);
+                        }
+
+                        conditions.remove(0);
+                    }
+                });
+
+            }
+            return endExId;
+        }
+//        return exclusiveGatewayId;
     }
 
     private static String createParallelGatewayBuilder(String formId, JSONObject flowNode,BpmnModel model,Process process,List<SequenceFlow> sequenceFlows) throws InvocationTargetException, IllegalAccessException {
