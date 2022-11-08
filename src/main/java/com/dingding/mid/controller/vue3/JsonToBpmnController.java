@@ -233,13 +233,11 @@ public class JsonToBpmnController {
                 // 1.0 先进行边连接, 暂存 nextNode
                 JSONObject nextNode = childNode.getJSONObject("childNode");
                 String endExId=exclusiveGatewayId+"end";
-                if(nextNode==null){
-                    process.addFlowElement(createExclusiveGateWayEnd(endExId));
-                }
+                process.addFlowElement(createExclusiveGateWayEnd(endExId));
                 childNode.put("childNode", null);
-                String identifier =endExId;/* create(flowElement.getId(), childNode,model,process,sequenceFlows);*/
+                String identifier =endExId;/*create(flowElement.getId(), childNode,model,process,sequenceFlows);*/
                 for (int i = 0; i < incoming.size(); i++) {
-                    process.addFlowElement(connect(incoming.get(i), identifier,sequenceFlows));
+                    process.addFlowElement(connect(incoming.get(i), endExId,sequenceFlows));
                 }
 
                 //  针对 gateway 空任务分支 添加条件表达式
@@ -270,10 +268,10 @@ public class JsonToBpmnController {
                 }
 
                 // 1.1 边连接完成后，在进行 nextNode 创建
-                if (Objects.nonNull(nextNode)) {
-                    return create(identifier, nextNode,model,process,sequenceFlows);
+                if (Objects.nonNull(childNode)) {
+                    return create(endExId, childNode,model,process,sequenceFlows);
                 } else {
-                    return identifier;
+                    return endExId;
                 }
             }
         }
