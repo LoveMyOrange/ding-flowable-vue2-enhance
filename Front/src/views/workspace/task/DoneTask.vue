@@ -8,6 +8,11 @@
       <el-table-column prop="startTime" label="提交时间" :formatter="formatTime" />
       <el-table-column prop="duration" label="耗时" />
       <el-table-column prop="businessStatus" label="当前状态" :formatter="formatBusinessStatus" />
+      <el-table-column  label="操作" >
+        <template  slot-scope="scope">
+          <el-button type="primary"  @click="handleRowDbClick(scope.row)">处理</el-button>
+                  </template>
+      </el-table-column>
     </el-table>
     <el-pagination layout="prev, pager, next, total" :current-page.sync="pageNo" @current-change="getDoneList" :total="total" />
   </div>

@@ -6,6 +6,7 @@
     <div style="margin-top: 10px">
       <el-tabs type="border-card">
         <el-tab-pane label="表单详情">
+          <process-form :processInfo="processInfo"></process-form>
           <form-render class="process-form" mode="PC" ref="form" :forms="forms" v-model="formData"/>
         </el-tab-pane>
         <el-tab-pane label="操作记录">
@@ -25,9 +26,9 @@ import { getProcessInstanceInfo } from '@/api/design'
 import FormRender from "@/views/common/form/FormRender";
 import { flatFormItem } from '../form'
 import ProcessDiagramViewer from "@/views/admin/layout/ProcessDiagramViewer";
-
+import ProcessForm from "./ProcessForm"
 export default {
-  components: { FormRender, ProcessDiagramViewer },
+  components: { FormRender, ProcessDiagramViewer ,ProcessForm},
   data() {
     return {
       processInstanceId: '',
@@ -35,6 +36,7 @@ export default {
       form: null,
       formData: {},
       currentNode: {},
+      processInfo:""
     }
   },
   computed: {
@@ -47,6 +49,7 @@ export default {
       getProcessInstanceInfo(this.processInstanceId, this.taskId).then(rsp => {
         console.log('流程详情', rsp.data)
         let form = rsp.data.result.processTemplates
+   
         form.logo = JSON.parse(form.logo)
         form.settings = JSON.parse(form.settings)
         form.formItems = JSON.parse(form.formItems)
@@ -84,7 +87,7 @@ export default {
 
         this.formData = rsp.data.result.formData
         this.currentNode = rsp.data.result.currentNode
-
+        this.processInfo.formData = this.formData
         this.form = form
 
       })
@@ -93,6 +96,14 @@ export default {
   beforeMount() {
     this.processInstanceId = this.$route.query.processInstanceId
     this.taskId = this.$route.query.taskId
+    const str = sessionStorage.getItem("user")
+      const currentUserInfo = JSON.parse(str)
+      currentUserInfo.id = currentUserInfo.id.toString()
+    this.processInfo = {
+      processInstanceId: this.processInstanceId,
+      taskId: this.taskId,
+      currentUserInfo:currentUserInfo
+    }
   },
   mounted() {
     this.getProcessInfo()

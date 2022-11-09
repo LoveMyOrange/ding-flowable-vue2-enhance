@@ -9,6 +9,14 @@
       <el-table-column prop="taskCreateTime" label="任务到达时间" :formatter="formatTime" />
       <el-table-column prop="currentActivityName" label="当前节点" />
       <el-table-column prop="businessStatus" label="当前状态" :formatter="formatBusinessStatus" />
+   
+   
+      <el-table-column  label="操作" >
+        <template  slot-scope="scope">
+        <el-button type="primary"  @click="handleRowDbClick(scope.row)">处理</el-button>
+        </template>
+      </el-table-column>
+
     </el-table>
     <el-pagination layout="prev, pager, next, total" :current-page.sync="pageNo" @current-change="getApplyList" :total="total" />
 

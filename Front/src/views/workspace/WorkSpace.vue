@@ -116,9 +116,13 @@ export default {
             processDefinitionId: form.processDefinitionId,
             formData,
             startUserInfo: JSON.parse(strUserInfo)
+          }).then(res=>{
+            console.log("startProcess",res)
+            this.openItemDl  = false
+            this.$message.success("表单填写OK了，提交功能还在开发哦")
           })
-
-          this.$message.success("表单填写OK了，提交功能还在开发哦")
+          
+         
         } else {
           this.$message.warning("请完善表单😥")
         }

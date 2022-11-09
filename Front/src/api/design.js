@@ -125,3 +125,103 @@ export function getProcessInstanceInfo(processInstanceId, taskId) {
   })
 }
 
+
+// 同意
+export function agree(data) {
+  return request({
+    url: 'workspace/agree',
+    method: 'POST',
+    data: data
+  })
+}
+// 退回
+export function delegateTask(data) {
+  return request({
+    url: 'workspace/delegateTask',
+    method: 'POST',
+    data: data
+  })
+}
+// 
+export function resolveTask(data) {
+  return request({
+    url: 'workspace/resolveTask',
+    method: 'POST',
+    data: data
+  })
+}
+
+// 
+export function refuse(data) {
+  return request({
+    url: 'workspace/refuse',
+    method: 'POST',
+    data: data
+  })
+}
+
+// 
+export function revoke(data) {
+  return request({
+    url: 'workspace/revoke',
+    method: 'POST',
+    data: data
+  })
+}
+
+
+// 
+export function assignee(data) {
+  return request({
+    url: 'workspace/assignee',
+    method: 'POST',
+    data: data
+  })
+}
+
+// 
+export function rollback(data) {
+  return request({
+    url: 'workspace/rollback',
+    method: 'POST',
+    data: data
+  })
+}
+
+
+// 
+export function addMulti(data) {
+  return request({
+    url: 'workspace/addMulti',
+    method: 'POST',
+    data: data
+  })
+}
+
+
+// 
+export function queryMultiUsersInfo(data) {
+  return request({
+    url: 'workspace/queryMultiUsersInfo',
+    method: 'POST',
+    data: data
+  })
+}
+// 
+export function deleteMulti(data) {
+  return request({
+    url: 'workspace/deleteMulti',
+    method: 'POST',
+    data: data
+  })
+}
+// 
+export function comments(data) {
+  return request({
+    url: 'workspace/comments',
+    method: 'POST',
+    data: data
+  })
+}
+
+
