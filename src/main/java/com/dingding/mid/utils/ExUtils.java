@@ -12,8 +12,12 @@ import java.util.List;
  */
 @Component
 public class ExUtils {
-
-    public Boolean strEquals(String controlId,String...values){
+    public Boolean strEqualsMethod(String controlId,String value){
+        List<String> list = Arrays.asList(value);
+            String s = list.get(0);
+            return s.equals(controlId);
+    }
+    public Boolean strEqualsMethod(String controlId,String...values){
         List<String> list = Arrays.asList(values);
         if(list.size()>1){
             return Boolean.FALSE;
@@ -28,15 +32,19 @@ public class ExUtils {
         List<String> list = Arrays.asList(values);
         return list.contains(controlId);
     }
-    public Boolean strContains(String controlId,Number values){
-        Long aLong = Long.valueOf(controlId);
-        return aLong.equals(values);
-    }
+
     public Boolean strContains(String controlId,Number...values){
-        List<Number> list = Arrays.asList(values);
         Long aLong = Long.valueOf(controlId);
-        return list.contains(aLong);
+        List<Number> numbers = Arrays.asList(values);
+        return numbers.contains(aLong);
     }
+
+    public Boolean strContainsMethod(String controlId,String...values){
+        List<String> strings = Arrays.asList(values);
+        return strings.contains(controlId);
+    }
+
+
     public Boolean numberContains(Number controlId,Number...values){
         List<Number> list = Arrays.asList(values);
         return list.contains(controlId);
