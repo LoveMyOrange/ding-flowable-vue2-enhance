@@ -104,6 +104,7 @@
       onPublish(nodeData){
         alert("流程节点信息.请查看打印日志")
         console.log("流程节点信息:",nodeData)
+        console.log("流程复制内容:",JSON.stringify(nodeData))
        
       },
 
