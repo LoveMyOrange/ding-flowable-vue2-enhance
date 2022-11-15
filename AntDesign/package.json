@@ -1,0 +1,135 @@
+{
+  "name": "smart-flow-design",
+  "version": "0.0.4",
+  "private": false,
+  "description": "基于vue、ant-design-vue的流程设计组件",
+  "license": "Apache License",
+  "author": "LuoPeng",
+  "keywords": [
+    "ant-design",
+    "smart-flow-design",
+    "flow-design",
+    "流程设计组件"
+  ],
+  "bugs": {
+    "url": "https://gitee.com/crowncloud/smart-flow-design/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitee.com/crowncloud/smart-flow-design"
+  },
+  "main": "lib/smart-flow-design.umd.min.js",
+  "scripts": {
+    "bootstrap": "yarn install",
+    "serve": "vue-cli-service serve",
+    "dev": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lib": "vue-cli-service build --target lib --name smart-flow-design --dest lib packages/index.js && npm run mini",
+    "mini": "vue-cli-service build --target lib --name smart-flow-design-mini --dest lib packages/mini.js --no-clean",
+    "lint": "vue-cli-service lint",
+    "lint:lint-staged": "lint-staged",
+    "lint-fix": "eslint --fix --ext .js --ext .jsx --ext .vue packages/",
+    "lint:eslint": "eslint --cache --max-warnings 0  \"{src,mock}/**/*.{vue,ts,tsx}\" --fix",
+    "lint:prettier": "prettier --write  \"src/**/*.{js,json,tsx,css,less,scss,vue,html,md}\"",
+    "lint:stylelint": "stylelint --cache --fix \"**/*.{vue,less,postcss,css,scss}\" --cache --cache-location node_modules/.cache/stylelint/",
+    "prepare": "husky install",
+    "reinstall": "rimraf pnpm-lock.yaml && rimraf package.lock.json && rimraf node_modules && npm run bootstrap"
+  },
+  "dependencies": {
+    "ant-design-vue": "^1.7.8",
+    "axios": "^0.21.1",
+    "babel-polyfill": "^6.26.0",
+    "core-js": "^3.1.2",
+    "crownboot-antd-vue": "^0.0.18",
+    "html2canvas": "^1.4.1",
+    "vue": "^2.6.14",
+    "vue-ls": "^3.2.1",
+    "vue-router": "^3.1.2",
+    "vue-uuid": "^2.0.2",
+    "vuex": "^3.5.1"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^16.2.3",
+    "@commitlint/config-conventional": "^16.2.1",
+    "@vue/cli-plugin-babel": "^4.0.4",
+    "@vue/cli-plugin-eslint": "^4.0.4",
+    "@vue/cli-service": "^4.0.4",
+    "@vue/eslint-config-prettier": "^5.0.0",
+    "babel-eslint": "^10.0.1",
+    "babel-plugin-import": "^1.13.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-remove-console": "^6.9.4",
+    "eslint": "^6.8.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "eslint-plugin-vue": "^5.2.3",
+    "husky": "^7.0.4",
+    "less": "^3.0.4",
+    "less-loader": "^5.0.0",
+    "lint-staged": "^12.3.8",
+    "postcss": "^8.4.12",
+    "postcss-html": "^1.4.1",
+    "postcss-less": "^6.0.0",
+    "prettier": "^1.18.2",
+    "stylelint": "13.13.1",
+    "stylelint-config-prettier": "^9.0.3",
+    "stylelint-config-recommended": "^7.0.0",
+    "stylelint-config-recommended-vue": "^1.4.0",
+    "stylelint-config-standard": "22.0.0",
+    "stylelint-order": "^5.0.0",
+    "vue-cli-plugin-axios": "0.0.4",
+    "vue-template-compiler": "^2.6.14"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "@vue/prettier"
+    ],
+    "rules": {
+      "prefer-const": "error",
+      "no-console": 0
+    },
+    "parserOptions": {
+      "parser": "babel-eslint"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "{!(package)*.json,*.code-snippets,.!(browserslist)*rc}": [
+      "prettier --write--parser json"
+    ],
+    "package.json": [
+      "prettier --write"
+    ],
+    "*.vue": [
+      "eslint --fix",
+      "prettier --write",
+      "stylelint --fix"
+    ],
+    "*.{scss,less,styl,html}": [
+      "stylelint --fix",
+      "prettier --write"
+    ],
+    "*.md": [
+      "prettier --write"
+    ]
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "engines": {
+    "node": "^12 || >=14"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

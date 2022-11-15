@@ -1,0 +1,10 @@
+# 测试和打包目录
+/dist/*
+/public/*
+public/*
+/test/*
+
+# 其他类型文件
+*.js
+*.jpg
+*.woff
