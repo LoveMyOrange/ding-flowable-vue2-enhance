@@ -4,6 +4,7 @@
   <FlowDesign ref="FlowDesign" @publish="onPublish" />
 </template>
 <script>
+  import { jsonToBpmn } from '../api/design';
   export default {
     data() {
       return {
@@ -96,21 +97,26 @@
         }, */
       };
     },
-    created() {},
+    created() {
+      jsonToBpmn();
+    },
     methods: {
       toReturn() {
         this.$router.push({ path: '/flow/model' });
       },
-      onPublish(nodeData){
-        alert("流程节点信息.请查看打印日志")
-        console.log("流程节点信息:",nodeData)
-        console.log("流程复制内容:",JSON.stringify(nodeData))
-       
+      onPublish(nodeData) {
+     
+        jsonToBpmn(nodeData).then(res=>{
+          alert("流程数据保存成功")
+          // console.log('流程节点信息:', nodeData,res);
+          // console.log('流程复制内容:', JSON.stringify(nodeData));
+        })
       },
 
       handleSave() {
         this.$refs.FlowDesign.handleSave();
       },
+
     },
   };
 </script>

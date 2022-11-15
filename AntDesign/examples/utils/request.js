@@ -88,4 +88,4 @@ const installer = {
   },
 };
 
-export { installer as VueAxios, service as axios };
+export { installer as VueAxios, service as request };
