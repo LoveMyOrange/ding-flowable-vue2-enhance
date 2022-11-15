@@ -86,12 +86,21 @@ public class BpmnModelUtils {
                                         List<Object> value = condition.getValue();
                                         String valueType = condition.getValueType();
                                         if("String".equals(valueType)){
-                                            String str = StringUtils.join(value, ",");
                                             if("=".equals(compare)){
-                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"strEquals("+id+","+str+") " );
+                                                String str = StringUtils.join(value, ",");
+                                                str="'"+str+"'";
+                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"strEqualsMethod("+id+","+str+") " );
                                             }
                                             else{
-                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"strContains("+id+","+str+") " );
+                                                List<String> tempList=new ArrayList<>();
+                                                for (Object o : value) {
+                                                    String s = o.toString();
+                                                    s="'"+s+"'";
+                                                    tempList.add(s);
+                                                }
+                                                String str = StringUtils.join(tempList, ",");
+//                                                String str = StringUtils.join(value, ",");
+                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"strContainsMethod("+id+","+str+") " );
                                             }
                                         }
                                         else if("Number".equals(valueType)){
@@ -632,13 +641,7 @@ public class BpmnModelUtils {
         List<String> incoming = incomingJson.getJSONArray("incoming").toJavaList(String.class);
         String id=flowNode.getId();
         if (incoming != null && !incoming.isEmpty()) {
-            ServiceTask serviceTask = new ServiceTask();
-            serviceTask.setName(flowNode.getName());
-            serviceTask.setId(id);
-            process.addFlowElement(serviceTask);
-            process.addFlowElement(connect(incoming.get(0), id,sequenceFlows,childNodeMap,process));
-            serviceTask.setImplementationType(IMPLEMENTATION_TYPE_CLASS);
-            serviceTask.setImplementation("com.dingding.mid.listener.ServiceListener");
+
         }
         return id;
     }
