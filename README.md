@@ -148,7 +148,7 @@
 
 ### 大家可扫码加入交流群， 如果二维码失效了，可以加我微信 Doctor4JavaEE  备注 钉钉 拉你入群
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1_1665560718233.png" alt="作者微信" style="zoom:20%;" />
-<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/7%E5%A4%A9%E6%9B%B4%E6%96%B0_1667801605922.png" alt="微信群" style="zoom:20%;" />
+<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/7%E5%A4%A9%E6%9B%B4%E6%96%B0_1668560817076.png" alt="微信群" style="zoom:20%;" />
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/QQ%E7%BE%A4_1667801471531.jpg" alt="QQ群更新" style="zoom:20%;" />
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E5%AE%9D%E5%90%88%E5%B9%B6_1666146178265.jpg" alt="打赏" style="zoom:20%;" />
 
