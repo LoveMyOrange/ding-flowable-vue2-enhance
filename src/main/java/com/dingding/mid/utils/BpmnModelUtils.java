@@ -106,7 +106,7 @@ public class BpmnModelUtils {
                                         else if("Number".equals(valueType)){
                                             String str = StringUtils.join(value, ",");
                                             if("=".equals(compare)){
-                                                conditionExpression.append(" "+id+" = "+str+" ");
+                                                conditionExpression.append(" "+id+" == "+str+" ");
                                             }
                                             else if(">".equals(compare)){
                                                 conditionExpression.append(""+id+" > "+str+" ");
