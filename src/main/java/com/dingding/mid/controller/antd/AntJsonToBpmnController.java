@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.dingding.mid.common.Result;
 import com.dingding.mid.enums.ModeEnums;
 import com.dingding.mid.utils.IdWorker;
+import com.dingding.mid.utils.SpringContextHolder;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -12,6 +13,8 @@ import org.flowable.bpmn.BpmnAutoLayout;
 import org.flowable.bpmn.converter.BpmnXMLConverter;
 import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
+import org.flowable.engine.RepositoryService;
+import org.flowable.engine.repository.Deployment;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,7 +55,17 @@ public class AntJsonToBpmnController {
         process.addFlowElement(connect(lastNode, endEvent.getId(),sequenceFlows));
 
         new BpmnAutoLayout(model).execute();
-        System.err.println(new String(new BpmnXMLConverter().convertToXML(model)));
+
+
+        RepositoryService repositoryService = SpringContextHolder.getBean(RepositoryService.class);
+
+        Deployment deploy = repositoryService.createDeployment()
+                .category("AntDesign")
+                .name("AntDesign版本的liuchengtu")
+                .addBpmnModel("test.bpmn",model)
+                .deploy();
+        System.err.println(deploy.getId());
+
 
         return Result.OK("发布成功");
     }
@@ -241,7 +254,7 @@ public class AntJsonToBpmnController {
 
         JSONObject childNode = flowNode.getJSONObject("childNode");
         ExclusiveGateway exclusiveGatewayNet=new ExclusiveGateway();
-        exclusiveGatewayNet.setId(flowNode.getString("id")+"net");
+        exclusiveGatewayNet.setId("ex"+flowNode.getString("id")+"net");
         process.addFlowElement(exclusiveGatewayNet);
         if (Objects.nonNull(childNode)) {
             if (incoming == null || incoming.isEmpty()) {
@@ -347,7 +360,7 @@ public class AntJsonToBpmnController {
                 String parallelGatewayIdNet="";
                 if(Type.PARALLEL_XX.type.equals(childNode.getInteger("type"))){
                     ParallelGateway parallelGatewayNet = new ParallelGateway();
-                     parallelGatewayIdNet = childNode.getString("pid")+"net";
+                     parallelGatewayIdNet = "ex"+childNode.getString("pid")+"net";
                     parallelGatewayNet.setId(parallelGatewayIdNet);
                     parallelGatewayNet.setName(name);
                     process.addFlowElement(parallelGatewayNet);
