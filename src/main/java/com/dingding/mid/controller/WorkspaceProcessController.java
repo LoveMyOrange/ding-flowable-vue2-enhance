@@ -238,6 +238,7 @@ public class WorkspaceProcessController {
     public Result<Page<TaskVO>> doneList(@RequestBody TaskDTO taskDTO){
         List<HistoricTaskInstance> tasks = historyService.createHistoricTaskInstanceQuery()
                 .taskAssignee(taskDTO.getCurrentUserInfo().getId())
+                .finished()
                 .includeProcessVariables()
                 .orderByTaskCreateTime().desc()
                 .listPage((taskDTO.getPageNo() - 1) * taskDTO.getPageSize(), taskDTO.getPageSize());
@@ -576,7 +577,7 @@ public class WorkspaceProcessController {
         return Result.OK();
     }
 
-    
+
     @ApiOperation("查到签上的人")
     @PostMapping("/queryMultiUsersInfo")
     public Result<List<MultiVO>> queryMultiUsersInfo(@RequestBody Map<String,Object> map){
@@ -597,11 +598,11 @@ public class WorkspaceProcessController {
                 multiVO.setUserId(next.getAssignee());
                 multiVOList.add(multiVO);
             }
-            
+
         }
         return Result.OK(multiVOList);
     }
-    
+
     @ApiOperation("减签按钮")
     @PostMapping("/deleteMulti")
     public Result deleteMulti(@RequestBody List<String> executionIds){
@@ -609,8 +610,8 @@ public class WorkspaceProcessController {
             runtimeService.deleteMultiInstanceExecution(executionId,true);
         }
         return Result.OK();
-    }    
-    
+    }
+
 
     @ApiOperation("评论按钮")
     @PostMapping("/comments")
