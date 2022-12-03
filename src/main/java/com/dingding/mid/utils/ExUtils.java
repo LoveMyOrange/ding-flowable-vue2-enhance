@@ -49,30 +49,37 @@ public class ExUtils {
         List<Number> list = Arrays.asList(values);
         return list.contains(controlId);
     }
-    public Boolean b(Number controlId,Number...values){
+    public Boolean b(String controlId,Number...values){
         List<Number> numbers = Arrays.asList(values);
-        if(controlId.longValue() > numbers.get(0).longValue()  &&controlId.longValue()   <numbers.get(1).longValue()){
+        Long aLong = Long.valueOf(controlId);
+        if( aLong> numbers.get(0).longValue()  &&aLong   <numbers.get(1).longValue()){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
     }
-    public Boolean ab(Number controlId,Number...values){
+
+
+
+    public Boolean ab(String controlId,Number...values){
         List<Number> numbers = Arrays.asList(values);
-        if(controlId.longValue() >= numbers.get(0).longValue()  &&controlId.longValue()   <numbers.get(1).longValue()){
+        Long aLong = Long.valueOf(controlId);
+        if(aLong >= numbers.get(0).longValue()  &&aLong   <numbers.get(1).longValue()){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
     }
-    public Boolean ba(Number controlId,Number...values){
+    public Boolean ba(String controlId,Number...values){
         List<Number> numbers = Arrays.asList(values);
-        if(controlId.longValue() > numbers.get(0).longValue()  &&controlId.longValue()   <=numbers.get(1).longValue()){
+        Long aLong = Long.valueOf(controlId);
+        if(aLong > numbers.get(0).longValue()  &&aLong   <=numbers.get(1).longValue()){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
     }
-    public Boolean aba(Number controlId,Number...values){
+    public Boolean aba(String controlId,Number...values){
         List<Number> numbers = Arrays.asList(values);
-        if(controlId.longValue() >= numbers.get(0).longValue()  &&controlId.longValue()   <=numbers.get(1).longValue()){
+        Long aLong = Long.valueOf(controlId);
+        if(aLong >= numbers.get(0).longValue()  && aLong   <=numbers.get(1).longValue()){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;

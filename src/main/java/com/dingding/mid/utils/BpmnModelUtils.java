@@ -133,7 +133,7 @@ public class BpmnModelUtils {
                                                 conditionExpression.append("  "+ EXPRESSION_CLASS+"ba("+id+","+str+") " );
                                             }
                                             else if("ABA".equals(compare)){
-                                                conditionExpression.append("  "+ EXPRESSION_CLASS+"b("+id+","+str+") " );
+                                                conditionExpression.append("  "+ EXPRESSION_CLASS+"bx("+id+","+str+") " );
                                             }
                                         }
                                         else if("User".equals(valueType)){
