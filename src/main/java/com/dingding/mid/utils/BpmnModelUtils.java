@@ -294,17 +294,18 @@ public class BpmnModelUtils {
             throw new WorkFlowException("还不想写这个功能");
         }
         else if(Type.CC.isEqual(nodeType)){
-            childNodeMap.put(flowNode.getId(),flowNode);
-            JSONObject incoming = flowNode.getIncoming();
-            incoming.put("incoming", Collections.singletonList(fromId));
-            String id = createServiceTask(process,flowNode,sequenceFlows,childNodeMap);
-            // 如果当前任务还有后续任务，则遍历创建后续任务
-            ChildNode children = flowNode.getChildren();
-            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
-                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
-            } else {
-                return id;
-            }
+            throw new WorkFlowException("代码呗回滚了 丢了,暂时先不做");
+//            childNodeMap.put(flowNode.getId(),flowNode);
+//            JSONObject incoming = flowNode.getIncoming();
+//            incoming.put("incoming", Collections.singletonList(fromId));
+//            String id = createServiceTask(process,flowNode,sequenceFlows,childNodeMap);
+//            // 如果当前任务还有后续任务，则遍历创建后续任务
+//            ChildNode children = flowNode.getChildren();
+//            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
+//                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
+//            } else {
+//                return id;
+//            }
         }
         else {
             throw new RuntimeException("未知节点类型: nodeType=" + nodeType);
