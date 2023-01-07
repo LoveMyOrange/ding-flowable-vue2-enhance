@@ -1,9 +1,15 @@
 package com.dingding.mid.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.NumberUtil;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
+import com.dingding.mid.dto.json.UserInfo;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -44,6 +50,23 @@ public class ExUtils {
         return strings.contains(controlId);
     }
 
+
+    public Boolean userStrContainsMethod(String controlId,String...values){
+        List<String> strings = Arrays.asList(values);
+        List<UserInfo> userInfos = JSONObject.parseObject(controlId, new TypeReference<List<UserInfo>>() {
+        });
+        List<String> idsList= new ArrayList<>();
+        for (UserInfo userInfo : userInfos) {
+            idsList.add(userInfo.getId());
+        }
+        Collection<String> intersection = CollUtil.intersection(strings, idsList);
+        if(CollUtil.isEmpty(intersection)){
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+
+
+    }
 
     public Boolean numberContains(Number controlId,Number...values){
         List<Number> list = Arrays.asList(values);

@@ -143,7 +143,7 @@ public class BpmnModelUtils {
                                                 userIds.add(obj.getString("id"));
                                             }
                                             String str = StringUtils.join(userIds, ",");
-                                            conditionExpression.append(" "+ EXPRESSION_CLASS+"strContainsMethod("+id+","+str+") " );
+                                            conditionExpression.append(" "+ EXPRESSION_CLASS+"userStrContainsMethod("+id+","+str+") " );
                                         }
                                         else if("Dept".equals(valueType)){
                                             List<String> userIds=new ArrayList<>();
