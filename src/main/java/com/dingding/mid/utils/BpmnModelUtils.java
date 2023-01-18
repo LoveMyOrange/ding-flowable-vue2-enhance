@@ -147,36 +147,12 @@ public class BpmnModelUtils {
                                         }
                                         else if("Dept".equals(valueType)){
                                             List<String> userIds=new ArrayList<>();
-                                            List<String> deptIds=new ArrayList<>();
                                             for (Object o : value) {
                                                 JSONObject obj=(JSONObject)o;
-                                                String type = obj.getString("type");
-                                                if("dept".equals(type)){
-                                                  deptIds.add(obj.getString("id"));
-                                                }
-                                                else{
-                                                    userIds.add(obj.getString("id"));
-                                                }
+                                                userIds.add(obj.getString("id"));
                                             }
-
-                                            if(CollUtil.isNotEmpty(deptIds)){
-                                                UserService userService = SpringContextHolder
-                                                    .getBean(UserService.class);
-                                                LambdaQueryWrapper<Users> lambdaQueryWrapper=new LambdaQueryWrapper<>();
-                                                lambdaQueryWrapper.in(Users::getDepartmentIds,deptIds);
-                                                List<Users> list = userService
-                                                    .list(lambdaQueryWrapper);
-                                                for (Users users : list) {
-                                                    userIds.add(users.getUserId()+"");
-                                                }
-
-                                                if(userIds.isEmpty()){
-                                                    userIds.add("0");
-                                                }
-                                                String str = StringUtils.join(userIds, ",");
-                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"strContains("+id+","+str+") " );
-                                            }
-
+                                            String str = StringUtils.join(userIds, ",");
+                                            conditionExpression.append(" "+ EXPRESSION_CLASS+"deptStrContainsMethod("+id+","+str+") " );
                                         }
                                         else{
                                             continue;

@@ -64,8 +64,21 @@ public class ExUtils {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
+    }
 
-
+    public Boolean deptStrContainsMethod(String controlId,String...values){
+        List<String> strings = Arrays.asList(values);
+        List<UserInfo> userInfos = JSONObject.parseObject(controlId, new TypeReference<List<UserInfo>>() {
+        });
+        List<String> idsList= new ArrayList<>();
+        for (UserInfo userInfo : userInfos) {
+            idsList.add(userInfo.getId());
+        }
+        Collection<String> intersection = CollUtil.intersection(strings, idsList);
+        if(CollUtil.isEmpty(intersection)){
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
     }
 
     public Boolean numberContains(Number controlId,Number...values){
