@@ -128,48 +128,48 @@ export default {
     },
     //校验数据配置的合法性
     validate(err) {
-      console.log('condition children', this.config.children)
-      if (!this.config.children?.id) {
-        this.showError = true
-        this.errorInfo = '条件分支后不能为空'
-        err.push(`条件分支后不能为空`)
-        return !this.showError
-      }
+          // console.log('condition children', this.config.children)
+          // if (!this.config.children?.id) {
+          //   this.showError = true
+          //   this.errorInfo = '条件分支后不能为空'
+          //   err.push(`条件分支后不能为空`)
+          //   return !this.showError
+          // }
 
-      const props = this.config.props
-      if (props.groups.length <= 0){
-        this.showError = true
-        this.errorInfo = '请设置分支条件'
-        err.push(`${this.config.name} 未设置条件`)
-      }else {
-        for (let i = 0; i < props.groups.length; i++) {
-          if (props.groups[i].cids.length === 0){
-            this.showError = true
-            this.errorInfo = `请设置条件组${this.groupNames[i]}内的条件`
-            err.push(`条件 ${this.config.name} 条件组${this.groupNames[i]}内未设置条件`)
-            break
-          }else {
-            let conditions = props.groups[i].conditions
-            for (let ci = 0; ci < conditions.length; ci++) {
-              let subc = conditions[ci]
-              if (subc.value.length === 0){
-                this.showError = true
-              }else {
-                this.showError = false
-              }
-              if (this.showError){
-                this.errorInfo = `请完善条件组${this.groupNames[i]}内的${subc.title}条件`
-                err.push(`条件 ${this.config.name} 条件组${this.groupNames[i]}内${subc.title}条件未完善`)
-                return false
-              }
-            }
-          }
-        }
-      }
-      return !this.showError
-    }
-  }
-}
+          // const props = this.config.props
+          // if (props.groups.length <= 0){
+          //   this.showError = true
+          //   this.errorInfo = '请设置分支条件'
+          //   err.push(`${this.config.name} 未设置条件`)
+          // }else {
+          //   for (let i = 0; i < props.groups.length; i++) {
+          //     if (props.groups[i].cids.length === 0){
+          //       this.showError = true
+          //       this.errorInfo = `请设置条件组${this.groupNames[i]}内的条件`
+          //       err.push(`条件 ${this.config.name} 条件组${this.groupNames[i]}内未设置条件`)
+          //       break
+          //     }else {
+          //       let conditions = props.groups[i].conditions
+          //       for (let ci = 0; ci < conditions.length; ci++) {
+          //         let subc = conditions[ci]
+          //         if (subc.value.length === 0){
+          //           this.showError = true
+          //         }else {
+          //           this.showError = false
+          //         }
+          //         if (this.showError){
+          //           this.errorInfo = `请完善条件组${this.groupNames[i]}内的${subc.title}条件`
+          //           err.push(`条件 ${this.config.name} 条件组${this.groupNames[i]}内${subc.title}条件未完善`)
+          //           return false
+          //         }
+          //       }
+          //     }
+          //   }
+          // }
+          return !this.showError;
+        },
+      },
+    };
 </script>
 
 <style lang="less" scoped>
