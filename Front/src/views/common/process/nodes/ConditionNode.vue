@@ -8,7 +8,7 @@
         <div class="node-body-main-header">
           <ellipsis class="title" hover-tip :content="config.name ? config.name : ('条件' + level)"/>
           <span class="level">优先级{{ level }}</span>
-          <span class="option"  v-if="$store.state.diagramMode !== 'viewer'">
+          <span class="option" v-if="$store.state.diagramMode !== 'viewer'">
             <el-tooltip effect="dark" content="复制条件" placement="top">
               <i class="el-icon-copy-document" @click.stop="$emit('copy')"></i>
             </el-tooltip>
@@ -16,11 +16,14 @@
           </span>
         </div>
         <div class="node-body-main-content">
-          <span class="placeholder" v-if="(content || '').trim() === ''">{{ placeholder }}</span>
+          <span class="placeholder" v-if="(content || '').trim() === ''">{{
+            level == size && size != 0 ? "其他条件进入此流程" : placeholder
+          }}</span>
           <ellipsis hoverTip :row="4" :content="content" v-else/>
         </div>
       </div>
-      <div class="node-body-right" @click="$emit('rightMove')" v-if="level < size && $store.state.diagramMode !== 'viewer'">
+      <div class="node-body-right" @click="$emit('rightMove')"
+           v-if="level < size && $store.state.diagramMode !== 'viewer'">
         <i class="el-icon-arrow-right"></i>
       </div>
       <div class="node-error" v-if="showError">
@@ -31,7 +34,8 @@
     </div>
     <div class="node-footer">
       <div class="btn">
-        <insert-button v-if="$store.state.diagramMode !== 'viewer'" @insertNode="type => $emit('insertNode', type)"></insert-button>
+        <insert-button v-if="$store.state.diagramMode !== 'viewer'"
+                       @insertNode="type => $emit('insertNode', type)"></insert-button>
       </div>
     </div>
   </div>
@@ -40,6 +44,7 @@
 <script>
 import InsertButton from '@/views/common/InsertButton.vue'
 import {ValueType} from '@/views/common/form/ComponentsConfigExport'
+
 const groupNames = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
 export default {
   name: "ConditionNode",
@@ -128,48 +133,50 @@ export default {
     },
     //校验数据配置的合法性
     validate(err) {
-          // console.log('condition children', this.config.children)
-          // if (!this.config.children?.id) {
-          //   this.showError = true
-          //   this.errorInfo = '条件分支后不能为空'
-          //   err.push(`条件分支后不能为空`)
-          //   return !this.showError
-          // }
+      console.log('condition children', this.config.children)
+      if (!(this.level == this.size && this.size != 0) && !this.config.children?.id) {
+        this.showError = true
+        this.errorInfo = '条件分支后不能为空'
+        err.push(`条件分支后不能为空`)
+        return !this.showError
+      }
 
-          // const props = this.config.props
-          // if (props.groups.length <= 0){
-          //   this.showError = true
-          //   this.errorInfo = '请设置分支条件'
-          //   err.push(`${this.config.name} 未设置条件`)
-          // }else {
-          //   for (let i = 0; i < props.groups.length; i++) {
-          //     if (props.groups[i].cids.length === 0){
-          //       this.showError = true
-          //       this.errorInfo = `请设置条件组${this.groupNames[i]}内的条件`
-          //       err.push(`条件 ${this.config.name} 条件组${this.groupNames[i]}内未设置条件`)
-          //       break
-          //     }else {
-          //       let conditions = props.groups[i].conditions
-          //       for (let ci = 0; ci < conditions.length; ci++) {
-          //         let subc = conditions[ci]
-          //         if (subc.value.length === 0){
-          //           this.showError = true
-          //         }else {
-          //           this.showError = false
-          //         }
-          //         if (this.showError){
-          //           this.errorInfo = `请完善条件组${this.groupNames[i]}内的${subc.title}条件`
-          //           err.push(`条件 ${this.config.name} 条件组${this.groupNames[i]}内${subc.title}条件未完善`)
-          //           return false
-          //         }
-          //       }
-          //     }
-          //   }
-          // }
-          return !this.showError;
-        },
-      },
-    };
+      const props = this.config.props
+      if (props.groups.length <= 0){
+        this.showError = true
+        this.errorInfo = '请设置分支条件'
+        err.push(`${this.config.name} 未设置条件`)
+      }else {
+        if (!(this.level == this.size && this.size != 0)) {
+          for (let i = 0; i < props.groups.length; i++) {
+            if (props.groups[i].cids.length === 0){
+              this.showError = true
+              this.errorInfo = `请设置条件组${this.groupNames[i]}内的条件`
+              err.push(`条件 ${this.config.name} 条件组${this.groupNames[i]}内未设置条件`)
+              break
+            }else {
+              let conditions = props.groups[i].conditions
+              for (let ci = 0; ci < conditions.length; ci++) {
+                let subc = conditions[ci]
+                if (subc.value.length === 0){
+                  this.showError = true
+                }else {
+                  this.showError = false
+                }
+                if (this.showError){
+                  this.errorInfo = `请完善条件组${this.groupNames[i]}内的${subc.title}条件`
+                  err.push(`条件 ${this.config.name} 条件组${this.groupNames[i]}内${subc.title}条件未完善`)
+                  return false
+                }
+              }
+            }
+          }
+        }
+      }
+      return !this.showError;
+    },
+  },
+};
 </script>
 
 <style lang="less" scoped>
