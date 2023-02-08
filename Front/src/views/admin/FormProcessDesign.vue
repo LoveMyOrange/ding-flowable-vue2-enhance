@@ -229,7 +229,7 @@ export default {
         console.log(this.setup)
         let processNew =  JSON.parse(JSON.stringify(this.setup.process));
 
-        if (processNew.children.branchs.length > 1) {
+        if (processNew.children.branchs?.length > 1) {
           processNew.children.branchs.map((item, i) => {
             if (i == processNew.children.branchs.length - 1) {
               item.typeElse = true;
