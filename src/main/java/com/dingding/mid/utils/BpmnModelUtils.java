@@ -320,7 +320,9 @@ public class BpmnModelUtils {
                 condition.fluentPut("nodeName", nodeName)
                         .fluentPut("expression", expression)
                         .fluentPut("groups",props.getGroups())
-                        .fluentPut("groupsType",props.getGroupsType());
+                        .fluentPut("groupsType",props.getGroupsType()
+                                )
+                        .fluentPut("finalSequenceFlowId",element.getId());
                 conditions.add(condition);
                 continue;
             }
@@ -404,6 +406,12 @@ public class BpmnModelUtils {
                                             sequenceFlow.setConditionExpression(expression);
                                         }
 
+
+                                        FlowElement flowElement2 = process.getFlowElement(sequenceFlow.getId());
+                                        if(flowElement2!=null){
+                                            flowElement2.setId(condition.getString("finalSequenceFlowId"));
+                                            exclusiveGateway.setDefaultFlow(flowElement2.getId());;
+                                        }
                                         conditions.remove(0);
                                     }
                                 });
