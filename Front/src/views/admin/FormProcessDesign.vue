@@ -227,6 +227,18 @@ export default {
         type: 'warning'
       }).then(() => {
         console.log(this.setup)
+        let processNew =  JSON.parse(JSON.stringify(this.setup.process));
+
+        if (processNew.children.branchs.length > 1) {
+          processNew.children.branchs.map((item, i) => {
+            if (i == processNew.children.branchs.length - 1) {
+              item.typeElse = true;
+            } else {
+              item.typeElse = false;
+            }
+            return item;
+          });
+        }
         let template = {
           formId: this.setup.formId,
           formName: this.setup.formName,
@@ -234,7 +246,7 @@ export default {
           settings: JSON.stringify(this.setup.settings),
           groupId: this.setup.groupId,
           formItems: JSON.stringify(this.setup.formItems),
-          process: JSON.stringify(this.setup.process),
+          process: JSON.stringify(processNew),
           remark: this.setup.remark
         }
         if (this.isNew || !this.$isNotEmpty(this.setup.formId)) {
