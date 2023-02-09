@@ -17,6 +17,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
+import org.flowable.engine.TaskService;
 import org.flowable.engine.delegate.ExecutionListener;
 import org.flowable.engine.delegate.TaskListener;
 import org.springframework.util.CollectionUtils;
@@ -55,111 +56,130 @@ public class BpmnModelUtils {
                 if(StringUtils.isNotBlank(parentId)){
                     ChildNode parentNode = childNodeMap.get(parentId);
                     if(parentNode!=null){
-                        if(Type.CONDITION.type.equals(parentNode.getType())){
+                        if(Type.CONDITION.type.equals(parentNode.getType()) ){
                             sequenceFlowId=parentNode.getId();
                             flow.setName(parentNode.getName());
-                            //解析条件表达式
-                            Properties props = parentNode.getProps();
-                            String expression = props.getExpression();
-                            List<GroupsInfo> groups = props.getGroups();
-                            String groupsType = props.getGroupsType();
-                            if(StringUtils.isNotBlank(expression)){
-                                flow.setConditionExpression("${"+expression+"}");
-                            }
-                            else {
 
-                                StringBuffer conditionExpression=new StringBuffer();
-                                conditionExpression.append("${ ");
+                            if(Boolean.FALSE.equals(parentNode.getTypeElse())){
+                                //解析条件表达式
+                                Properties props = parentNode.getProps();
+                                String expression = props.getExpression();
+                                List<GroupsInfo> groups = props.getGroups();
+                                String groupsType = props.getGroupsType();
+                                if(StringUtils.isNotBlank(expression)){
+                                    flow.setConditionExpression("${"+expression+"}");
+                                }
+                                else {
 
-                                for (int i = 0; i < groups.size(); i++) {
-                                    conditionExpression.append(" ( ");
-                                    GroupsInfo group = groups.get(i);
-                                    List<String> cids = group.getCids();
-                                    String groupType = group.getGroupType();
-                                    List<ConditionInfo> conditions = group.getConditions();
-                                    for (int j = 0; j < conditions.size(); j++) {
-                                        conditionExpression.append(" ");
-                                        ConditionInfo condition = conditions.get(j);
-                                        String compare = condition.getCompare();
-                                        String id = condition.getId();
-                                        String title = condition.getTitle();
-                                        List<Object> value = condition.getValue();
-                                        String valueType = condition.getValueType();
-                                        if("String".equals(valueType)){
-                                            if("=".equals(compare)){
+                                    StringBuffer conditionExpression=new StringBuffer();
+                                    conditionExpression.append("${ ");
+
+                                    for (int i = 0; i < groups.size(); i++) {
+                                        conditionExpression.append(" ( ");
+                                        GroupsInfo group = groups.get(i);
+                                        List<String> cids = group.getCids();
+                                        String groupType = group.getGroupType();
+                                        List<ConditionInfo> conditions = group.getConditions();
+                                        for (int j = 0; j < conditions.size(); j++) {
+                                            conditionExpression.append(" ");
+                                            ConditionInfo condition = conditions.get(j);
+                                            String compare = condition.getCompare();
+                                            String id = condition.getId();
+                                            String title = condition.getTitle();
+                                            List<Object> value = condition.getValue();
+                                            String valueType = condition.getValueType();
+                                            if("String".equals(valueType)){
+                                                if("=".equals(compare)){
+                                                    String str = StringUtils.join(value, ",");
+                                                    str="'"+str+"'";
+                                                    conditionExpression.append(" "+ EXPRESSION_CLASS+"strEqualsMethod("+id+","+str+") " );
+                                                }
+                                                else{
+                                                    List<String> tempList=new ArrayList<>();
+                                                    for (Object o : value) {
+                                                        String s = o.toString();
+                                                        s="'"+s+"'";
+                                                        tempList.add(s);
+                                                    }
+                                                    String str = StringUtils.join(tempList, ",");
+//                                                String str = StringUtils.join(value, ",");
+                                                    conditionExpression.append(" "+ EXPRESSION_CLASS+"strContainsMethod("+id+","+str+") " );
+                                                }
+                                            }
+                                            else if("Number".equals(valueType)){
                                                 String str = StringUtils.join(value, ",");
-                                                str="'"+str+"'";
-                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"strEqualsMethod("+id+","+str+") " );
+                                                if("=".equals(compare)){
+                                                    conditionExpression.append(" "+id+" == "+str+" ");
+                                                }
+                                                else if(">".equals(compare)){
+                                                    conditionExpression.append(""+id+" > "+str+" ");
+                                                }
+                                                else if(">=".equals(compare)){
+                                                    conditionExpression.append(" "+id+" >= "+str+" ");
+                                                }
+                                                else if("<".equals(compare)){
+                                                    conditionExpression.append(" "+id+" < "+str+" ");
+                                                }
+                                                else if("<=".equals(compare)){
+                                                    conditionExpression.append(" "+id+" <= "+str+" ");
+                                                }
+                                                else if("IN".equals(compare)){
+                                                    conditionExpression.append(" "+ EXPRESSION_CLASS+"numberContains("+id+","+str+") " );
+                                                }
+                                                else if("B".equals(compare)){
+                                                    conditionExpression.append("  "+ EXPRESSION_CLASS+"b("+id+","+str+") " );
+                                                }
+                                                else if("AB".equals(compare)){
+                                                    conditionExpression.append("  "+ EXPRESSION_CLASS+"ab("+id+","+str+") " );
+                                                }
+                                                else if("BA".equals(compare)){
+                                                    conditionExpression.append("  "+ EXPRESSION_CLASS+"ba("+id+","+str+") " );
+                                                }
+                                                else if("ABA".equals(compare)){
+                                                    conditionExpression.append("  "+ EXPRESSION_CLASS+"aba("+id+","+str+") " );
+                                                }
+                                            }
+                                            else if("User".equals(valueType)){
+                                                List<String> userIds=new ArrayList<>();
+                                                for (Object o : value) {
+                                                    JSONObject obj=(JSONObject)o;
+                                                    userIds.add(obj.getString("id"));
+                                                }
+                                                String str = StringUtils.join(userIds, ",");
+                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"userStrContainsMethod("+id+","+str+") " );
+                                            }
+                                            else if("Dept".equals(valueType)){
+                                                List<String> userIds=new ArrayList<>();
+                                                for (Object o : value) {
+                                                    JSONObject obj=(JSONObject)o;
+                                                    userIds.add(obj.getString("id"));
+                                                }
+                                                String str = StringUtils.join(userIds, ",");
+                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"deptStrContainsMethod("+id+","+str+") " );
                                             }
                                             else{
-                                                List<String> tempList=new ArrayList<>();
-                                                for (Object o : value) {
-                                                    String s = o.toString();
-                                                    s="'"+s+"'";
-                                                    tempList.add(s);
+                                                continue;
+                                            }
+
+                                            if(conditions.size()>1 && j!=(conditions.size()-1)){
+                                                if("OR".equals(groupType)){
+                                                    conditionExpression.append(" || ");
                                                 }
-                                                String str = StringUtils.join(tempList, ",");
-//                                                String str = StringUtils.join(value, ",");
-                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"strContainsMethod("+id+","+str+") " );
+                                                else {
+                                                    conditionExpression.append(" && ");
+                                                }
                                             }
-                                        }
-                                        else if("Number".equals(valueType)){
-                                            String str = StringUtils.join(value, ",");
-                                            if("=".equals(compare)){
-                                                conditionExpression.append(" "+id+" == "+str+" ");
+
+                                            if(i==(conditions.size()-1)){
+                                                conditionExpression.append(" ");
                                             }
-                                            else if(">".equals(compare)){
-                                                conditionExpression.append(""+id+" > "+str+" ");
-                                            }
-                                            else if(">=".equals(compare)){
-                                                conditionExpression.append(" "+id+" >= "+str+" ");
-                                            }
-                                            else if("<".equals(compare)){
-                                                conditionExpression.append(" "+id+" < "+str+" ");
-                                            }
-                                            else if("<=".equals(compare)){
-                                                conditionExpression.append(" "+id+" <= "+str+" ");
-                                            }
-                                            else if("IN".equals(compare)){
-                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"numberContains("+id+","+str+") " );
-                                            }
-                                            else if("B".equals(compare)){
-                                                conditionExpression.append("  "+ EXPRESSION_CLASS+"b("+id+","+str+") " );
-                                            }
-                                            else if("AB".equals(compare)){
-                                                conditionExpression.append("  "+ EXPRESSION_CLASS+"ab("+id+","+str+") " );
-                                            }
-                                            else if("BA".equals(compare)){
-                                                conditionExpression.append("  "+ EXPRESSION_CLASS+"ba("+id+","+str+") " );
-                                            }
-                                            else if("ABA".equals(compare)){
-                                                conditionExpression.append("  "+ EXPRESSION_CLASS+"aba("+id+","+str+") " );
-                                            }
-                                        }
-                                        else if("User".equals(valueType)){
-                                            List<String> userIds=new ArrayList<>();
-                                            for (Object o : value) {
-                                                JSONObject obj=(JSONObject)o;
-                                                userIds.add(obj.getString("id"));
-                                            }
-                                            String str = StringUtils.join(userIds, ",");
-                                            conditionExpression.append(" "+ EXPRESSION_CLASS+"userStrContainsMethod("+id+","+str+") " );
-                                        }
-                                        else if("Dept".equals(valueType)){
-                                            List<String> userIds=new ArrayList<>();
-                                            for (Object o : value) {
-                                                JSONObject obj=(JSONObject)o;
-                                                userIds.add(obj.getString("id"));
-                                            }
-                                            String str = StringUtils.join(userIds, ",");
-                                            conditionExpression.append(" "+ EXPRESSION_CLASS+"deptStrContainsMethod("+id+","+str+") " );
-                                        }
-                                        else{
-                                            continue;
                                         }
 
-                                        if(conditions.size()>1 && j!=(conditions.size()-1)){
-                                            if("OR".equals(groupType)){
+
+                                        conditionExpression.append(" ) ");
+
+                                        if(groups.size()>1 && i!=(groups.size()-1) ){
+                                            if("OR".equals(groupsType)){
                                                 conditionExpression.append(" || ");
                                             }
                                             else {
@@ -167,27 +187,11 @@ public class BpmnModelUtils {
                                             }
                                         }
 
-                                        if(i==(conditions.size()-1)){
-                                            conditionExpression.append(" ");
-                                        }
+
                                     }
-
-
-                                    conditionExpression.append(" ) ");
-
-                                    if(groups.size()>1 && i!=(groups.size()-1) ){
-                                        if("OR".equals(groupsType)){
-                                            conditionExpression.append(" || ");
-                                        }
-                                        else {
-                                            conditionExpression.append(" && ");
-                                        }
-                                    }
-
-
+                                    conditionExpression.append("} ");
+                                    flow.setConditionExpression(conditionExpression.toString());
                                 }
-                                conditionExpression.append("} ");
-                                flow.setConditionExpression(conditionExpression.toString());
                             }
                         }
                     }
@@ -305,6 +309,10 @@ public class BpmnModelUtils {
         List<String> incoming = Lists.newArrayListWithCapacity(flowNodes.size());
         List<JSONObject> conditions = Lists.newCopyOnWriteArrayList();
         for (ChildNode element : flowNodes) {
+            Boolean typeElse = element.getTypeElse();
+            if(Boolean.TRUE.equals(typeElse)){
+                exclusiveGateway.setDefaultFlow(element.getId());
+            }
             childNodeMap.put(element.getId(),element);
             ChildNode childNode = element.getChildren();
 
@@ -322,7 +330,7 @@ public class BpmnModelUtils {
                         .fluentPut("groups",props.getGroups())
                         .fluentPut("groupsType",props.getGroupsType()
                                 )
-                        .fluentPut("finalSequenceFlowId",element.getId());
+                        .fluentPut("elseSequenceFlowId",element.getId());
                 conditions.add(condition);
                 continue;
             }
@@ -406,12 +414,12 @@ public class BpmnModelUtils {
                                             sequenceFlow.setConditionExpression(expression);
                                         }
 
-
                                         FlowElement flowElement2 = process.getFlowElement(sequenceFlow.getId());
                                         if(flowElement2!=null){
-                                            flowElement2.setId(condition.getString("finalSequenceFlowId"));
+                                            flowElement2.setId(condition.getString("elseSequenceFlowId"));
                                             exclusiveGateway.setDefaultFlow(flowElement2.getId());;
                                         }
+
                                         conditions.remove(0);
                                     }
                                 });
