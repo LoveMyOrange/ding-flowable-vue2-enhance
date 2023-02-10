@@ -28,10 +28,6 @@
 - [github](https://github.com/smart-flow/smart-flow-design)
 - [码云](https://gitee.com/crowncloud/smart-flow-design)
 
-## 预览 
-
-- 地址 http://47.109.22.115:10090/
-- 账号 admin/123456 luopeng/123456
 
 ## 特性
 
@@ -189,9 +185,7 @@ npm publish
 
 ## 交流
 
-点击链接加微信，可以直接提问及反馈 bug
 
-![图片](https://gitee.com/crowncloud/smart-flow-design/raw/master/wx.png)
 
 ## 字体资源地址
 
