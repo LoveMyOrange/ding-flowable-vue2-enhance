@@ -229,16 +229,9 @@ export default {
         console.log(this.setup)
         let processNew =  JSON.parse(JSON.stringify(this.setup.process));
 
-        if (processNew.children.branchs?.length > 1) {
-          processNew.children.branchs.map((item, i) => {
-            if (i == processNew.children.branchs.length - 1) {
-              item.typeElse = true;
-            } else {
-              item.typeElse = false;
-            }
-            return item;
-          });
-        }
+        //判断条件分支
+        this.conditionRecursion(processNew);
+
         let template = {
           formId: this.setup.formId,
           formName: this.setup.formName,
@@ -265,6 +258,26 @@ export default {
           })
         }
       })
+    },
+    conditionRecursion(process){
+      if(null != process && undefined != process){
+        if(null != process.branchs && undefined != process.branchs){
+          process.branchs.map((item, i) => {
+            if (i == process.branchs.length - 1) {
+              item.typeElse = true;
+            } else {
+              item.typeElse = false;
+            }
+            if(null != item.children && undefined != item.children){
+              this.conditionRecursion(item.children)
+            }else{
+              return item;
+            }
+          });
+        }else{
+          this.conditionRecursion(process.children)
+        }
+      }
     }
   }
 }
