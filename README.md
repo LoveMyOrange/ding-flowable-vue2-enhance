@@ -1,7 +1,7 @@
 # dingding-mid     中国式传统流程引擎开源标杆(Activiti 567 Flowable 56,Camunda7 )
 
 ### 大家可扫码加入交流群， 如果二维码失效了，可以加我微信 Doctor4JavaEE  备注 钉钉 拉你入群
-<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E7%94%9F%E6%B4%BB_1675734732974.png" alt="微信群" style="zoom:20%;" />
+<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/wxq_1676509686190.jpg" alt="微信群" style="zoom:20%;" />
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1_1665560718233.png" alt="作者微信" style="zoom:20%;" />
 
 在介绍本项目之前,我先想与大家谈论谈论业务框架 和 技术框架的问题 以及工作流的诸多问题
