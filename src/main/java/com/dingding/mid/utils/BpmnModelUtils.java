@@ -20,6 +20,7 @@ import org.flowable.bpmn.model.Process;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.delegate.ExecutionListener;
 import org.flowable.engine.delegate.TaskListener;
+import org.flowable.spring.integration.Flowable;
 import org.springframework.util.CollectionUtils;
 
 import java.lang.reflect.InvocationTargetException;
@@ -624,6 +625,38 @@ public class BpmnModelUtils {
                 else if (ModeEnums.NEXT.getTypeName().equals(mode)){
                     multiInstanceLoopCharacteristics.setSequential(true);
                 }
+
+                JSONObject timeLimit = props.getTimeLimit();
+                if(timeLimit!=null && !timeLimit.isEmpty()){
+                    JSONObject timeout = timeLimit.getJSONObject("timeout");
+                    if(timeout!=null && !timeout.isEmpty()){
+                        String unit = timeout.getString("unit");
+                        Integer value = timeout.getInteger("value");
+                        if(value>0){
+                            List<BoundaryEvent> boundaryEvents= new ArrayList<>();
+                            BoundaryEvent boundaryEvent= new BoundaryEvent();
+                            boundaryEvent.setId(id("boundaryEvent"));
+                            boundaryEvent.setAttachedToRefId(id);
+                            boundaryEvent.setAttachedToRef(userTask);
+                            boundaryEvent.setCancelActivity(Boolean.TRUE);
+                            TimerEventDefinition timerEventDefinition = new TimerEventDefinition();
+                            timerEventDefinition.setTimeDuration("PT"+1+"M");
+                            timerEventDefinition.setId(id("timerEventDefinition"));
+                            boundaryEvent.addEventDefinition(timerEventDefinition);
+                            FlowableListener flowableListener = new FlowableListener();
+                            flowableListener.setEvent(ExecutionListener.EVENTNAME_END);
+                            flowableListener.setImplementationType(IMPLEMENTATION_TYPE_CLASS);
+                            flowableListener.setImplementation("com.dingding.mid.listener.TimerListener");
+                            List<FlowableListener> listenerList= new ArrayList<>();
+                            listenerList.add(flowableListener);
+                            boundaryEvent.setExecutionListeners(listenerList);
+                            process.addFlowElement(boundaryEvent);
+                            boundaryEvents.add(boundaryEvent);
+                            userTask.setBoundaryEvents(boundaryEvents);
+                        }
+                    }
+                }
+
             }
         }
         return id;
