@@ -5,6 +5,7 @@ import store from './store'
 require('@/utils/CustomUtil')
 
 import ElementUI from "element-ui";
+import vueEsign from 'vue-esign'
 import "element-ui/lib/theme-chalk/index.css";
 
 import "@/assets/theme.less";
@@ -19,6 +20,7 @@ Vue.use(ElementUI);
 Vue.use(Ellipsis);
 Vue.use(WDialog);
 Vue.use(Tip);
+Vue.use(vueEsign)
 
 Vue.config.productionTip = false
 
