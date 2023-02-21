@@ -3,6 +3,7 @@ package com.dingding.mid.listener;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.dingding.mid.dto.json.ChildNode;
+import lombok.extern.slf4j.Slf4j;
 import org.flowable.bpmn.model.Process;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -16,10 +17,13 @@ import javax.annotation.Resource;
  * @create 2022-10-15 19:47
  */
 @Component
+@Slf4j
 public class TimerListener implements ExecutionListener {
     @Resource
     private RepositoryService repositoryService;
     @Override
     public void notify(DelegateExecution execution) {
+        log.info("========");
+        System.err.println("exection触发了");
     }
 }

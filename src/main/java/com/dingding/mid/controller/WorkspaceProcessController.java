@@ -480,7 +480,7 @@ public class WorkspaceProcessController {
             map.putAll(formValue);
             map.put(FORM_VAR,formData);
         }
-        map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
+        map.put(PROCESS_STATUS,BUSINESS_STATUS_1);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
             taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
@@ -508,7 +508,20 @@ public class WorkspaceProcessController {
         String comments = handleDataDTO.getComments();
         JSONObject formData = handleDataDTO.getFormData();
         String taskId = handleDataDTO.getTaskId();
-        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        String processInstanceId = handleDataDTO.getProcessInstanceId();
+        List<Task> list = taskService.createTaskQuery().processInstanceId(processInstanceId).list();
+        Task task = null;
+        List<String> taskIds = new ArrayList<>();
+
+        for (Task task1 : list) {
+            if(task1.getId().equals(taskIds)){
+                task=task1;
+            }
+            taskIds.add(task1.getTaskDefinitionKey());
+        }
+
+
+
         Map<String,Object> map=new HashMap<>();
         if(formData!=null &&formData.size()>0){
             Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
@@ -530,10 +543,12 @@ public class WorkspaceProcessController {
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
             taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
         }
-        //简易驳回 不写复杂驳回. 自行去实现去
+
+
         runtimeService.createChangeActivityStateBuilder()
                 .processInstanceId(task.getProcessInstanceId())
-                .moveActivityIdTo(task.getTaskDefinitionKey(),handleDataDTO.getRollbackId());
+                .moveActivityIdsToSingleActivityId(taskIds,handleDataDTO.getRollbackId())
+                .changeState();
         return Result.OK();
     }
 
@@ -555,7 +570,7 @@ public class WorkspaceProcessController {
             map.putAll(formValue);
             map.put(FORM_VAR,formData);
         }
-        map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
+        map.put(PROCESS_STATUS,BUSINESS_STATUS_1);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
             taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
@@ -572,7 +587,6 @@ public class WorkspaceProcessController {
 
         Map<String,Object> variableMap= new HashMap<>();
         variableMap.put("assigneeName",handleDataDTO.getMultiAddUserInfo().getId());
-//                    ExecutionEntity executionEntity = managementService.executeCommand(new GetRootExecutionEntityCmd(task.getExecutionId(), userTask.getId()));
         ExecutionEntity execution = (ExecutionEntity) runtimeService.addMultiInstanceExecution(task.getTaskDefinitionKey(), task.getProcessInstanceId(), variableMap);
         return Result.OK();
     }
@@ -630,7 +644,7 @@ public class WorkspaceProcessController {
             map.putAll(formValue);
             map.put(FORM_VAR,formData);
         }
-        map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
+        map.put(PROCESS_STATUS,BUSINESS_STATUS_1);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
             taskService.addComment(task.getId(),task.getProcessInstanceId(),"comments",comments);

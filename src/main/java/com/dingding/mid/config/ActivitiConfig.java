@@ -69,6 +69,7 @@ public class ActivitiConfig {
 		config.setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
 		config.setDelegateExpressionFieldInjectionMode(DelegateExpressionFieldInjectionMode.MIXED);
 		config.setIdGenerator(idWorkerIdGenerator);
+		config.setAsyncExecutorActivate(Boolean.TRUE);
 		HttpClientConfig httpClientConfig=new HttpClientConfig();
 		//连接超时
 		httpClientConfig.setConnectTimeout(10000);
