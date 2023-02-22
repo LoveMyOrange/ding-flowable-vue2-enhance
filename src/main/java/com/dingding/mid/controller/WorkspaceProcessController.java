@@ -514,7 +514,7 @@ public class WorkspaceProcessController {
         List<String> taskIds = new ArrayList<>();
 
         for (Task task1 : list) {
-            if(task1.getId().equals(taskIds)){
+            if(task1.getId().equals(taskId)){
                 task=task1;
             }
             taskIds.add(task1.getTaskDefinitionKey());
