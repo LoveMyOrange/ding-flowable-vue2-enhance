@@ -235,7 +235,7 @@ public class JsonToBpmnController {
                 JSONObject nextNode = childNode.getJSONObject("childNode");
                 String endExId=id("exclusiveGateway")+"end";
                 process.addFlowElement(createExclusiveGateWayEnd(endExId));
-                childNode.put("childNode", null);
+//                childNode.put("childNode", null);
                 String identifier =endExId;/*create(flowElement.getId(), childNode,model,process,sequenceFlows);*/
                 for (int i = 0; i < incoming.size(); i++) {
                     process.addFlowElement(connect(incoming.get(i), endExId,sequenceFlows));
