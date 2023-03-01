@@ -74,7 +74,9 @@ public class CounterSignListener implements ExecutionListener {
                 assigneeList.addAll()  既可
                 不过本项目没有添加leader的CRUD页面 所以 先这样,
                 怎么实现就是上述实现手段
-                下面角色也一样, 希望你们可以举一反三 一通百通
+                下面角色也一样, 希望我们<布尔什维克>的
+                同志们
+                可以举一反三 一通百通
                  */
 //                throw new WorkFlowException("当前只是简单的系统 没有RBAC功能,各位可以自己实现!");
             }
