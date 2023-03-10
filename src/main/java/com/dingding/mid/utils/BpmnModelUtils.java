@@ -110,19 +110,19 @@ public class BpmnModelUtils {
                                             else if("Number".equals(valueType)){
                                                 String str = StringUtils.join(value, ",");
                                                 if("=".equals(compare)){
-                                                    conditionExpression.append(" "+id+" == "+str+" ");
+                                                    conditionExpression.append(" "+ EXPRESSION_CLASS+"numberEquals("+id+","+str+") " );
                                                 }
                                                 else if(">".equals(compare)){
-                                                    conditionExpression.append(""+id+" > "+str+" ");
+                                                    conditionExpression.append(" "+ EXPRESSION_CLASS+"numberGt("+id+","+str+") " );
                                                 }
                                                 else if(">=".equals(compare)){
-                                                    conditionExpression.append(" "+id+" >= "+str+" ");
+                                                    conditionExpression.append(" "+ EXPRESSION_CLASS+"numberGtEquals("+id+","+str+") " );
                                                 }
                                                 else if("<".equals(compare)){
-                                                    conditionExpression.append(" "+id+" < "+str+" ");
+                                                    conditionExpression.append(" "+ EXPRESSION_CLASS+"numberLt("+id+","+str+") " );
                                                 }
                                                 else if("<=".equals(compare)){
-                                                    conditionExpression.append(" "+id+" <= "+str+" ");
+                                                    conditionExpression.append(" "+ EXPRESSION_CLASS+"numberLtEquals("+id+","+str+") " );
                                                 }
                                                 else if("IN".equals(compare)){
                                                     conditionExpression.append(" "+ EXPRESSION_CLASS+"numberContains("+id+","+str+") " );

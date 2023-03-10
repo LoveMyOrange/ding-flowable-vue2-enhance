@@ -7,6 +7,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.dingding.mid.dto.json.UserInfo;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -119,5 +120,54 @@ public class ExUtils {
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
+    }
+
+
+    /**
+     conditionExpression.append(" "+ EXPRESSION_CLASS+"numberEquals("+id+","+str+") " );
+     conditionExpression.append(" "+ EXPRESSION_CLASS+"numberGt("+id+","+str+") " );
+     conditionExpression.append(" "+ EXPRESSION_CLASS+"numberGtEquals("+id+","+str+") " );
+     conditionExpression.append(" "+ EXPRESSION_CLASS+"numberLt("+id+","+str+") " );
+     conditionExpression.append(" "+ EXPRESSION_CLASS+"numberLtEquals("+id+","+str+") " );
+     */
+    public Boolean numberEquals(String controlId,String value){
+        Double a = Double.valueOf(controlId);
+        Double b = Double.valueOf(value);
+        boolean equals = a.equals(b);
+        return equals;
+    }
+    public Boolean numberGt(String controlId,String value){
+        Double a = Double.valueOf(controlId);
+        BigDecimal a1 = BigDecimal.valueOf(a);
+        Double b = Double.valueOf(value);
+        BigDecimal a2 = BigDecimal.valueOf(b);
+        boolean greater = NumberUtil.isGreater(a1, a2);
+        return greater;
+    }
+
+    public Boolean numberGtEquals(String controlId,String value){
+        Double a = Double.valueOf(controlId);
+        BigDecimal a1 = BigDecimal.valueOf(a);
+        Double b = Double.valueOf(value);
+        BigDecimal a2 = BigDecimal.valueOf(b);
+        boolean greater = NumberUtil.isGreaterOrEqual(a1, a2);
+        return greater;
+    }
+
+    public Boolean numberLt(String controlId,String value){
+        Double a = Double.valueOf(controlId);
+        BigDecimal a1 = BigDecimal.valueOf(a);
+        Double b = Double.valueOf(value);
+        BigDecimal a2 = BigDecimal.valueOf(b);
+        boolean greater = NumberUtil.isLess(a1, a2);
+        return greater;
+    }
+    public Boolean numberLtEquals(String controlId,String value){
+        Double a = Double.valueOf(controlId);
+        BigDecimal a1 = BigDecimal.valueOf(a);
+        Double b = Double.valueOf(value);
+        BigDecimal a2 = BigDecimal.valueOf(b);
+        boolean greater = NumberUtil.isLessOrEqual(a1, a2);
+        return greater;
     }
 }
