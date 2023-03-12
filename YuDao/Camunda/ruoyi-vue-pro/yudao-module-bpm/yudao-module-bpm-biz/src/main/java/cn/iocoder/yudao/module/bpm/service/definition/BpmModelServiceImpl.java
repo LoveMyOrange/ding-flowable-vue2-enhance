@@ -244,11 +244,6 @@ public class BpmModelServiceImpl implements BpmModelService {
         bpmModelPlusDO.setFormInfo(JsonUtils.toJsonString(metaInfo));
 
         String bpmnXml = updateReqVO.getBpmnXml();
-        if(StringUtils.isNotBlank(updateReqVO.getCategory())){
-           if(StringUtils.isNotBlank(bpmnXml)){
-               bpmnXml=bpmnXml.replace("targetNamespace=\"http://flowable.org/bpmn\"","targetNamespace=\""+updateReqVO.getCategory()+"\"");
-           }
-        }
         bpmModelPlusDO.setBpmnXml(bpmnXml);
         bpmModelPlusMapper.updateById(bpmModelPlusDO);
     }
@@ -290,7 +285,9 @@ public class BpmModelServiceImpl implements BpmModelService {
             }
         }
 
-
+        if(StringUtils.isNotBlank(bpmnXml)){
+            bpmnXml=bpmnXml.replace("targetNamespace=\"http://bpmn.io/schema/bpmn\"","targetNamespace=\""+bpmModelPlusDO.getCategory()+"\"");
+        }
 
         // 1.3 校验表单已配
         BpmFormDO form = checkFormConfig(bpmModelPlusDO.getFormInfo());

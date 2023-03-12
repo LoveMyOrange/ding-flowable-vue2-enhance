@@ -5,6 +5,8 @@ import cn.iocoder.yudao.module.bpm.framework.flowable.core.listener.GlobalProces
 import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParseListener;
 import org.camunda.bpm.engine.impl.cfg.AbstractProcessEnginePlugin;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
+import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 
@@ -49,4 +51,12 @@ public class BpmFlowableConfiguration {
             preParseListeners.add(new GlobalProcessListener());
         }
     }
+
+    public SpringProcessEngineConfiguration springProcessEngineConfiguration(
+            SpringProcessEngineConfiguration springProcessEngineConfiguration) {
+        System.err.println("触发Camunda初始化");
+        return springProcessEngineConfiguration;
+    }
+
+
 }

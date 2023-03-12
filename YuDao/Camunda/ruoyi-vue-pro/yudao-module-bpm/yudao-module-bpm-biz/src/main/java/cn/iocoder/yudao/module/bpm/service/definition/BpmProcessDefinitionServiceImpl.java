@@ -1,7 +1,6 @@
 package cn.iocoder.yudao.module.bpm.service.definition;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.FastByteArrayOutputStream;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -19,7 +18,6 @@ import cn.iocoder.yudao.module.bpm.dal.mysql.definition.BpmProcessDefinitionExtM
 import cn.iocoder.yudao.module.bpm.dal.mysql.definition.ProcessDefinitionMapper;
 import cn.iocoder.yudao.module.bpm.service.definition.dto.BpmProcessDefinitionCreateReqDTO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.dialects.XCloudDialect;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState;
@@ -34,7 +32,6 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -64,10 +61,10 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
     private RepositoryService repositoryService;
 
     @Resource
-    private BpmProcessDefinitionExtMapper processDefinitionMapper;
+    private BpmProcessDefinitionExtMapper bpmProcessDefinitionExtMapper;
 
     @Resource
-    private BpmFormService formService;
+    private BpmFormService bpmFormService;
     @Resource
     private ProcessDefinitionMapper camundaProcessDefinitionMapper;
 
@@ -94,6 +91,7 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
         if (CollUtil.isEmpty(deploymentIds)) {
             return emptyList();
         }
+
         LambdaQueryWrapper<ProcessDefinitionDO> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.in(ProcessDefinitionDO::getDeploymentId,deploymentIds);
         return camundaProcessDefinitionMapper.selectList(lambdaQueryWrapper);
@@ -156,7 +154,7 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
         // 插入拓展表
         BpmProcessDefinitionExtDO definitionDO = BpmProcessDefinitionConvert.INSTANCE.convert2(createReqDTO)
                 .setProcessDefinitionId(definition.getId());
-        processDefinitionMapper.insert(definitionDO);
+        bpmProcessDefinitionExtMapper.insert(definitionDO);
         return definition.getId();
     }
 
@@ -247,7 +245,7 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
 
     @Override
     public BpmProcessDefinitionExtDO getProcessDefinitionExt(String id) {
-        return processDefinitionMapper.selectByProcessDefinitionId(id);
+        return bpmProcessDefinitionExtMapper.selectByProcessDefinitionId(id);
     }
 
     @Override
@@ -266,7 +264,7 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
         }
 
         // 获得 BpmProcessDefinitionDO Map
-        List<BpmProcessDefinitionExtDO> processDefinitionDOs = processDefinitionMapper.selectListByProcessDefinitionIds(
+        List<BpmProcessDefinitionExtDO> processDefinitionDOs = bpmProcessDefinitionExtMapper.selectListByProcessDefinitionIds(
                 convertList(processDefinitions, ProcessDefinition::getId));
         Map<String, BpmProcessDefinitionExtDO> processDefinitionDOMap = convertMap(processDefinitionDOs,
                 BpmProcessDefinitionExtDO::getProcessDefinitionId);
@@ -294,14 +292,14 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
         Map<String, Deployment> deploymentMap = getDeploymentMap(deploymentIds);
 
         // 获得 BpmProcessDefinitionDO Map
-        List<BpmProcessDefinitionExtDO> processDefinitionDOs = processDefinitionMapper.selectListByProcessDefinitionIds(
+        List<BpmProcessDefinitionExtDO> processDefinitionDOs = bpmProcessDefinitionExtMapper.selectListByProcessDefinitionIds(
                 convertList(processDefinitions, ProcessDefinition::getId));
         Map<String, BpmProcessDefinitionExtDO> processDefinitionDOMap = convertMap(processDefinitionDOs,
                 BpmProcessDefinitionExtDO::getProcessDefinitionId);
 
         // 获得 Form Map
         Set<Long> formIds = convertSet(processDefinitionDOs, BpmProcessDefinitionExtDO::getFormId);
-        Map<Long, BpmFormDO> formMap = formService.getFormMap(formIds);
+        Map<Long, BpmFormDO> formMap = bpmFormService.getFormMap(formIds);
 
         // 拼接结果
         long definitionCount = definitionQuery.count();

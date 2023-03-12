@@ -259,7 +259,7 @@ export default {
       showBpmnOpen: false,
       bpmnXML: null,
       bpmnControlForm: {
-        prefix: "flowable"
+        prefix: "camunda"
       },
 
       // 流程表单详情

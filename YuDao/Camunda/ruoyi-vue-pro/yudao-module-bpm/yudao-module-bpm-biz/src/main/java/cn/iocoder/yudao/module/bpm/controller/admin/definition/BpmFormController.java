@@ -26,20 +26,20 @@ import static cn.iocoder.yudao.framework.common.pojo.CommonResult.success;
 public class BpmFormController {
 
     @Resource
-    private BpmFormService formService;
+    private BpmFormService bpmFormService;
 
     @PostMapping("/create")
     @Operation(summary = "创建动态表单")
     @PreAuthorize("@ss.hasPermission('bpm:form:create')")
     public CommonResult<Long> createForm(@Valid @RequestBody BpmFormCreateReqVO createReqVO) {
-        return success(formService.createForm(createReqVO));
+        return success(bpmFormService.createForm(createReqVO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "更新动态表单")
     @PreAuthorize("@ss.hasPermission('bpm:form:update')")
     public CommonResult<Boolean> updateForm(@Valid @RequestBody BpmFormUpdateReqVO updateReqVO) {
-        formService.updateForm(updateReqVO);
+        bpmFormService.updateForm(updateReqVO);
         return success(true);
     }
 
@@ -48,7 +48,7 @@ public class BpmFormController {
     @Parameter(name = "id", description = "编号", required = true)
     @PreAuthorize("@ss.hasPermission('bpm:form:delete')")
     public CommonResult<Boolean> deleteForm(@RequestParam("id") Long id) {
-        formService.deleteForm(id);
+        bpmFormService.deleteForm(id);
         return success(true);
     }
 
@@ -57,14 +57,14 @@ public class BpmFormController {
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
     @PreAuthorize("@ss.hasPermission('bpm:form:query')")
     public CommonResult<BpmFormRespVO> getForm(@RequestParam("id") Long id) {
-        BpmFormDO form = formService.getForm(id);
+        BpmFormDO form = bpmFormService.getForm(id);
         return success(BpmFormConvert.INSTANCE.convert(form));
     }
 
     @GetMapping("/list-all-simple")
     @Operation(summary = "获得动态表单的精简列表", description = "用于表单下拉框")
     public CommonResult<List<BpmFormSimpleRespVO>> getSimpleForms() {
-        List<BpmFormDO> list = formService.getFormList();
+        List<BpmFormDO> list = bpmFormService.getFormList();
         return success(BpmFormConvert.INSTANCE.convertList2(list));
     }
 
@@ -72,7 +72,7 @@ public class BpmFormController {
     @Operation(summary = "获得动态表单分页")
     @PreAuthorize("@ss.hasPermission('bpm:form:query')")
     public CommonResult<PageResult<BpmFormRespVO>> getFormPage(@Valid BpmFormPageReqVO pageVO) {
-        PageResult<BpmFormDO> pageResult = formService.getFormPage(pageVO);
+        PageResult<BpmFormDO> pageResult = bpmFormService.getFormPage(pageVO);
         return success(BpmFormConvert.INSTANCE.convertPage(pageResult));
     }
 

@@ -110,7 +110,7 @@ export default {
       showBpmnOpen: false,
       bpmnXML: null,
       bpmnControlForm: {
-        prefix: "flowable"
+        prefix: "camunda"
       },
 
       // 数据字典

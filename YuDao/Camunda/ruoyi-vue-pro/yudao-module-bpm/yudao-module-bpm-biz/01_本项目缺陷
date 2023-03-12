@@ -4,6 +4,7 @@ Flowable版代码
 3.很简单的代码,封装5~6层
 4.工作流持久层代码 DO 不应该传递多层  但是ProcessInstance等的参数一直传递  lazy loading
 5.多扩展表 根本没用
+6.yml 配置为full
 
 
 

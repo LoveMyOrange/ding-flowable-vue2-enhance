@@ -39,7 +39,7 @@ export default {
         simulation: true,
         labelEditing: false,
         labelVisible: false,
-        prefix: "flowable",
+        prefix: "camunda",
         headerButtonSize: "mini",
         additionalModel: [CustomContentPadProvider, CustomPaletteProvider]
       },

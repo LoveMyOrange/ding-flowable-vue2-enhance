@@ -33,7 +33,7 @@ function anyType(element, types) {
 
 function isAllowed(propName, propDescriptor, newElement) {
   const name = propDescriptor.name,
-    types = ALLOWED_TYPES[name.replace(/flowable:/, '')]
+    types = ALLOWED_TYPES[name.replace(/camunda:/, '')]
 
   return name === propName && anyType(newElement, types);
 }
@@ -54,7 +54,7 @@ function FlowableModdleExtension(eventBus) {
 FlowableModdleExtension.$inject = ["eventBus"];
 
 FlowableModdleExtension.prototype.canCloneProperty = function(newElement, propDescriptor) {
-  if (isAllowed("flowable:FailedJobRetryTimeCycle", propDescriptor, newElement)) {
+  if (isAllowed("camunda:FailedJobRetryTimeCycle", propDescriptor, newElement)) {
     return (
       includesType(newElement.eventDefinitions, "bpmn:TimerEventDefinition") ||
       includesType(newElement.eventDefinitions, "bpmn:SignalEventDefinition") ||
@@ -62,11 +62,11 @@ FlowableModdleExtension.prototype.canCloneProperty = function(newElement, propDe
     );
   }
 
-  if (isAllowed("flowable:Connector", propDescriptor, newElement)) {
+  if (isAllowed("camunda:Connector", propDescriptor, newElement)) {
     return includesType(newElement.eventDefinitions, "bpmn:MessageEventDefinition");
   }
 
-  if (isAllowed("flowable:Field", propDescriptor, newElement)) {
+  if (isAllowed("camunda:Field", propDescriptor, newElement)) {
     return includesType(newElement.eventDefinitions, "bpmn:MessageEventDefinition");
   }
 };

@@ -7,20 +7,14 @@
           <el-option label="并行多重事件" value="ParallelMultiInstance" />
           <el-option label="时序多重事件" value="SequentialMultiInstance" />
           <!--bpmn:StandardLoopCharacteristics-->
-          <el-option label="循环事件" value="StandardLoop" />
           <el-option label="无" value="Null" />
         </el-select>
       </el-form-item>
       <template v-if="loopCharacteristics === 'ParallelMultiInstance' || loopCharacteristics === 'SequentialMultiInstance'">
-        <el-form-item label="循环基数" key="loopCardinality">
-          <el-input v-model="loopInstanceForm.loopCardinality" clearable @change="updateLoopCardinality" />
-        </el-form-item>
         <el-form-item label="集合" key="collection" v-show="false">
           <el-input v-model="loopInstanceForm.collection" clearable @change="updateLoopBase" />
         </el-form-item>
-        <el-form-item label="元素变量" key="elementVariable">
-          <el-input v-model="loopInstanceForm.elementVariable" clearable @change="updateLoopBase" />
-        </el-form-item>
+        <el-input v-model="loopInstanceForm.elementVariable" clearable @change="updateLoopBase" v-show="false" />
         <el-form-item label="完成条件" key="completionCondition">
           <el-input v-model="loopInstanceForm.completionCondition" clearable @change="updateLoopCondition" />
         </el-form-item>
@@ -129,9 +123,10 @@ export default {
       }
       // 时序
       if (type === "SequentialMultiInstance") {
-        this.multiLoopInstance = window.bpmnInstances.moddle.create("bpmn:MultiInstanceLoopCharacteristics", { isSequential: true });
+        this.multiLoopInstance = window.bpmnInstances.moddle.create("bpmn:MultiInstanceLoopCharacteristics", { isSequential: true,collection: "${bpmTaskAssignRuleService.calculateTaskCandidateUsers(execution)}",elementVariable:"assignee" });
       } else {
-        this.multiLoopInstance = window.bpmnInstances.moddle.create("bpmn:MultiInstanceLoopCharacteristics", { collection: "${coll_userList}" });
+        this.multiLoopInstance = window.bpmnInstances.moddle.create("bpmn:MultiInstanceLoopCharacteristics", { collection: "${bpmTaskAssignRuleService.calculateTaskCandidateUsers(execution)}",elementVariable:"assignee" });
+
       }
       window.bpmnInstances.modeling.updateProperties(this.bpmnElement, {
         loopCharacteristics: this.multiLoopInstance

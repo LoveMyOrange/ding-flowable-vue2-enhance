@@ -1,10 +1,8 @@
 <template>
   <div style="margin-top: 16px">
-<!--    <el-form-item label="处理用户">-->
-<!--      <el-select v-model="userTaskForm.assignee" @change="updateElementTask('assignee')">-->
-<!--        <el-option v-for="ak in mockData" :key="'ass-' + ak" :label="`用户${ak}`" :value="`user${ak}`" />-->
-<!--      </el-select>-->
-<!--    </el-form-item>-->
+    <el-form-item label="处理用户">
+      <el-input v-model="userTaskForm.assignee" clearable  @change="updateElementTask('assignee')" />
+    </el-form-item>
 <!--    <el-form-item label="候选用户">-->
 <!--      <el-select v-model="userTaskForm.candidateUsers" multiple collapse-tags @change="updateElementTask('candidateUsers')">-->
 <!--        <el-option v-for="uk in mockData" :key="'user-' + uk" :label="`用户${uk}`" :value="`user${uk}`" />-->
