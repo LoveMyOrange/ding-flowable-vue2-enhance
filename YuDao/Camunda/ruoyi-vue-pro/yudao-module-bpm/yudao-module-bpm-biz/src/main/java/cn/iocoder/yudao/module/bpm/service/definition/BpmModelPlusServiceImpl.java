@@ -32,8 +32,8 @@ import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.
 import static cn.iocoder.yudao.module.bpm.enums.ErrorCodeConstants.*;
 
 /**
- * Flowable流程模型实现
- * 主要进行 Flowable {@link Model} 的维护
+ * Camunda 流程模型实现
+ * 主要进行 Flowable {@link cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmModelPlusDO} 的维护
  *
  * @author yunlongn
  * @author 芋道源码

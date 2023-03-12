@@ -1,5 +1,6 @@
 package cn.iocoder.yudao.module.bpm.service.definition;
 
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -14,16 +15,21 @@ import cn.iocoder.yudao.module.bpm.convert.definition.BpmModelConvert;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmFormDO;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmModelPlusDO;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmUserGroupDO;
+import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.ProcessDefinitionDO;
 import cn.iocoder.yudao.module.bpm.dal.mysql.definition.BpmModelPlusMapper;
 import cn.iocoder.yudao.module.bpm.enums.definition.BpmModelFormTypeEnum;
 import cn.iocoder.yudao.module.bpm.service.definition.dto.BpmModelMetaInfoRespDTO;
 import cn.iocoder.yudao.module.bpm.service.definition.dto.BpmProcessDefinitionCreateReqDTO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.model.bpmn.Bpmn;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.instance.UserTask;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -31,6 +37,10 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -91,48 +101,50 @@ public class BpmModelServiceImpl implements BpmModelService {
         models.forEach(model -> CollectionUtils.addIfNotNull(deploymentIds, model.getDeploymentId()));
         Map<String, Deployment> deploymentMap = processDefinitionService.getDeploymentMap(deploymentIds);
         // 获得 ProcessDefinition Map
-        List<ProcessDefinition> processDefinitions = processDefinitionService.getProcessDefinitionListByDeploymentIds(deploymentIds);
-        Map<String, ProcessDefinition> processDefinitionMap = convertMap(processDefinitions, ProcessDefinition::getDeploymentId);
+        List<ProcessDefinitionDO> processDefinitions = processDefinitionService.getProcessDefinitionListByDeploymentIds(deploymentIds);
+        Map<String, ProcessDefinitionDO> processDefinitionMap = convertMap(processDefinitions, ProcessDefinitionDO::getDeploymentId);
         Long modelCount = bpmModelPlusDOPageResult.getTotal();
 
 
-        CollectionUtils.convertList(models, model -> {
+        List<BpmModelPageItemRespVO> bpmModelPageItemRespVOS = CollectionUtils.convertList(models, model -> {
             BpmModelMetaInfoRespDTO metaInfo = JsonUtils.parseObject(model.getFormInfo(), BpmModelMetaInfoRespDTO.class);
             BpmFormDO form = metaInfo != null ? formMap.get(metaInfo.getFormId()) : null;
             Deployment deployment = model.getDeploymentId() != null ? deploymentMap.get(model.getDeploymentId()) : null;
-            ProcessDefinition processDefinition = model.getDeploymentId() != null ? processDefinitionMap.get(model.getDeploymentId()) : null;
+            ProcessDefinitionDO processDefinition = model.getDeploymentId() != null ? processDefinitionMap.get(model.getDeploymentId()) : null;
             BpmModelPageItemRespVO modelRespVO = new BpmModelPageItemRespVO();
-            modelRespVO.setId(model.getId()+"");
+            modelRespVO.setId(model.getId() + "");
             modelRespVO.setCreateTime(model.getCreateTime());
             modelRespVO.setName(model.getName());
             modelRespVO.setKey(model.getKey());
             modelRespVO.setCategory(model.getCategory());
             // metaInfo
-            modelRespVO.setDescription(metaInfo.getDescription());
-            modelRespVO.setFormType(metaInfo.getFormType());
-            modelRespVO.setFormId(metaInfo.getFormId());
-            modelRespVO.setFormCustomCreatePath(modelRespVO.getFormCustomCreatePath());
-            modelRespVO.setFormCustomViewPath(modelRespVO.getFormCustomViewPath());
+            if (metaInfo != null) {
+                modelRespVO.setDescription(metaInfo.getDescription());
+                modelRespVO.setFormType(metaInfo.getFormType());
+                modelRespVO.setFormId(metaInfo.getFormId());
+                modelRespVO.setFormCustomCreatePath(modelRespVO.getFormCustomCreatePath());
+                modelRespVO.setFormCustomViewPath(modelRespVO.getFormCustomViewPath());
+            }
             // Form
             if (form != null) {
                 modelRespVO.setFormId(form.getId());
                 modelRespVO.setFormName(form.getName());
             }
 
-            BpmModelPageItemRespVO.ProcessDefinition subProcessDef= new BpmModelPageItemRespVO.ProcessDefinition();
-            subProcessDef.setId(processDefinition.getId());
-            subProcessDef.setVersion(processDefinition.getVersion());
-            // ProcessDefinition
-            modelRespVO.setProcessDefinition(subProcessDef);
-            if (modelRespVO.getProcessDefinition() != null) {
-                modelRespVO.getProcessDefinition().setSuspensionState(processDefinition.isSuspended() ?
-                        SuspensionState.SUSPENDED.getStateCode() : SuspensionState.ACTIVE.getStateCode());
-                modelRespVO.getProcessDefinition().setDeploymentTime(DateUtils.of(deployment.getDeploymentTime()));
+            if (processDefinition != null) {
+                BpmModelPageItemRespVO.ProcessDefinition subProcessDef = new BpmModelPageItemRespVO.ProcessDefinition();
+                subProcessDef.setId(processDefinition.getId());
+                subProcessDef.setVersion(processDefinition.getVersion());
+                // ProcessDefinition
+                modelRespVO.setProcessDefinition(subProcessDef);
+                if (modelRespVO.getProcessDefinition() != null) {
+                    modelRespVO.getProcessDefinition().setSuspensionState(processDefinition.getSuspensionState());
+                    modelRespVO.getProcessDefinition().setDeploymentTime(DateUtils.of(deployment.getDeploymentTime()));
+                }
             }
             return modelRespVO;
         });
-
-        return new PageResult<>(BpmModelConvert.INSTANCE.convertList(models, formMap, deploymentMap, processDefinitionMap), modelCount);
+        return new PageResult<>(bpmModelPageItemRespVOS,modelCount);
     }
 
     @Override
@@ -154,9 +166,10 @@ public class BpmModelServiceImpl implements BpmModelService {
         bpmModelPlusDO.setKey(key);
         bpmModelPlusDO.setName(name);
         bpmModelPlusDO.setDescription(description);
+        BpmModelMetaInfoRespDTO metaInfo = new BpmModelMetaInfoRespDTO();
+        metaInfo.setDescription(description);
+        bpmModelPlusDO.setFormInfo(JsonUtils.toJsonString(metaInfo));
         bpmModelPlusDO.setBpmnXml(bpmnXml);
-
-
         bpmModelPlusMapper.insert(bpmModelPlusDO);
         // 保存 BPMN XML
         return bpmModelPlusDO.getId()+"";
@@ -188,11 +201,13 @@ public class BpmModelServiceImpl implements BpmModelService {
         modelRespVO.setCategory(bpmModelPlusDO.getCategory());
         // metaInfo
         BpmModelMetaInfoRespDTO metaInfo = JsonUtils.parseObject(bpmModelPlusDO.getFormInfo(), BpmModelMetaInfoRespDTO.class);
-        modelRespVO.setDescription(metaInfo.getDescription());
-        modelRespVO.setFormType(metaInfo.getFormType());
-        modelRespVO.setFormId(metaInfo.getFormId());
-        modelRespVO.setFormCustomCreatePath(modelRespVO.getFormCustomCreatePath());
-        modelRespVO.setFormCustomViewPath(modelRespVO.getFormCustomViewPath());
+        if(metaInfo!=null){
+            modelRespVO.setDescription(metaInfo.getDescription());
+            modelRespVO.setFormType(metaInfo.getFormType());
+            modelRespVO.setFormId(metaInfo.getFormId());
+            modelRespVO.setFormCustomCreatePath(metaInfo.getFormCustomCreatePath());
+            modelRespVO.setFormCustomViewPath(metaInfo.getFormCustomViewPath());
+        }
         modelRespVO.setBpmnXml(bpmModelPlusDO.getBpmnXml());
         return modelRespVO;
     }
@@ -210,6 +225,7 @@ public class BpmModelServiceImpl implements BpmModelService {
         // 修改流程定义
         bpmModelPlusDO.setName(updateReqVO.getName());
         bpmModelPlusDO.setCategory(updateReqVO.getCategory());
+
         BpmModelMetaInfoRespDTO metaInfo = JsonUtils.parseObject(bpmModelPlusDO.getFormInfo(), BpmModelMetaInfoRespDTO.class);
         if (metaInfo == null) {
             metaInfo = new BpmModelMetaInfoRespDTO();
@@ -225,8 +241,15 @@ public class BpmModelServiceImpl implements BpmModelService {
             metaInfo.setFormCustomCreatePath(updateReqVO.getFormCustomCreatePath());
             metaInfo.setFormCustomViewPath(updateReqVO.getFormCustomViewPath());
         }
+        bpmModelPlusDO.setFormInfo(JsonUtils.toJsonString(metaInfo));
 
-        bpmModelPlusDO.setBpmnXml(updateReqVO.getBpmnXml());
+        String bpmnXml = updateReqVO.getBpmnXml();
+        if(StringUtils.isNotBlank(updateReqVO.getCategory())){
+           if(StringUtils.isNotBlank(bpmnXml)){
+               bpmnXml=bpmnXml.replace("targetNamespace=\"http://flowable.org/bpmn\"","targetNamespace=\""+updateReqVO.getCategory()+"\"");
+           }
+        }
+        bpmModelPlusDO.setBpmnXml(bpmnXml);
         bpmModelPlusMapper.updateById(bpmModelPlusDO);
     }
 
@@ -234,40 +257,65 @@ public class BpmModelServiceImpl implements BpmModelService {
     @Transactional(rollbackFor = Exception.class) // 因为进行多个操作，所以开启事务
     public void deployModel(String id) {
         // 1.1 校验流程模型存在
-        Model model = repositoryService.getModel(id);
-        if (ObjectUtils.isEmpty(model)) {
+        LambdaQueryWrapper<BpmModelPlusDO> lambdaQueryWrapper =new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(BpmModelPlusDO::getId,id);
+        BpmModelPlusDO bpmModelPlusDO = bpmModelPlusMapper.selectOne(lambdaQueryWrapper);
+        if (ObjectUtils.isEmpty(bpmModelPlusDO)) {
             throw exception(MODEL_NOT_EXISTS);
         }
         // 1.2 校验流程图
         // TODO 芋艿：校验流程图的有效性；例如说，是否有开始的元素，是否有结束的元素；
-        byte[] bpmnBytes = repositoryService.getModelEditorSource(model.getId());
-        if (bpmnBytes == null) {
+        String bpmnXml = bpmModelPlusDO.getBpmnXml();
+        if (StringUtils.isBlank(bpmnXml)) {
             throw exception(MODEL_NOT_EXISTS);
         }
+
+
+        InputStream inputStream=null;
+        BpmnModelInstance bpmnModelInstance=null;
+        try {
+            inputStream = new ByteArrayInputStream(
+                    new String(bpmnXml).getBytes());
+            bpmnModelInstance = Bpmn.readModelFromStream(inputStream);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            if(inputStream!=null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+
+
         // 1.3 校验表单已配
-        BpmFormDO form = checkFormConfig(model.getMetaInfo());
+        BpmFormDO form = checkFormConfig(bpmModelPlusDO.getFormInfo());
         // 1.4 校验任务分配规则已配置
         taskAssignRuleService.checkTaskAssignRuleAllConfig(id);
 
         // 1.5 校验模型是否发生修改。如果未修改，则不允许创建
-        BpmProcessDefinitionCreateReqDTO definitionCreateReqDTO = BpmModelConvert.INSTANCE.convert2(model, form).setBpmnBytes(bpmnBytes);
-        if (processDefinitionService.isProcessDefinitionEquals(definitionCreateReqDTO)) { // 流程定义的信息相等
-            ProcessDefinition oldProcessDefinition = processDefinitionService.getProcessDefinitionByDeploymentId(model.getDeploymentId());
-            if (oldProcessDefinition != null && taskAssignRuleService.isTaskAssignRulesEquals(model.getId(), oldProcessDefinition.getId())) {
-                throw exception(MODEL_DEPLOY_FAIL_TASK_INFO_EQUALS);
-            }
-        }
+        BpmProcessDefinitionCreateReqDTO definitionCreateReqDTO = BpmModelConvert.INSTANCE.convert2(bpmModelPlusDO, form).setBpmnBytes(StrUtil.utf8Bytes(bpmnXml));
+//        if (processDefinitionService.isProcessDefinitionEquals(definitionCreateReqDTO)) { // 流程定义的信息相等
+//            ProcessDefinition oldProcessDefinition = processDefinitionService.getProcessDefinitionByDeploymentId(bpmModelPlusDO.getDeploymentId());
+//            if (oldProcessDefinition != null && taskAssignRuleService.isTaskAssignRulesEquals(bpmModelPlusDO.getId()+"", oldProcessDefinition.getId())) {
+//                throw exception(MODEL_DEPLOY_FAIL_TASK_INFO_EQUALS);
+//            }
+//        }
 
         // 2.1 创建流程定义
         String definitionId = processDefinitionService.createProcessDefinition(definitionCreateReqDTO);
 
-        // 2.2 将老的流程定义进行挂起。也就是说，只有最新部署的流程定义，才可以发起任务。
-        updateProcessDefinitionSuspended(model.getDeploymentId());
+//        // 2.2 将老的流程定义进行挂起。也就是说，只有最新部署的流程定义，才可以发起任务。
+//        updateProcessDefinitionSuspended(model.getDeploymentId());
 
         // 2.3 更新 model 的 deploymentId，进行关联
         ProcessDefinition definition = processDefinitionService.getProcessDefinition(definitionId);
-        model.setDeploymentId(definition.getDeploymentId());
-        repositoryService.saveModel(model);
+        bpmModelPlusDO.setDeploymentId(definition.getDeploymentId());
+        bpmModelPlusMapper.updateById(bpmModelPlusDO);
 
         // 2.4 复制任务分配规则
         taskAssignRuleService.copyTaskAssignRules(id, definition.getId());
@@ -277,26 +325,31 @@ public class BpmModelServiceImpl implements BpmModelService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteModel(String id) {
-        // 校验流程模型存在
-        Model model = repositoryService.getModel(id);
-        if (model == null) {
+
+        LambdaQueryWrapper<BpmModelPlusDO> lambdaQueryWrapper =new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(BpmModelPlusDO::getId,id);
+        BpmModelPlusDO bpmModelPlusDO = bpmModelPlusMapper.selectOne(lambdaQueryWrapper);
+
+        if (bpmModelPlusDO == null) {
             throw exception(MODEL_NOT_EXISTS);
         }
         // 执行删除
-        repositoryService.deleteModel(id);
+        bpmModelPlusMapper.deleteById(bpmModelPlusDO);
         // 禁用流程实例
-        updateProcessDefinitionSuspended(model.getDeploymentId());
+        updateProcessDefinitionSuspended(bpmModelPlusDO.getDeploymentId());
     }
 
     @Override
     public void updateModelState(String id, Integer state) {
+        LambdaQueryWrapper<BpmModelPlusDO> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(BpmModelPlusDO::getId,id);
+        BpmModelPlusDO bpmModelPlusDO = bpmModelPlusMapper.selectOne(lambdaQueryWrapper);
         // 校验流程模型存在
-        Model model = repositoryService.getModel(id);
-        if (model == null) {
+        if (bpmModelPlusDO == null) {
             throw exception(MODEL_NOT_EXISTS);
         }
         // 校验流程定义存在
-        ProcessDefinition definition = processDefinitionService.getProcessDefinitionByDeploymentId(model.getDeploymentId());
+        ProcessDefinition definition = processDefinitionService.getProcessDefinitionByDeploymentId(bpmModelPlusDO.getDeploymentId());
         if (definition == null) {
             throw exception(PROCESS_DEFINITION_NOT_EXISTS);
         }
@@ -306,13 +359,34 @@ public class BpmModelServiceImpl implements BpmModelService {
     }
 
     @Override
-    public BpmnModel getBpmnModel(String id) {
-        byte[] bpmnBytes = repositoryService.getModelEditorSource(id);
-        if (ArrayUtil.isEmpty(bpmnBytes)) {
+    public BpmnModelInstance getBpmnModel(String id) {
+        LambdaQueryWrapper<BpmModelPlusDO> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(BpmModelPlusDO::getId,id);
+        BpmModelPlusDO bpmModelPlusDO = bpmModelPlusMapper.selectOne(lambdaQueryWrapper);
+        String bpmnXml = bpmModelPlusDO.getBpmnXml();
+        if(StringUtils.isBlank(bpmnXml)){
             return null;
         }
-        BpmnXMLConverter converter = new BpmnXMLConverter();
-        return converter.convertToBpmnModel(new BytesStreamSource(bpmnBytes), true, true);
+        InputStream inputStream=null;
+        BpmnModelInstance bpmnModelInstance=null;
+        try {
+             inputStream = new ByteArrayInputStream(
+                    new String(bpmnXml).getBytes());
+             bpmnModelInstance = Bpmn.readModelFromStream(inputStream);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            if(inputStream!=null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+
+        return bpmnModelInstance;
     }
 
     private void checkKeyNCName(String key) {
@@ -343,12 +417,6 @@ public class BpmModelServiceImpl implements BpmModelService {
         return null;
     }
 
-    private void saveModelBpmnXml(Model model, String bpmnXml) {
-        if (StrUtil.isEmpty(bpmnXml)) {
-            return;
-        }
-        repositoryService.addModelEditorSource(model.getId(), StrUtil.utf8Bytes(bpmnXml));
-    }
 
     /**
      * 挂起 deploymentId 对应的流程定义。 这里一个deploymentId 只关联一个流程定义

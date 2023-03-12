@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.module.bpm.api.task.dto.BpmProcessInstanceCreateReqDTO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.instance.*;
+import cn.iocoder.yudao.module.bpm.service.message.dto.CamundaProcessInstanceDTO;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 
@@ -119,21 +120,19 @@ public interface BpmProcessInstanceService {
      *
      * @param instance 流程任务
      */
-    void createProcessInstanceExt(ProcessInstance instance);
+    void createProcessInstanceExt(CamundaProcessInstanceDTO instance);
 
     /**
      * 更新 ProcessInstance 拓展记录为取消
-     *
-     * @param event 流程取消事件
      */
-    void updateProcessInstanceExtCancel(FlowableCancelledEvent event);
+//    void updateProcessInstanceExtCancel(FlowableCancelledEvent event);
 
     /**
      * 更新 ProcessInstance 拓展记录为完成
      *
      * @param instance 流程任务
      */
-    void updateProcessInstanceExtComplete(ProcessInstance instance);
+    void updateProcessInstanceExtComplete(CamundaProcessInstanceDTO instance);
 
     /**
      * 更新 ProcessInstance 拓展记录为不通过

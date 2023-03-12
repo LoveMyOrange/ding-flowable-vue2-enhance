@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.bpm.service.definition;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FastByteArrayOutputStream;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
@@ -12,8 +14,12 @@ import cn.iocoder.yudao.module.bpm.controller.admin.definition.vo.process.BpmPro
 import cn.iocoder.yudao.module.bpm.convert.definition.BpmProcessDefinitionConvert;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmFormDO;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmProcessDefinitionExtDO;
+import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.ProcessDefinitionDO;
 import cn.iocoder.yudao.module.bpm.dal.mysql.definition.BpmProcessDefinitionExtMapper;
+import cn.iocoder.yudao.module.bpm.dal.mysql.definition.ProcessDefinitionMapper;
 import cn.iocoder.yudao.module.bpm.service.definition.dto.BpmProcessDefinitionCreateReqDTO;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.dialects.XCloudDialect;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState;
@@ -26,6 +32,10 @@ import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -58,6 +68,8 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
 
     @Resource
     private BpmFormService formService;
+    @Resource
+    private ProcessDefinitionMapper camundaProcessDefinitionMapper;
 
     @Override
     public ProcessDefinition getProcessDefinition(String id) {
@@ -78,11 +90,13 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
     }
 
     @Override
-    public List<ProcessDefinition> getProcessDefinitionListByDeploymentIds(Set<String> deploymentIds) {
+    public List<ProcessDefinitionDO> getProcessDefinitionListByDeploymentIds(Set<String> deploymentIds) {
         if (CollUtil.isEmpty(deploymentIds)) {
             return emptyList();
         }
-        return repositoryService.createProcessDefinitionQuery().deploymentIds(deploymentIds).list();
+        LambdaQueryWrapper<ProcessDefinitionDO> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(ProcessDefinitionDO::getDeploymentId,deploymentIds);
+        return camundaProcessDefinitionMapper.selectList(lambdaQueryWrapper);
     }
 
     @Override
@@ -119,14 +133,16 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
     public String createProcessDefinition(@Valid BpmProcessDefinitionCreateReqDTO createReqDTO) {
         // 创建 Deployment 部署
         Deployment deploy = repositoryService.createDeployment()
-                .key(createReqDTO.getKey()).name(createReqDTO.getName()).category(createReqDTO.getCategory())
-                .addBytes(createReqDTO.getKey() + BPMN_FILE_SUFFIX, createReqDTO.getBpmnBytes())
+                .name(createReqDTO.getName())
+                .addString(createReqDTO.getKey() + BPMN_FILE_SUFFIX,new String( createReqDTO.getBpmnBytes()))
                 .deploy();
 
         // 设置 ProcessDefinition 的 category 分类
         ProcessDefinition definition = repositoryService.createProcessDefinitionQuery()
                 .deploymentId(deploy.getId()).singleResult();
-        repositoryService.setProcessDefinitionCategory(definition.getId(), createReqDTO.getCategory());
+
+
+//        repositoryService.setProcessDefinitionCategory(definition.getId(), createReqDTO.getCategory());
         // 注意 1，ProcessDefinition 的 key 和 name 是通过 BPMN 中的 <bpmn2:process /> 的 id 和 name 决定
         // 注意 2，目前该项目的设计上，需要保证 Model、Deployment、ProcessDefinition 使用相同的 key，保证关联性。
         //          否则，会导致 ProcessDefinition 的分页无法查询到。
@@ -163,12 +179,25 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
 
     @Override
     public String getProcessDefinitionBpmnXML(String id) {
-        BpmnModelInstance bpmnModel = repositoryService.getBpmnModel(id);
-        if (bpmnModel == null) {
-            return null;
+        InputStream processModelStream = null;
+        String bpmnXml="";
+        try{
+            processModelStream = repositoryService.getProcessModel(id);
+             bpmnXml = IoUtil.read(processModelStream, StandardCharsets.UTF_8);
         }
-        BpmnXMLConverter converter = new BpmnXMLConverter();
-        return StrUtil.utf8Str(converter.convertToXML(bpmnModel));
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            if(processModelStream!=null){
+                try {
+                    processModelStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        return bpmnXml;
     }
 
     @Override
@@ -194,27 +223,27 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
             return false;
         }
         // 校验 BPMN XML 信息
-        BpmnModel newModel = buildBpmnModel(createReqDTO.getBpmnBytes());
-        BpmnModel oldModel = getBpmnModel(oldProcessDefinition.getId());
-        // 对比字节变化
-        if (!FlowableUtils.equals(oldModel, newModel)) {
-            return false;
-        }
+//        BpmnModel newModel = buildBpmnModel(createReqDTO.getBpmnBytes());
+//        BpmnModel oldModel = getBpmnModel(oldProcessDefinition.getId());
+//        // 对比字节变化
+//        if (!FlowableUtils.equals(oldModel, newModel)) {
+//            return false;
+//        }
         // 最终发现都一致，则返回 true
         return true;
     }
 
-    /**
-     * 构建对应的 BPMN Model
-     *
-     * @param bpmnBytes 原始的 BPMN XML 字节数组
-     * @return BPMN Model
-     */
-    private  BpmnModel buildBpmnModel(byte[] bpmnBytes) {
-        // 转换成 BpmnModel 对象
-        BpmnXMLConverter converter = new BpmnXMLConverter();
-        return converter.convertToBpmnModel(new BytesStreamSource(bpmnBytes), true, true);
-    }
+//    /**
+//     * 构建对应的 BPMN Model
+//     *
+//     * @param bpmnBytes 原始的 BPMN XML 字节数组
+//     * @return BPMN Model
+//     */
+//    private XCloudDialect buildBpmnModel(byte[] bpmnBytes) {
+//        // 转换成 BpmnModel 对象
+//        BpmnXMLConverter converter = new BpmnXMLConverter();
+//        return converter.convertToBpmnModel(new BytesStreamSource(bpmnBytes), true, true);
+//    }
 
     @Override
     public BpmProcessDefinitionExtDO getProcessDefinitionExt(String id) {

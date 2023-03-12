@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.bpm.convert.task;
 
 import cn.hutool.core.date.LocalDateTimeUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.number.NumberUtils;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskDonePageItemRespVO;
@@ -8,8 +9,11 @@ import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskRespVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.BpmTaskTodoPageItemRespVO;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.task.BpmTaskExtDO;
 import cn.iocoder.yudao.module.bpm.service.message.dto.BpmMessageSendWhenTaskCreatedReqDTO;
+import cn.iocoder.yudao.module.bpm.service.message.dto.CamundaTaskDTO;
 import cn.iocoder.yudao.module.system.api.dept.dto.DeptRespDTO;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
+import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.impl.persistence.entity.SuspensionState;
@@ -64,20 +68,20 @@ public interface BpmTaskConvert {
     }
 
     default List<BpmTaskTodoPageItemRespVO> convertList1(List<Task> tasks,
-                                                         Map<String, ProcessInstance> processInstanceMap, Map<Long, AdminUserRespDTO> userMap) {
+                                                         Map<String, HistoricProcessInstance> processInstanceMap, Map<Long, AdminUserRespDTO> userMap) {
         return CollectionUtils.convertList(tasks, task -> {
             BpmTaskTodoPageItemRespVO respVO = convert1(task);
-            ProcessInstance processInstance = processInstanceMap.get(task.getProcessInstanceId());
+            HistoricProcessInstance processInstance = processInstanceMap.get(task.getProcessInstanceId());
             if (processInstance != null) {
                 AdminUserRespDTO startUser = userMap.get(NumberUtils.parseLong(processInstance.getStartUserId()));
                 respVO.setProcessInstance(convert(processInstance, startUser));
+                respVO.getProcessInstance().setName(processInstance.getProcessDefinitionName());
             }
             return respVO;
         });
     }
 
     @Mapping(source = "suspended", target = "suspensionState", qualifiedByName = "convertSuspendedToSuspensionState")
-    @Mapping(target = "claimTime", expression = "java(bean.getClaimTime()==null?null: LocalDateTime.ofInstant(bean.getClaimTime().toInstant(),ZoneId.systemDefault()))")
     @Mapping(target = "createTime", expression = "java(bean.getCreateTime()==null?null:LocalDateTime.ofInstant(bean.getCreateTime().toInstant(),ZoneId.systemDefault()))")
     BpmTaskTodoPageItemRespVO convert1(Task bean);
 
@@ -97,6 +101,7 @@ public interface BpmTaskConvert {
             if (processInstance != null) {
                 AdminUserRespDTO startUser = userMap.get(NumberUtils.parseLong(processInstance.getStartUserId()));
                 respVO.setProcessInstance(convert(processInstance, startUser));
+                respVO.getProcessInstance().setName(processInstance.getProcessDefinitionName());
             }
             return respVO;
         });
@@ -104,12 +109,6 @@ public interface BpmTaskConvert {
 
     BpmTaskDonePageItemRespVO convert2(HistoricTaskInstance bean);
 
-    @Mappings({@Mapping(source = "processInstance.id", target = "id"),
-        @Mapping(source = "processInstance.name", target = "name"),
-        @Mapping(source = "processInstance.startUserId", target = "startUserId"),
-        @Mapping(source = "processInstance.processDefinitionId", target = "processDefinitionId"),
-        @Mapping(source = "startUser.nickname", target = "startUserNickname")})
-    BpmTaskTodoPageItemRespVO.ProcessInstance convert(ProcessInstance processInstance, AdminUserRespDTO startUser);
 
     default List<BpmTaskRespVO> convertList3(List<HistoricTaskInstance> tasks,
         Map<String, BpmTaskExtDO> bpmTaskExtDOMap, HistoricProcessInstance processInstance,
@@ -121,6 +120,7 @@ public interface BpmTaskConvert {
             if (processInstance != null) {
                 AdminUserRespDTO startUser = userMap.get(NumberUtils.parseLong(processInstance.getStartUserId()));
                 respVO.setProcessInstance(convert(processInstance, startUser));
+                respVO.getProcessInstance().setName(processInstance.getProcessDefinitionName());
             }
             AdminUserRespDTO assignUser = userMap.get(NumberUtils.parseLong(task.getAssignee()));
             if (assignUser != null) {
@@ -143,28 +143,27 @@ public interface BpmTaskConvert {
     void copyTo(BpmTaskExtDO from, @MappingTarget BpmTaskDonePageItemRespVO to);
 
     @Mappings({@Mapping(source = "processInstance.id", target = "id"),
-        @Mapping(source = "processInstance.name", target = "name"),
         @Mapping(source = "processInstance.startUserId", target = "startUserId"),
         @Mapping(source = "processInstance.processDefinitionId", target = "processDefinitionId"),
         @Mapping(source = "startUser.nickname", target = "startUserNickname")})
     BpmTaskTodoPageItemRespVO.ProcessInstance convert(HistoricProcessInstance processInstance,
         AdminUserRespDTO startUser);
 
-    default BpmTaskExtDO convert2TaskExt(Task task) {
-        BpmTaskExtDO taskExtDO = new BpmTaskExtDO().setTaskId(task.getId())
-            .setAssigneeUserId(NumberUtils.parseLong(task.getAssignee())).setName(task.getName())
+    default BpmTaskExtDO convert2TaskExt(CamundaTaskDTO task) {
+        BpmTaskExtDO taskExtDO = new BpmTaskExtDO().setTaskId(task.getTaskId())
+            .setAssigneeUserId(task.getAssigneeUserId()).setName(task.getName())
             .setProcessDefinitionId(task.getProcessDefinitionId()).setProcessInstanceId(task.getProcessInstanceId());
         taskExtDO.setCreateTime(LocalDateTimeUtil.of(task.getCreateTime()));
         return taskExtDO;
     }
 
     default BpmMessageSendWhenTaskCreatedReqDTO convert(ProcessInstance processInstance, AdminUserRespDTO startUser,
-        Task task) {
+                                                        CamundaTaskDTO task) {
         BpmMessageSendWhenTaskCreatedReqDTO reqDTO = new BpmMessageSendWhenTaskCreatedReqDTO();
         reqDTO.setProcessInstanceId(processInstance.getProcessInstanceId())
-            .setProcessInstanceName(processInstance.getName()).setStartUserId(startUser.getId())
-            .setStartUserNickname(startUser.getNickname()).setTaskId(task.getId()).setTaskName(task.getName())
-            .setAssigneeUserId(NumberUtils.parseLong(task.getAssignee()));
+            .setProcessInstanceName(task.getProcessDefinitionName()).setStartUserId(startUser.getId())
+            .setStartUserNickname(startUser.getNickname()).setTaskId(task.getTaskId()).setTaskName(task.getName())
+            .setAssigneeUserId(task.getAssigneeUserId());
         return reqDTO;
     }
 

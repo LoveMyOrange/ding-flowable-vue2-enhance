@@ -29,6 +29,11 @@ public class BpmModelController {
     @Resource
     private BpmModelService modelService;
 
+    /**
+     * 完成
+     * @param pageVO
+     * @return
+     */
     @GetMapping("/page")
     @Operation(summary = "获得模型分页")
     public CommonResult<PageResult<BpmModelPageItemRespVO>> getModelPage(BpmModelPageReqVO pageVO) {
@@ -82,7 +87,10 @@ public class BpmModelController {
         String bpmnXml = IoUtils.readUtf8(importReqVO.getBpmnFile().getInputStream(), false);
         return success(modelService.createModel(createReqVO, bpmnXml));
     }
-
+    /**
+     * 适配完成
+     * @return
+     */
     @PostMapping("/deploy")
     @Operation(summary = "部署模型")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")
@@ -91,7 +99,10 @@ public class BpmModelController {
         modelService.deployModel(id);
         return success(true);
     }
-
+    /**
+     * 适配完成
+     * @return
+     */
     @PutMapping("/update-state")
     @Operation(summary = "修改模型的状态", description = "实际更新的部署的流程定义的状态")
     @PreAuthorize("@ss.hasPermission('bpm:model:update')")
@@ -99,7 +110,10 @@ public class BpmModelController {
         modelService.updateModelState(reqVO.getId(), reqVO.getState());
         return success(true);
     }
-
+    /**
+     * 适配完成
+     * @return
+     */
     @DeleteMapping("/delete")
     @Operation(summary = "删除模型")
     @Parameter(name = "id", description = "编号", required = true, example = "1024")

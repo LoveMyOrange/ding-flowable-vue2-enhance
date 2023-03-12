@@ -7,7 +7,6 @@ import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.framework.common.util.object.ObjectUtils;
 import cn.iocoder.yudao.framework.datapermission.core.annotation.DataPermission;
-import cn.iocoder.yudao.framework.flowable.core.util.FlowableUtils;
 import cn.iocoder.yudao.module.bpm.controller.admin.definition.vo.rule.BpmTaskAssignRuleCreateReqVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.definition.vo.rule.BpmTaskAssignRuleRespVO;
 import cn.iocoder.yudao.module.bpm.controller.admin.definition.vo.rule.BpmTaskAssignRuleUpdateReqVO;
@@ -28,10 +27,9 @@ import cn.iocoder.yudao.module.system.api.user.AdminUserApi;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
-import org.flowable.bpmn.model.BpmnModel;
-import org.flowable.bpmn.model.UserTask;
-import org.flowable.common.engine.api.FlowableException;
-import org.flowable.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.camunda.bpm.model.bpmn.instance.UserTask;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -102,7 +100,7 @@ public class BpmTaskAssignRuleServiceImpl implements BpmTaskAssignRuleService {
     public List<BpmTaskAssignRuleRespVO> getTaskAssignRuleList(String modelId, String processDefinitionId) {
         // 获得规则
         List<BpmTaskAssignRuleDO> rules = Collections.emptyList();
-        BpmnModel model = null;
+        BpmnModelInstance model = null;
         if (StrUtil.isNotEmpty(modelId)) {
             rules = getTaskAssignRuleListByModelId(modelId);
             model = modelService.getBpmnModel(modelId);
@@ -113,13 +111,17 @@ public class BpmTaskAssignRuleServiceImpl implements BpmTaskAssignRuleService {
         if (model == null) {
             return Collections.emptyList();
         }
+
         // 获得用户任务，只有用户任务才可以设置分配规则
-        List<UserTask> userTasks = FlowableUtils.getBpmnModelElements(model, UserTask.class);
+        Collection<UserTask> userTasks = model.getModelElementsByType(UserTask.class);
+        List<UserTask> userTaskList = new ArrayList<>();
+        userTaskList.addAll(userTasks);
+//        List<UserTask> userTasks = FlowableUtils.getBpmnModelElements(model, UserTask.class);
         if (CollUtil.isEmpty(userTasks)) {
             return Collections.emptyList();
         }
         // 转换数据
-        return BpmTaskAssignRuleConvert.INSTANCE.convertList(userTasks, rules);
+        return BpmTaskAssignRuleConvert.INSTANCE.convertList(userTaskList, rules);
     }
 
     @Override
@@ -243,11 +245,11 @@ public class BpmTaskAssignRuleServiceImpl implements BpmTaskAssignRuleService {
         List<BpmTaskAssignRuleDO> taskRules = getTaskAssignRuleListByProcessDefinitionId(
                 execution.getProcessDefinitionId(), execution.getCurrentActivityId());
         if (CollUtil.isEmpty(taskRules)) {
-            throw new FlowableException(format("流程任务({}/{}/{}) 找不到符合的任务规则",
+            throw new RuntimeException(format("流程任务({}/{}/{}) 找不到符合的任务规则",
                     execution.getId(), execution.getProcessDefinitionId(), execution.getCurrentActivityId()));
         }
         if (taskRules.size() > 1) {
-            throw new FlowableException(format("流程任务({}/{}/{}) 找到过多任务规则({})",
+            throw new RuntimeException(format("流程任务({}/{}/{}) 找到过多任务规则({})",
                     execution.getId(), execution.getProcessDefinitionId(), execution.getCurrentActivityId()));
         }
         return taskRules.get(0);

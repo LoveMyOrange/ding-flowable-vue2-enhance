@@ -1,7 +1,6 @@
 # For Java
 *.lck
 target/
-log/
 logback-test.xml
 
 

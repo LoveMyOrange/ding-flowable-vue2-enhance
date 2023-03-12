@@ -1,6 +1,8 @@
 package cn.iocoder.yudao.module.bpm.framework.flowable.core.behavior.script.impl;
 
+import cn.hutool.core.map.MapUtil;
 import cn.iocoder.yudao.framework.common.util.number.NumberUtils;
+import cn.iocoder.yudao.module.bpm.constants.WorkFlowConstants;
 import cn.iocoder.yudao.module.bpm.framework.flowable.core.behavior.script.BpmTaskAssignScript;
 import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceService;
 import cn.iocoder.yudao.module.system.api.dept.DeptApi;
@@ -13,6 +15,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import java.util.Map;
 import java.util.Set;
 
 import static cn.iocoder.yudao.framework.common.util.collection.SetUtils.asSet;
@@ -37,8 +40,8 @@ public abstract class BpmTaskAssignLeaderAbstractScript implements BpmTaskAssign
     protected Set<Long> calculateTaskCandidateUsers(DelegateExecution execution, int level) {
         Assert.isTrue(level > 0, "level 必须大于 0");
         // 获得发起人
-        ProcessInstance processInstance = bpmProcessInstanceService.getProcessInstance(execution.getProcessInstanceId());
-        Long startUserId = NumberUtils.parseLong(processInstance.getStartUserId());
+        Map<String, Object> variables = execution.getVariables();
+        Long startUserId = MapUtil.getLong(variables, WorkFlowConstants.PROCESS_INSTANCE_STARTER_USER_ID);
         // 获得对应 leve 的部门
         DeptRespDTO dept = null;
         for (int i = 0; i < level; i++) {

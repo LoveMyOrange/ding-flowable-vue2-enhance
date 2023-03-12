@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.bpm.framework.flowable.core.behavior.script.impl;
 
+import cn.hutool.core.map.MapUtil;
 import cn.iocoder.yudao.framework.common.util.collection.SetUtils;
 import cn.iocoder.yudao.framework.common.util.number.NumberUtils;
+import cn.iocoder.yudao.module.bpm.constants.WorkFlowConstants;
 import cn.iocoder.yudao.module.bpm.enums.definition.BpmTaskRuleScriptEnum;
 import cn.iocoder.yudao.module.bpm.framework.flowable.core.behavior.script.BpmTaskAssignScript;
 import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceService;
@@ -11,6 +13,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -27,8 +30,8 @@ public class BpmTaskAssignStartUserScript implements BpmTaskAssignScript {
 
     @Override
     public Set<Long> calculateTaskCandidateUsers(DelegateExecution execution) {
-        ProcessInstance processInstance = bpmProcessInstanceService.getProcessInstance(execution.getProcessInstanceId());
-        Long startUserId = NumberUtils.parseLong(processInstance.getStartUserId());
+        Map<String, Object> variables = execution.getVariables();
+        Long startUserId = MapUtil.getLong(variables, WorkFlowConstants.PROCESS_INSTANCE_STARTER_USER_ID);
         return SetUtils.asSet(startUserId);
     }
 

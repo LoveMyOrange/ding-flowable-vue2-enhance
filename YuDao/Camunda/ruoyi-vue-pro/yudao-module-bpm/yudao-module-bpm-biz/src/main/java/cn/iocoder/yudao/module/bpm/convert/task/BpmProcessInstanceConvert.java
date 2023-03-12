@@ -9,6 +9,7 @@ import cn.iocoder.yudao.module.bpm.dal.dataobject.task.BpmProcessInstanceExtDO;
 import cn.iocoder.yudao.module.bpm.framework.bpm.core.event.BpmProcessInstanceResultEvent;
 import cn.iocoder.yudao.module.bpm.service.message.dto.BpmMessageSendWhenProcessInstanceApproveReqDTO;
 import cn.iocoder.yudao.module.bpm.service.message.dto.BpmMessageSendWhenProcessInstanceRejectReqDTO;
+import cn.iocoder.yudao.module.bpm.service.message.dto.CamundaProcessInstanceDTO;
 import cn.iocoder.yudao.module.system.api.dept.dto.DeptRespDTO;
 import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
@@ -87,25 +88,17 @@ public interface BpmProcessInstanceConvert {
         return event;
     }
 
-    default BpmProcessInstanceResultEvent convert(Object source, ProcessInstance instance, Integer result) {
-        BpmProcessInstanceResultEvent event = new BpmProcessInstanceResultEvent(source);
-        event.setId(instance.getId());
-        event.setProcessDefinitionKey(instance.getProcessDefinitionKey());
-        event.setBusinessKey(instance.getBusinessKey());
-        event.setResult(result);
-        return event;
-    }
 
-    default BpmMessageSendWhenProcessInstanceApproveReqDTO convert2ApprovedReq(ProcessInstance instance){
+    default BpmMessageSendWhenProcessInstanceApproveReqDTO convert2ApprovedReq(CamundaProcessInstanceDTO instance){
         return  new BpmMessageSendWhenProcessInstanceApproveReqDTO()
-                .setStartUserId(NumberUtils.parseLong(instance.getStartUserId()))
-                .setProcessInstanceId(instance.getId())
-                .setProcessInstanceName(instance.getName());
+                .setStartUserId(instance.getProcessStartUserId())
+                .setProcessInstanceId(instance.getProcessInstanceId())
+                .setProcessInstanceName(instance.getProcessDefinitionName());
     }
 
-    default BpmMessageSendWhenProcessInstanceRejectReqDTO convert2RejectReq(ProcessInstance instance, String reason) {
+    default BpmMessageSendWhenProcessInstanceRejectReqDTO convert2RejectReq(HistoricProcessInstance instance, String reason) {
         return new BpmMessageSendWhenProcessInstanceRejectReqDTO()
-            .setProcessInstanceName(instance.getName())
+            .setProcessInstanceName(instance.getProcessDefinitionName())
             .setProcessInstanceId(instance.getId())
             .setReason(reason)
             .setStartUserId(NumberUtils.parseLong(instance.getStartUserId()));

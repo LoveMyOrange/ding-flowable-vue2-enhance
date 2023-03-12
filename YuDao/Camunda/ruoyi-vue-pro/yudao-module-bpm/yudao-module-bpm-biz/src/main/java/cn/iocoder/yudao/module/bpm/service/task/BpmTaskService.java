@@ -4,6 +4,7 @@ import cn.iocoder.yudao.framework.common.pojo.CommonResult;
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.framework.common.util.collection.CollectionUtils;
 import cn.iocoder.yudao.module.bpm.controller.admin.task.vo.task.*;
+import cn.iocoder.yudao.module.bpm.service.message.dto.CamundaTaskDTO;
 import org.camunda.bpm.engine.task.Task;
 
 import javax.validation.Valid;
@@ -105,14 +106,14 @@ public interface BpmTaskService {
      *
      * @param task 任务实体
      */
-    void createTaskExt(Task task);
+    void createTaskExt(CamundaTaskDTO task);
 
     /**
      * 更新 Task 拓展记录为完成
      *
      * @param task 任务实体
      */
-    void updateTaskExtComplete(Task task);
+    void updateTaskExtComplete(CamundaTaskDTO task);
 
     /**
      * 更新 Task 拓展记录为已取消
@@ -126,6 +127,6 @@ public interface BpmTaskService {
      *
      * @param task 任务实体
      */
-    void updateTaskExtAssign(Task task);
+    void updateTaskExtAssign(CamundaTaskDTO task);
 
 }

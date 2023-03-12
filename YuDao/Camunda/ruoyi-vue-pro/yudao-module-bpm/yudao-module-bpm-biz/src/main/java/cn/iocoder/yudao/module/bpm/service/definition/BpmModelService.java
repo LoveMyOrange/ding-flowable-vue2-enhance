@@ -2,8 +2,7 @@ package cn.iocoder.yudao.module.bpm.service.definition;
 
 import cn.iocoder.yudao.framework.common.pojo.PageResult;
 import cn.iocoder.yudao.module.bpm.controller.admin.definition.vo.model.*;
-import org.flowable.bpmn.model.BpmnModel;
-
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import javax.validation.Valid;
 
 /**
@@ -72,6 +71,6 @@ public interface BpmModelService {
      * @param id 流程模型编号
      * @return BPMN Model
      */
-    BpmnModel getBpmnModel(String id);
+    BpmnModelInstance getBpmnModel(String id);
 
 }

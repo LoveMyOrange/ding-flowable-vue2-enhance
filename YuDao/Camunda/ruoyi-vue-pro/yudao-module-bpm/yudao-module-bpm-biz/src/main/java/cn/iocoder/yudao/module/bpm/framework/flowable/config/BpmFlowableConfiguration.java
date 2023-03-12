@@ -1,14 +1,15 @@
 package cn.iocoder.yudao.module.bpm.framework.flowable.config;
 
 import cn.hutool.core.collection.ListUtil;
-import cn.iocoder.yudao.module.bpm.framework.flowable.core.behavior.BpmActivityBehaviorFactory;
-import cn.iocoder.yudao.module.bpm.service.definition.BpmTaskAssignRuleService;
-import org.flowable.common.engine.api.delegate.event.FlowableEventListener;
-import org.flowable.spring.SpringProcessEngineConfiguration;
-import org.flowable.spring.boot.EngineConfigurationConfigurer;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.context.annotation.Bean;
+import cn.iocoder.yudao.module.bpm.framework.flowable.core.listener.GlobalProcessListener;
+import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParseListener;
+import org.camunda.bpm.engine.impl.cfg.AbstractProcessEnginePlugin;
+import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * BPM 模块的 Flowable 配置类
@@ -36,11 +37,16 @@ public class BpmFlowableConfiguration {
 //        };
 //    }
 
-    @Bean
-    public BpmActivityBehaviorFactory bpmActivityBehaviorFactory(BpmTaskAssignRuleService taskRuleService) {
-        BpmActivityBehaviorFactory bpmActivityBehaviorFactory = new BpmActivityBehaviorFactory();
-        bpmActivityBehaviorFactory.setBpmTaskRuleService(taskRuleService);
-        return bpmActivityBehaviorFactory;
+    @Component
+    public class CamundaGlobalListenerPlugin extends AbstractProcessEnginePlugin {
+        @Override
+        public void preInit(ProcessEngineConfigurationImpl processEngineConfiguration) {
+            List<BpmnParseListener> preParseListeners = processEngineConfiguration.getCustomPreBPMNParseListeners();
+            if(preParseListeners == null) {
+                preParseListeners = new ArrayList<BpmnParseListener>();
+                processEngineConfiguration.setCustomPreBPMNParseListeners(preParseListeners);
+            }
+            preParseListeners.add(new GlobalProcessListener());
+        }
     }
-
 }
