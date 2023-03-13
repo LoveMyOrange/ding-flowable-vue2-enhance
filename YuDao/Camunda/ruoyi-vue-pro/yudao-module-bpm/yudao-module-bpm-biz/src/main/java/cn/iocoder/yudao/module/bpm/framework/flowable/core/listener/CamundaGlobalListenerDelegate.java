@@ -3,6 +3,7 @@ package cn.iocoder.yudao.module.bpm.framework.flowable.core.listener;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.yudao.module.bpm.constants.WorkFlowConstants;
+import cn.iocoder.yudao.module.bpm.service.definition.BpmTaskAssignRuleService;
 import cn.iocoder.yudao.module.bpm.service.message.dto.CamundaProcessInstanceDTO;
 import cn.iocoder.yudao.module.bpm.service.message.dto.CamundaTaskDTO;
 import cn.iocoder.yudao.module.bpm.service.task.BpmProcessInstanceService;
@@ -14,12 +15,12 @@ import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.TaskEntity;
-import org.camunda.bpm.model.bpmn.instance.EndEvent;
-import org.camunda.bpm.model.bpmn.instance.FlowElement;
-import org.camunda.bpm.model.bpmn.instance.StartEvent;
-import org.camunda.bpm.model.bpmn.instance.UserTask;
+import org.camunda.bpm.model.bpmn.instance.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 public class CamundaGlobalListenerDelegate implements ExecutionListener, TaskListener {
@@ -66,11 +67,19 @@ public class CamundaGlobalListenerDelegate implements ExecutionListener, TaskLis
     @Override
     public void notify(DelegateExecution execution) throws Exception {
         BpmProcessInstanceService bpmProcessInstanceService = SpringUtil.getBean(BpmProcessInstanceService.class);
+        BpmTaskAssignRuleService bpmTaskAssignRuleService = SpringUtil.getBean(BpmTaskAssignRuleService.class);
         FlowElement bpmnModelElementInstance = execution.getBpmnModelElementInstance();
         Map<String, Object> variables = execution.getVariables();
         String processInstanceName = MapUtil.getStr(variables, WorkFlowConstants.PROCESS_INSTANCE_NAME);
         Long startUserId = MapUtil.getLong(variables, WorkFlowConstants.PROCESS_INSTANCE_STARTER_USER_ID);
         if(bpmnModelElementInstance instanceof UserTask){
+            UserTask userTask =(UserTask)bpmnModelElementInstance;
+            LoopCharacteristics loopCharacteristics = userTask.getLoopCharacteristics();
+            if(loopCharacteristics==null){
+                Set<Long> users = bpmTaskAssignRuleService.calculateTaskCandidateUsers(execution);
+                List<Long> userList= new ArrayList<>(users);
+                execution.setVariable("assignee",userList.get(0));
+            }
         }
         else if(bpmnModelElementInstance instanceof StartEvent){
             CamundaProcessInstanceDTO camundaProcessInstanceDTO = new CamundaProcessInstanceDTO();
