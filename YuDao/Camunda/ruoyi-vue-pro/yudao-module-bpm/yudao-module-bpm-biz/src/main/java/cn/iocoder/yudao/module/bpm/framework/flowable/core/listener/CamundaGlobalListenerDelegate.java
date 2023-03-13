@@ -78,7 +78,7 @@ public class CamundaGlobalListenerDelegate implements ExecutionListener, TaskLis
             if(loopCharacteristics==null){
                 Set<Long> users = bpmTaskAssignRuleService.calculateTaskCandidateUsers(execution);
                 List<Long> userList= new ArrayList<>(users);
-                execution.setVariable("assignee",userList.get(0));
+                execution.setVariable("assignee",userList.get(0)+"");
             }
         }
         else if(bpmnModelElementInstance instanceof StartEvent){
