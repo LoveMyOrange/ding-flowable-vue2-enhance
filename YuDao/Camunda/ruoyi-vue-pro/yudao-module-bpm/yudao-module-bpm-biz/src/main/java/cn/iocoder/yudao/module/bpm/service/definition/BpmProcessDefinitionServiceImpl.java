@@ -96,7 +96,7 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
         if (CollUtil.isEmpty(deploymentIds)) {
             return emptyList();
         }
-            String sql="SELECT ID_,VERSION_,SUSPENSION_STATE_,DEPLOYMENT_ID_ FROM ACT_RE_PROCDEF  WHERE  DEPLOYMENT_ID  IN (:deploymentIds)";
+            String sql="SELECT ID_,VERSION_,SUSPENSION_STATE_,DEPLOYMENT_ID_ FROM ACT_RE_PROCDEF  WHERE  DEPLOYMENT_ID_  IN (:deploymentIds)";
             Map<String,Object> paramMap= new HashMap<>();
             paramMap.put("deploymentIds",deploymentIds);
         NamedParameterJdbcTemplate parameterJdbcTemplate= new NamedParameterJdbcTemplate(jdbcTemplate);

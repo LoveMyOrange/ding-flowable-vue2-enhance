@@ -36,6 +36,9 @@ public class CamundaGlobalListenerDelegate implements ExecutionListener, TaskLis
             camundaTaskDTO.setProcessInstanceId(delegateTask.getProcessInstanceId());
             camundaTaskDTO.setAssigneeUserId(Long.valueOf(delegateTask.getAssignee()));
             camundaTaskDTO.setCreateTime(delegateTask.getCreateTime());
+            camundaTaskDTO.setProcessDefinitionName(processInstanceName);
+            camundaTaskDTO.setProcessDefinitionId(delegateTask.getProcessDefinitionId());
+            camundaTaskDTO.setProcessStartUserId(startUserId);
             camundaTaskDTO.setName(delegateTask.getName());
             bpmTaskService.createTaskExt(camundaTaskDTO);
         }
@@ -48,6 +51,7 @@ public class CamundaGlobalListenerDelegate implements ExecutionListener, TaskLis
             camundaTaskDTO.setName(delegateTask.getName());
             camundaTaskDTO.setProcessStartUserId(startUserId);
             camundaTaskDTO.setProcessDefinitionName(processInstanceName);
+            camundaTaskDTO.setProcessDefinitionId(delegateTask.getProcessDefinitionId());
             bpmTaskService.updateTaskExtAssign(camundaTaskDTO);
         }
         else if(TaskListener.EVENTNAME_COMPLETE.equals(delegateTask.getEventName())){
@@ -59,6 +63,7 @@ public class CamundaGlobalListenerDelegate implements ExecutionListener, TaskLis
             camundaTaskDTO.setName(delegateTask.getName());
             camundaTaskDTO.setProcessStartUserId(startUserId);
             camundaTaskDTO.setProcessDefinitionName(processInstanceName);
+            camundaTaskDTO.setProcessDefinitionId(delegateTask.getProcessDefinitionId());
             bpmTaskService.updateTaskExtComplete(camundaTaskDTO);
         }
     }
