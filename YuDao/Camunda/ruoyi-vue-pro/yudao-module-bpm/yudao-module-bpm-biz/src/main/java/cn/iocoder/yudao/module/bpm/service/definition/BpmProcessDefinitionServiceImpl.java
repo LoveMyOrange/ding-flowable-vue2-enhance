@@ -25,6 +25,8 @@ import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.repository.ProcessDefinitionQuery;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
@@ -41,6 +43,7 @@ import static cn.iocoder.yudao.framework.common.util.collection.CollectionUtils.
 import static cn.iocoder.yudao.module.bpm.enums.ErrorCodeConstants.PROCESS_DEFINITION_KEY_NOT_MATCH;
 import static cn.iocoder.yudao.module.bpm.enums.ErrorCodeConstants.PROCESS_DEFINITION_NAME_NOT_MATCH;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.max;
 
 /**
  * 流程定义实现
@@ -67,6 +70,8 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
     private BpmFormService bpmFormService;
     @Resource
     private ProcessDefinitionMapper camundaProcessDefinitionMapper;
+    @Resource
+    private JdbcTemplate jdbcTemplate;
 
     @Override
     public ProcessDefinition getProcessDefinition(String id) {
@@ -91,10 +96,21 @@ public class BpmProcessDefinitionServiceImpl implements BpmProcessDefinitionServ
         if (CollUtil.isEmpty(deploymentIds)) {
             return emptyList();
         }
-
-        LambdaQueryWrapper<ProcessDefinitionDO> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.in(ProcessDefinitionDO::getDeploymentId,deploymentIds);
-        return camundaProcessDefinitionMapper.selectList(lambdaQueryWrapper);
+            String sql="SELECT ID_,VERSION_,SUSPENSION_STATE_,DEPLOYMENT_ID_ FROM ACT_RE_PROCDEF  WHERE  DEPLOYMENT_ID  IN (:deploymentIds)";
+            Map<String,Object> paramMap= new HashMap<>();
+            paramMap.put("deploymentIds",deploymentIds);
+        NamedParameterJdbcTemplate parameterJdbcTemplate= new NamedParameterJdbcTemplate(jdbcTemplate);
+        return parameterJdbcTemplate.query(sql,paramMap,(resultSet, i) -> {
+            ProcessDefinitionDO processDefinitionDO = new ProcessDefinitionDO();
+            processDefinitionDO.setId(resultSet.getString("ID_"));
+            processDefinitionDO.setVersion(resultSet.getInt("VERSION_"));
+            processDefinitionDO.setSuspensionState(resultSet.getInt("SUSPENSION_STATE_"));
+            processDefinitionDO.setDeploymentId(resultSet.getString("DEPLOYMENT_ID_"));
+            return processDefinitionDO;
+        });
+//        LambdaQueryWrapper<ProcessDefinitionDO> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        lambdaQueryWrapper.in(ProcessDefinitionDO::getDeploymentId,deploymentIds);
+//        return camundaProcessDefinitionMapper.selectList(lambdaQueryWrapper);
     }
 
     @Override
