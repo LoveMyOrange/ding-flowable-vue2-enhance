@@ -8,6 +8,7 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.springframework.lang.Nullable;
 
 import javax.validation.Valid;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -16,7 +17,7 @@ import java.util.Set;
  *
  * @author 芋道源码
  */
-public interface BpmTaskAssignRuleService {
+public interface BpmTaskAssignRuleService extends Serializable {
 
     /**
      * 获得流程定义的任务分配规则数组

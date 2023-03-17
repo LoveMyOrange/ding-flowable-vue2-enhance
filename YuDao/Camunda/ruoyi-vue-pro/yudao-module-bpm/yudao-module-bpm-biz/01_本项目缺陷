@@ -8,4 +8,9 @@ Flowable版代码
 
 
 
+Camunda自身问题
+BpmnModelInstance过于复杂, 里面装的东西太多builder模式
+setBeans有问题,实现
+
+
 

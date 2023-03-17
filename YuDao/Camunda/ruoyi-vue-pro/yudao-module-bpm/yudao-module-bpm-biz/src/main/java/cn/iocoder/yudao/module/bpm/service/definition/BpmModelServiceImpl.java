@@ -41,6 +41,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static cn.iocoder.yudao.framework.common.exception.util.ServiceExceptionUtil.exception;
@@ -170,6 +171,7 @@ public class BpmModelServiceImpl implements BpmModelService {
         metaInfo.setDescription(description);
         bpmModelPlusDO.setFormInfo(JsonUtils.toJsonString(metaInfo));
         bpmModelPlusDO.setBpmnXml(bpmnXml);
+        bpmModelPlusDO.setCreateTime(LocalDateTime.now());
         bpmModelPlusMapper.insert(bpmModelPlusDO);
         // 保存 BPMN XML
         return bpmModelPlusDO.getId()+"";

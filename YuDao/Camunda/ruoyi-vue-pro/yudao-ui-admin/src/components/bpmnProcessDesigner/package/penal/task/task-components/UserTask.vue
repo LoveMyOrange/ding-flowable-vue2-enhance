@@ -1,7 +1,7 @@
 <template>
   <div style="margin-top: 16px">
     <el-form-item label="处理用户">
-      <el-input v-model="userTaskForm.assignee" clearable  @change="updateElementTask('assignee')" />
+      <el-input v-model="userTaskForm.assignee" value="${assignee}" clearable  @change="updateElementTask('assignee')" />
     </el-form-item>
 <!--    <el-form-item label="候选用户">-->
 <!--      <el-select v-model="userTaskForm.candidateUsers" multiple collapse-tags @change="updateElementTask('candidateUsers')">-->

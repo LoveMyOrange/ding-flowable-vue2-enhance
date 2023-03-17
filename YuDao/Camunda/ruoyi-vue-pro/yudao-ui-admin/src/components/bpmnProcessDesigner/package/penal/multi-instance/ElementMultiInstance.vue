@@ -123,9 +123,9 @@ export default {
       }
       // 时序
       if (type === "SequentialMultiInstance") {
-        this.multiLoopInstance = window.bpmnInstances.moddle.create("bpmn:MultiInstanceLoopCharacteristics", { isSequential: true,collection: "${bpmTaskAssignRuleService.calculateTaskCandidateUsers(execution)}",elementVariable:"assignee" });
+        this.multiLoopInstance = window.bpmnInstances.moddle.create("bpmn:MultiInstanceLoopCharacteristics", { isSequential: true,collection: "${camundaFlowUtils.calculateTaskCandidateUsers(execution)}",elementVariable:"assignee" });
       } else {
-        this.multiLoopInstance = window.bpmnInstances.moddle.create("bpmn:MultiInstanceLoopCharacteristics", { collection: "${bpmTaskAssignRuleService.calculateTaskCandidateUsers(execution)}",elementVariable:"assignee" });
+        this.multiLoopInstance = window.bpmnInstances.moddle.create("bpmn:MultiInstanceLoopCharacteristics", { collection: "${camundaFlowUtils.calculateTaskCandidateUsers(execution)}",elementVariable:"assignee" });
 
       }
       window.bpmnInstances.modeling.updateProperties(this.bpmnElement, {

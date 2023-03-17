@@ -1,7 +1,9 @@
 package cn.iocoder.yudao.module.bpm.framework.flowable.config;
 
 import cn.hutool.core.collection.ListUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.iocoder.yudao.module.bpm.framework.flowable.core.listener.GlobalProcessListener;
+import cn.iocoder.yudao.module.bpm.service.definition.BpmTaskAssignRuleService;
 import org.camunda.bpm.engine.impl.bpmn.parser.BpmnParseListener;
 import org.camunda.bpm.engine.impl.cfg.AbstractProcessEnginePlugin;
 import org.camunda.bpm.engine.impl.cfg.ProcessEngineConfigurationImpl;
@@ -9,9 +11,14 @@ import org.camunda.bpm.engine.spring.SpringProcessEngineConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.annotation.Resource;
+import javax.sql.DataSource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * BPM 模块的 Flowable 配置类
@@ -20,7 +27,12 @@ import java.util.List;
  */
 @Configuration(proxyBeanMethods = false)
 public class BpmFlowableConfiguration {
-
+    @Resource
+    private DataSource dataSource;
+    @Resource
+    private PlatformTransactionManager transactionManager;
+//    @Resource
+//    private IdWorkerIdGenerator idWorkerIdGenerator;
     /**
      * BPM 模块的 ProcessEngineConfigurationConfigurer 实现类：
      *
@@ -49,14 +61,26 @@ public class BpmFlowableConfiguration {
                 processEngineConfiguration.setCustomPreBPMNParseListeners(preParseListeners);
             }
             preParseListeners.add(new GlobalProcessListener());
+
+            Map<Object,Object> params= new HashMap<>();
+            BpmTaskAssignRuleService bpmTaskAssignRuleService = SpringUtil.getBean(BpmTaskAssignRuleService.class);
+            params.put("bpmTaskAssignRuleService",bpmTaskAssignRuleService);
+            processEngineConfiguration.setBeans(params);
         }
     }
-
-    public SpringProcessEngineConfiguration springProcessEngineConfiguration(
-            SpringProcessEngineConfiguration springProcessEngineConfiguration) {
-        System.err.println("触发Camunda初始化");
-        return springProcessEngineConfiguration;
-    }
+//    @Bean
+//    public SpringProcessEngineConfiguration springProcessEngineConfiguration(
+//            ) {
+//        SpringProcessEngineConfiguration springProcessEngineConfiguration= new SpringProcessEngineConfiguration();
+//        Map<Object,Object> params= new HashMap<>();
+//        BpmTaskAssignRuleService bpmTaskAssignRuleService = SpringUtil.getBean(BpmTaskAssignRuleService.class);
+//        params.put("bpmTaskAssignRuleService",bpmTaskAssignRuleService);
+//        springProcessEngineConfiguration.setBeans(params);
+//        springProcessEngineConfiguration.setDataSource(dataSource);
+//        springProcessEngineConfiguration.setTransactionManager(transactionManager);
+//        System.err.println("触发Camunda初始化");
+//        return springProcessEngineConfiguration;
+//    }
 
 
 }
