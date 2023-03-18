@@ -123,8 +123,8 @@ public class BpmModelServiceImpl implements BpmModelService {
                 modelRespVO.setDescription(metaInfo.getDescription());
                 modelRespVO.setFormType(metaInfo.getFormType());
                 modelRespVO.setFormId(metaInfo.getFormId());
-                modelRespVO.setFormCustomCreatePath(modelRespVO.getFormCustomCreatePath());
-                modelRespVO.setFormCustomViewPath(modelRespVO.getFormCustomViewPath());
+                modelRespVO.setFormCustomCreatePath(metaInfo.getFormCustomCreatePath());
+                modelRespVO.setFormCustomViewPath(metaInfo.getFormCustomViewPath());
             }
             // Form
             if (form != null) {
