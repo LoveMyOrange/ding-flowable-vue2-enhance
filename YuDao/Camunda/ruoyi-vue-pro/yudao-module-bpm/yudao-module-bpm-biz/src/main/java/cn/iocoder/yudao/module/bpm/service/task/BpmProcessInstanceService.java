@@ -125,7 +125,7 @@ public interface BpmProcessInstanceService {
     /**
      * 更新 ProcessInstance 拓展记录为取消
      */
-//    void updateProcessInstanceExtCancel(FlowableCancelledEvent event);
+    void updateProcessInstanceExtCancel(HistoricProcessInstance processInstance);
 
     /**
      * 更新 ProcessInstance 拓展记录为完成

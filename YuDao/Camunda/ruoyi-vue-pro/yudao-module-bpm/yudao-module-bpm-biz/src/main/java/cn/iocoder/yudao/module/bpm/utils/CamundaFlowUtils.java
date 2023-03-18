@@ -1,6 +1,7 @@
 package cn.iocoder.yudao.module.bpm.utils;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.iocoder.yudao.framework.common.enums.CommonStatusEnum;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmTaskAssignRuleDO;
 import cn.iocoder.yudao.module.bpm.dal.dataobject.definition.BpmUserGroupDO;
@@ -19,7 +20,10 @@ import cn.iocoder.yudao.module.system.api.user.dto.AdminUserRespDTO;
 import com.google.common.annotations.VisibleForTesting;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.camunda.bpm.engine.HistoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
+import org.camunda.bpm.engine.runtime.Execution;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -52,7 +56,10 @@ public class CamundaFlowUtils {
     private PermissionApi permissionApi;
     @Resource
     private BpmUserGroupService userGroupService;
-
+    @Resource
+    private RuntimeService runtimeService;
+    @Resource
+    private HistoryService historyService;
     /**
      * 任务分配脚本
      */
@@ -63,12 +70,26 @@ public class CamundaFlowUtils {
         this.scriptMap = convertMap(scripts, script -> script.getEnum().getId());
     }
     public List<String> calculateTaskCandidateUsers(DelegateExecution execution) {
+        if(StringUtils.isBlank(execution.getCurrentActivityId())){
+            Map<String, Object> variables = execution.getVariables();
+            Set<String> strings = variables.keySet();
+            String variableName="";
+            for (String string : strings) {
+                if(string.endsWith("AssigneeList")){
+                    variableName=string;
+                }
+            }
+            List list = MapUtil.get(variables, variableName, List.class);
+            return list;
+        }
         BpmTaskAssignRuleDO rule = getTaskRule(execution);
+
         Set<Long> longs = calculateTaskCandidateUsers(execution, rule);
         List<String> assigneeList = new ArrayList<>();
         for (Long aLong : longs) {
             assigneeList.add(String.valueOf(aLong));
         }
+        execution.setVariableLocal(execution.getCurrentActivityId()+"AssigneeList",assigneeList);
         return assigneeList;
     }
 
