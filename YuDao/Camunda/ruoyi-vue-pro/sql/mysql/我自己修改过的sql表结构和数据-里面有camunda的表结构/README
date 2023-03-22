@@ -1,7 +1,0 @@
-注意:
-
-这个SQL 和官方的SQL的区别就是
-0.和官方SQL 基础上 做了一点修改
-1.有camunda的表SQL(也可以删除,这样项目启动Camunda的表会自动创建)
-2.Camunda没有模型表 我自己加了1张表   act_re_model_plus
-3.把当前所有的用户 密码都改成了admin123 方便测试
