@@ -39,6 +39,7 @@ import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.runtime.ProcessInstanceBuilder;
 import org.flowable.engine.task.Attachment;
@@ -187,11 +188,17 @@ public class WorkspaceProcessController {
         if(flag){
             return "流程已结束";
         }
-        List<String> activeActivityIds = runtimeService.getActiveActivityIds(processInstanceId);
-        String activityId = activeActivityIds.get(0);
-        BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinitionId);
-        FlowElement flowElement = bpmnModel.getMainProcess().getFlowElement(activityId);
-        return flowElement.getName();
+        Execution execution = runtimeService.createExecutionQuery().executionId(processInstanceId).singleResult();
+        String activityId = execution.getActivityId();
+        if(StringUtils.isBlank(activityId)){
+            return "";
+        }
+        else{
+            BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinitionId);
+            FlowElement flowElement = bpmnModel.getMainProcess().getFlowElement(activityId);
+            return flowElement.getName();
+        }
+
     }
 
     @ApiOperation("查看我的待办")
@@ -214,10 +221,16 @@ public class WorkspaceProcessController {
             taskVO.setProcessDefinitionName(bpmnModel.getMainProcess().getName());
             taskVO.setStartUser(JSONObject.parseObject(MapUtil.getStr(processVariables,START_USER_INFO),new TypeReference<UserInfo>(){}));
             taskVO.setStartTime(historicProcessInstance.getStartTime());
-            List<String> activeActivityIds = runtimeService.getActiveActivityIds(task.getProcessInstanceId());
-            String activityId = activeActivityIds.get(0);
-            FlowElement flowElement = bpmnModel.getMainProcess().getFlowElement(activityId);
-            taskVO.setCurrentActivityName(flowElement.getName());
+            Execution execution = runtimeService.createExecutionQuery().executionId(task.getProcessInstanceId()).singleResult();
+            String activityId = execution.getActivityId();
+            if(StringUtils.isBlank(activityId)){
+                taskVO.setCurrentActivityName("");
+            }
+            else{
+                FlowElement flowElement = bpmnModel.getMainProcess().getFlowElement(activityId);
+                taskVO.setCurrentActivityName(flowElement.getName());
+            }
+
             taskVO.setBusinessStatus(MapUtil.getStr(processVariables,PROCESS_STATUS));
             taskVO.setTaskCreatedTime(task.getCreateTime());
             DelegationState delegationState = task.getDelegationState();
