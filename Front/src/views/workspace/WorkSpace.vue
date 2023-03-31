@@ -112,20 +112,18 @@ export default {
       const form = this.$refs.processForm.getForm()
       const processUser = this.$refs.processForm.getProcessUser();
       const strUserInfo = sessionStorage.getItem("user")
-      console.log('formData', formData)
-      console.log('form', form)
-      console.log('processUser', JSON.stringify(processUser))
       this.$refs.processForm.validate(valid => {
         if (valid) {
-          // startProcess({
-          //   processDefinitionId: form.processDefinitionId,
-          //   formData,
-          //   startUserInfo: JSON.parse(strUserInfo)
-          // }).then(res=>{
-          //   console.log("startProcess",res)
-          //   this.openItemDl  = false
-          //   this.$message.success("表单填写OK了，提交功能还在开发哦")
-          // })
+          startProcess({
+            processDefinitionId: form.processDefinitionId,
+            formData,
+            processUsers: processUser,
+            startUserInfo: JSON.parse(strUserInfo)
+          }).then(res=>{
+            console.log("startProcess",res)
+            this.openItemDl  = false
+            this.$message.success("表单填写OK了，提交功能还在开发哦")
+          })
           
          
         } else {
