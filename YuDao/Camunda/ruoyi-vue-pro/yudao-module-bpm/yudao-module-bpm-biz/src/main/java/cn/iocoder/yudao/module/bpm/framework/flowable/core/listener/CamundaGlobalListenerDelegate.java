@@ -22,6 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * 本项目为Apache2.0协议 请保留此协议头 ,否则即为违反Apache2.0协议,可以视为侵权
+ * @author Dr4JavaEE
+ */
 @Slf4j
 public class CamundaGlobalListenerDelegate implements ExecutionListener, TaskListener {
     @Override

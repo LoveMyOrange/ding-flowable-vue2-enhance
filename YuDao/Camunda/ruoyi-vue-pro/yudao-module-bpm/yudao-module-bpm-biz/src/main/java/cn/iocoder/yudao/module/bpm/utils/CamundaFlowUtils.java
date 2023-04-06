@@ -37,6 +37,10 @@ import static cn.iocoder.yudao.framework.common.util.json.JsonUtils.toJsonString
 import static cn.iocoder.yudao.module.bpm.enums.ErrorCodeConstants.TASK_ASSIGN_SCRIPT_NOT_EXISTS;
 import static cn.iocoder.yudao.module.bpm.enums.ErrorCodeConstants.TASK_CREATE_FAIL_NO_CANDIDATE_USER;
 
+/**
+ *  * 本项目为Apache2.0协议 请保留此协议头 ,否则即为违反Apache2.0协议,可以视为侵权
+ *  * @author Dr4JavaEE
+ */
 @Component
 @Slf4j
 public class CamundaFlowUtils {

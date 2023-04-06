@@ -8,7 +8,10 @@ import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
 import org.camunda.bpm.engine.impl.pvm.process.ScopeImpl;
 import org.camunda.bpm.engine.impl.task.TaskDefinition;
 import org.camunda.bpm.engine.impl.util.xml.Element;
-
+/**
+ *  * 本项目为Apache2.0协议 请保留此协议头 ,否则即为违反Apache2.0协议,可以视为侵权
+ *  * @author Dr4JavaEE
+ */
 public class GlobalProcessListener  extends AbstractBpmnParseListener {
     public final static ExecutionListener EXECUTION_LISTENER = new CamundaGlobalListenerDelegate();
     public final static TaskListener TASK_LISTENER = new CamundaGlobalListenerDelegate();
