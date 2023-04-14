@@ -1,45 +1,38 @@
 package com.dingding.mid.config;
 
-import io.swagger.annotations.ApiOperation;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.oas.annotations.EnableOpenApi;
-import springfox.documentation.service.*;
 import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
-
-import java.util.ArrayList;
-import java.util.List;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
 @Configuration
-@EnableOpenApi
+@EnableSwagger2WebMvc
 public class SwaggerConfig {
 
-    @Bean
-    public Docket loginApi() {
-        return new Docket(DocumentationType.OAS_30)
-                .apiInfo(apiInfo())
-                .pathMapping("/")
-                .select() // 选择那些路径和api会生成document
-                .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
-                //不显示错误的接口地址
-                .build();
-    }
-
-
-
-
-    private ApiInfo apiInfo() {
-        return new ApiInfoBuilder()
-                .title("接口文档")
-                //描述
-                .description("DingDing中台接口文档")
-                .version("3.1.0")
-                .build();
-    }
+//    @Bean(value = "dockerBean")
+//    public Docket dockerBean() {
+//        //指定使用Swagger2规范
+//        Docket docket=new Docket(DocumentationType.SWAGGER_2)
+//                .apiInfo(new ApiInfoBuilder()
+//                        //描述字段支持Markdown语法
+//                        .description("仿钉钉Activiti-Flowable-Camunda")
+//                        .termsOfServiceUrl("https://dingding.com/")
+//                        .contact("2471089198@qq.com")
+//                        .version("1.0")
+//                        .build())
+//                //分组名称
+//                .groupName("工作流服务")
+//                .select()
+//                //这里指定Controller扫描包路径
+//                .apis(RequestHandlerSelectors.basePackage("com.dingding.mid.controller"))
+//                .paths(PathSelectors.any())
+//                .build();
+//        return docket;
+//    }
 
 }

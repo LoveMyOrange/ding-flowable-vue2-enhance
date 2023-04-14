@@ -15,10 +15,6 @@
     <spring-boot.version>2.6.7</spring-boot.version>
     <spring-security-oauth2.version>2.5.2.RELEASE</spring-security-oauth2.version>
     <spring-plugin-core.version>2.0.0.RELEASE</spring-plugin-core.version>
-    <!-- swagger -->
-    <swagger.version>3.0.0</swagger.version>
-    <swagger-model.version>1.6.6</swagger-model.version>
-    <swagger-ui.version>1.9.6</swagger-ui.version>
     <!-- 数据库配置 -->
     <druid.version>1.2.9</druid.version>
     <mybatis-plus.vesion>3.5.1</mybatis-plus.vesion>
@@ -65,6 +61,7 @@
     <minio.version>8.4.0</minio.version>
     <yozosign.version>3.0.1</yozosign.version>
     <flowable.version>6.7.2</flowable.version>
+    <knife4j.version>4.1.0</knife4j.version>
   </properties>
 
   <dependencyManagement>
@@ -91,32 +88,20 @@
         <scope>import</scope>
       </dependency>
 
-      <!-- Swagger 依赖配置 -->
-      <dependency>
-        <groupId>com.github.xiaoymin</groupId>
-        <artifactId>swagger-bootstrap-ui</artifactId>
-        <version>${swagger-ui.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>io.springfox</groupId>
-        <artifactId>springfox-boot-starter</artifactId>
-        <version>${swagger.version}</version>
-      </dependency>
+
       <dependency>
         <groupId>org.springframework.plugin</groupId>
         <artifactId>spring-plugin-core</artifactId>
         <version>${spring-plugin-core.version}</version>
       </dependency>
+
       <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-annotations</artifactId>
-        <version>${swagger-model.version}</version>
+        <groupId>com.github.xiaoymin</groupId>
+        <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+        <version>${knife4j.version}</version>
       </dependency>
-      <dependency>
-        <groupId>io.swagger</groupId>
-        <artifactId>swagger-models</artifactId>
-        <version>${swagger-model.version}</version>
-      </dependency>
+
+
       <!-- druid -->
       <dependency>
         <groupId>com.alibaba</groupId>
@@ -264,6 +249,12 @@
 
   <dependencies>
 
+
+    <dependency>
+      <groupId>com.github.xiaoymin</groupId>
+      <artifactId>knife4j-openapi2-spring-boot-starter</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>io.minio</groupId>
       <artifactId>minio</artifactId>
@@ -301,10 +292,10 @@
       <groupId>com.fasterxml.jackson.module</groupId>
       <artifactId>jackson-module-jaxb-annotations</artifactId>
     </dependency>
-    <dependency>
+<!--    <dependency>
       <groupId>io.springfox</groupId>
       <artifactId>springfox-boot-starter</artifactId>
-    </dependency>
+    </dependency>-->
     <dependency>
       <groupId>org.apache.tomcat.embed</groupId>
       <artifactId>tomcat-embed-core</artifactId>
@@ -316,10 +307,6 @@
     <dependency>
       <groupId>com.alibaba</groupId>
       <artifactId>druid</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>io.swagger</groupId>
-      <artifactId>swagger-annotations</artifactId>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>

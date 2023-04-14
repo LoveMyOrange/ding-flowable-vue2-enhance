@@ -74,3 +74,24 @@ config:
     accessKey: admin #账号
     secretKey: test. #密码
     fileHost: http://192.168.0.147:9000/ #地址
+
+
+
+knife4j:
+  enable: true
+  openapi:
+    title: 仿钉钉
+    description: "`仿钉钉流程设计器兼容,Activiti-Flowable-Camunda`"
+    email: 2471089198@qq.com
+    concat: ProcessEngine
+    url: https://baidu.com
+    version: v4.0
+    license: Apache 2.0
+    license-url: https://stackoverflow.com/
+    terms-of-service-url: https://stackoverflow.com/
+    group:
+      test1:
+        group-name: Vue2版本接口
+        api-rule: package
+        api-rule-resources:
+          - com.dingding.mid.controller

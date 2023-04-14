@@ -22,6 +22,7 @@ import com.dingding.mid.utils.IdWorker;
 import com.dingding.mid.utils.MinioUploadUtil;
 import com.dingding.mid.utils.SpringContextHolder;
 import com.dingding.mid.vo.*;
+import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.minio.GetPresignedObjectUrlArgs;
@@ -76,7 +77,8 @@ import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
  */
 @RestController
 @RequestMapping("/vue3")
-@Api("vue3开整")
+@Api(tags = {"Vue3/React版本 的Json转Bpmn"})
+@ApiSort(4)
 public class JsonToBpmnController {
 
     @Resource

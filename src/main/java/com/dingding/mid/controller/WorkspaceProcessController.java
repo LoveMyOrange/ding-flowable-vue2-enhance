@@ -21,12 +21,15 @@ import com.dingding.mid.service.UserService;
 import com.dingding.mid.utils.MinioUploadUtil;
 import com.dingding.mid.utils.SpringContextHolder;
 import com.dingding.mid.vo.*;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import io.minio.GetPresignedObjectUrlArgs;
 import io.minio.MinioClient;
 import io.minio.errors.*;
 import io.minio.http.Method;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.FlowElement;
@@ -73,7 +76,8 @@ import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
  */
 @RestController
 @RequestMapping("/workspace")
-@Api("和Flowable有关的接口")
+@Api(tags = {"Vue2版本 的数据列表,待办,已办,我发起等接口"})
+@ApiSort(3)
 public class WorkspaceProcessController {
 
     @Resource
@@ -90,6 +94,8 @@ public class WorkspaceProcessController {
     private UserService userService;
 
     @ApiOperation("通过模板id查看流程信息 会附带流程定义id")
+    @ApiOperationSupport(order = 1)
+    @ApiParam(required = true,name = "模板id",value = "该值从form/groupps接口 里面去取")
     @GetMapping("process/detail")
     public Result<ProcessTemplates> detail(@RequestParam("templateId") String templateId){
         ProcessTemplates processTemplates = processTemplateService.getById(templateId);
@@ -104,6 +110,8 @@ public class WorkspaceProcessController {
         return Result.OK(processTemplates);
     }
 
+
+    @ApiOperationSupport(order = 2)
     @ApiOperation("通过流程定义id启动流程")
     @PostMapping("process/start")
     public Result<Object> start(@RequestBody StartProcessInstanceDTO startProcessInstanceDTO){
@@ -141,6 +149,7 @@ public class WorkspaceProcessController {
 
 
     @ApiOperation("查看我发起的流程")
+    @ApiOperationSupport(order = 3)
     @PostMapping("process/applyList")
     public Result< Page<HistoryProcessInstanceVO>> applyList(@RequestBody ApplyDTO applyDTO){
         List<HistoricProcessInstance> historicProcessInstances =

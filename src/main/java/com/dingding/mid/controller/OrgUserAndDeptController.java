@@ -2,6 +2,10 @@ package com.dingding.mid.controller;
 
 import com.dingding.mid.service.OrgUserAndDeptService;
 import javax.annotation.Resource;
+
+import com.github.xiaoymin.knife4j.annotations.ApiSort;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/oa/org")
+@Api(tags = {"Vue2版本的组织和部门接口"})
+@ApiSort(1)
 public class OrgUserAndDeptController {
 
     @Resource

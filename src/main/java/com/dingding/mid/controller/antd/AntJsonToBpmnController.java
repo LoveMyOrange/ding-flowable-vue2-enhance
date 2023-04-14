@@ -5,6 +5,7 @@ import com.dingding.mid.common.Result;
 import com.dingding.mid.enums.ModeEnums;
 import com.dingding.mid.utils.IdWorker;
 import com.dingding.mid.utils.SpringContextHolder;
+import com.github.xiaoymin.knife4j.annotations.ApiSort;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.Api;
@@ -34,7 +35,8 @@ import static org.flowable.bpmn.model.ImplementationType.IMPLEMENTATION_TYPE_CLA
  */
 @RestController
 @RequestMapping("/antd")
-@Api("开整")
+@Api(tags = {"AntDesign 版本 的Json转Bpmn"})
+@ApiSort(5)
 public class AntJsonToBpmnController {
 
 

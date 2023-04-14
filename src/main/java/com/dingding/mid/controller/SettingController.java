@@ -11,6 +11,11 @@ import com.dingding.mid.vo.TemplateGroupVo;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSort;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +33,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("admin")
+@Api(tags = {"Vue2表单的CRUD接口"})
+@ApiSort(2)
 public class SettingController {
 
     @Autowired
@@ -40,6 +47,8 @@ public class SettingController {
      * @throws InvocationTargetException
      * @throws IllegalAccessException
      */
+    @ApiOperationSupport(order = 0)
+    @ApiOperation("自定义表单的保存接口(会在此Json转Bpmn)")
     @PostMapping("/form")
     public Object saveForm(@RequestBody FlowEngineDTO flowEngineDTO) throws InvocationTargetException, IllegalAccessException {
         settingService.jsonToBpmn(flowEngineDTO);
