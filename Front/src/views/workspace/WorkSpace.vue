@@ -52,7 +52,9 @@
     </el-tabs>
 
     <el-dialog title="发起审批" width="800px" :visible.sync="openItemDl" :close-on-click-modal="false">
-      <initiate-process ref="processForm" :code="selectForm.formId" v-if="openItemDl"></initiate-process>
+      <sponsor-process ref="processForm" :code="selectForm.formId" v-if="openItemDl"></sponsor-process>
+
+<!--      <initiate-process ref="processForm" :code="selectForm.formId" v-if="openItemDl"></initiate-process>-->
       <span slot="footer" class="dialog-footer">
 				<el-button size="mini" @click="openItemDl = false">取 消</el-button>
 				<el-button size="mini" type="primary" @click="submitForm">提 交</el-button>
@@ -64,13 +66,14 @@
 <script>
 import { getFormGroups, startProcess } from '@/api/design'
 import InitiateProcess from "./InitiateProcess";
+import SponsorProcess from "@/views/workspace/SponsorProcess";
 import TodoTask from "@/views/workspace/task/TodoTask";
 import ApplyTask from "@/views/workspace/task/ApplyTask";
 import DoneTask from "@/views/workspace/task/DoneTask";
 
 export default {
   name: "workSpace",
-  components: { InitiateProcess, TodoTask, ApplyTask, DoneTask },
+  components: { InitiateProcess, SponsorProcess,TodoTask, ApplyTask, DoneTask },
   data() {
     return {
       openItemDl: false,
@@ -107,14 +110,14 @@ export default {
     submitForm(){
       const formData = this.$refs.processForm.getFormData()
       const form = this.$refs.processForm.getForm()
+      const processUser = this.$refs.processForm.getProcessUser();
       const strUserInfo = sessionStorage.getItem("user")
-      console.log('formData', formData)
-      console.log('form', form)
       this.$refs.processForm.validate(valid => {
         if (valid) {
           startProcess({
             processDefinitionId: form.processDefinitionId,
             formData,
+            processUsers: processUser,
             startUserInfo: JSON.parse(strUserInfo)
           }).then(res=>{
             console.log("startProcess",res)
