@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dingding.mid.common.Result;
@@ -39,6 +40,7 @@ import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntity;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ActivityInstance;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.runtime.ProcessInstanceBuilder;
@@ -58,6 +60,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.dingding.mid.common.CommonConstants.*;
@@ -148,6 +151,19 @@ public class WorkspaceProcessController {
                 .listPage((applyDTO.getPageNo() - 1) * applyDTO.getPageSize(), applyDTO.getPageSize());
         long count = historyService.createHistoricProcessInstanceQuery()
                 .startedBy(applyDTO.getCurrentUserInfo().getId()).count();
+        List<String> applyUserIds= new ArrayList<>();
+        for (HistoricProcessInstance historicProcessInstance : historicProcessInstances) {
+            Map<String, Object> processVariables = historicProcessInstance.getProcessVariables();
+            String id = JSONObject.parseObject(MapUtil.getStr(processVariables, START_USER_INFO), new TypeReference<UserInfo>() {
+            }).getId();
+            applyUserIds.add(id);
+        }
+
+
+        LambdaQueryWrapper<Users> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(Users::getUserId,applyUserIds);
+        List<Users> list = userService.list(lambdaQueryWrapper);
+        Map<Long, Users> collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
         List<HistoryProcessInstanceVO> historyProcessInstanceVOS= new ArrayList<>();
         Page<HistoryProcessInstanceVO> page=new Page<>();
         for (HistoricProcessInstance historicProcessInstance : historicProcessInstances) {
@@ -156,9 +172,10 @@ public class WorkspaceProcessController {
             historyProcessInstanceVO.setProcessInstanceId(historicProcessInstance.getId());
             historyProcessInstanceVO.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
             historyProcessInstanceVO.setStartUser(JSONObject.parseObject(MapUtil.getStr(processVariables,START_USER_INFO),new TypeReference<UserInfo>(){}));
+            historyProcessInstanceVO.setUsers(collect.get(Long.valueOf(historyProcessInstanceVO.getStartUser().getId())));
             historyProcessInstanceVO.setStartTime(historicProcessInstance.getStartTime());
             historyProcessInstanceVO.setEndTime(historicProcessInstance.getEndTime());
-            Boolean flag=historicProcessInstance.getEndTime()==null?false:true;
+            Boolean flag= historicProcessInstance.getEndTime() != null;
             historyProcessInstanceVO.setCurrentActivityName(getCurrentName(historicProcessInstance.getId(),flag,historicProcessInstance.getProcessDefinitionId()));
             historyProcessInstanceVO.setBusinessStatus(MapUtil.getStr(processVariables,PROCESS_STATUS));
 
@@ -188,17 +205,16 @@ public class WorkspaceProcessController {
         if(flag){
             return "流程已结束";
         }
-        Execution execution = runtimeService.createExecutionQuery().executionId(processInstanceId).singleResult();
-        String activityId = execution.getActivityId();
-        if(StringUtils.isBlank(activityId)){
+        List<ActivityInstance> list = runtimeService.createActivityInstanceQuery().processInstanceId(processInstanceId).activityType("userTask").unfinished().orderByActivityInstanceStartTime().desc().list();
+        if(CollUtil.isEmpty(list)){
             return "";
         }
         else{
+            String activityId = list.get(0).getActivityId();
             BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinitionId);
             FlowElement flowElement = bpmnModel.getMainProcess().getFlowElement(activityId);
             return flowElement.getName();
         }
-
     }
 
     @ApiOperation("查看我的待办")
