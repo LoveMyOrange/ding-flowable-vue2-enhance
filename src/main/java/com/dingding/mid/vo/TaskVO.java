@@ -1,6 +1,7 @@
 package com.dingding.mid.vo;
 
 import com.dingding.mid.dto.json.UserInfo;
+import com.dingding.mid.entity.Users;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -38,4 +39,6 @@ public class TaskVO {
     private String duration;
     @ApiModelProperty("委派状态")
     private DelegationState delegationState;
+    @ApiModelProperty("发起人(带icon)")
+    private Users users;
 }

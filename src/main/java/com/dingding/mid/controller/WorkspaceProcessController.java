@@ -227,8 +227,25 @@ public class WorkspaceProcessController {
         long count = taskService.createTaskQuery().taskAssignee(taskDTO.getCurrentUserInfo().getId()).count();
         List<TaskVO> taskVOS= new ArrayList<>();
         Page<TaskVO> page =new Page<>();
+
+
+        List<String> taskIds= new ArrayList<>();
         for (Task task : tasks) {
-            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+            Map<String, Object> processVariables = task.getProcessVariables();
+            String id = JSONObject.parseObject(MapUtil.getStr(processVariables, START_USER_INFO), new TypeReference<UserInfo>() {
+            }).getId();
+            taskIds.add(id);
+        }
+
+
+        LambdaQueryWrapper<Users> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(Users::getUserId,taskIds);
+        List<Users> list = userService.list(lambdaQueryWrapper);
+        Map<Long, Users> collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
+
+
+        for (Task task : tasks) {
+            ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
             BpmnModel bpmnModel = repositoryService.getBpmnModel(task.getProcessDefinitionId());
             Map<String, Object> processVariables = task.getProcessVariables();
             TaskVO taskVO=new TaskVO();
@@ -236,16 +253,9 @@ public class WorkspaceProcessController {
             taskVO.setProcessInstanceId(task.getProcessInstanceId());
             taskVO.setProcessDefinitionName(bpmnModel.getMainProcess().getName());
             taskVO.setStartUser(JSONObject.parseObject(MapUtil.getStr(processVariables,START_USER_INFO),new TypeReference<UserInfo>(){}));
-            taskVO.setStartTime(historicProcessInstance.getStartTime());
-            Execution execution = runtimeService.createExecutionQuery().executionId(task.getProcessInstanceId()).singleResult();
-            String activityId = execution.getActivityId();
-            if(StringUtils.isBlank(activityId)){
-                taskVO.setCurrentActivityName("");
-            }
-            else{
-                FlowElement flowElement = bpmnModel.getMainProcess().getFlowElement(activityId);
-                taskVO.setCurrentActivityName(flowElement.getName());
-            }
+            taskVO.setUsers(collect.get(Long.valueOf(taskVO.getStartUser().getId())));
+            taskVO.setStartTime(processInstance.getStartTime());
+            taskVO.setCurrentActivityName(getCurrentName(processInstance.getId(),false,processInstance.getProcessDefinitionId()));
 
             taskVO.setBusinessStatus(MapUtil.getStr(processVariables,PROCESS_STATUS));
             taskVO.setTaskCreatedTime(task.getCreateTime());
