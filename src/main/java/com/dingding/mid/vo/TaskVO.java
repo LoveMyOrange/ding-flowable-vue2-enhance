@@ -19,6 +19,8 @@ import java.util.Date;
 public class TaskVO {
     @ApiModelProperty("任务id")
     private String taskId;
+    @ApiModelProperty("任务名称")
+    private String taskName;
     @ApiModelProperty("任务id")
     private String processInstanceId;
     @ApiModelProperty("审批类型")

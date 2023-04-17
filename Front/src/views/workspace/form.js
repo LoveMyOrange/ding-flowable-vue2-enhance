@@ -30,6 +30,9 @@ export function flatFormItem(formItemTree) {
 
 export function formatTime(row, column) {
     console.log(row, column)
+    if(row[column.property] === null){
+    return ''
+    }
     return moment(row[column.property]).format('YYYY-MM-DD HH:mm:ss')
 }
 

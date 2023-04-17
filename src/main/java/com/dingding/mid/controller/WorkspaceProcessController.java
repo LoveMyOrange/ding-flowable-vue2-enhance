@@ -292,7 +292,7 @@ public class WorkspaceProcessController {
                 .orderByTaskCreateTime().desc()
                 .listPage((taskDTO.getPageNo() - 1) * taskDTO.getPageSize(), taskDTO.getPageSize());
         long count = historyService.createHistoricTaskInstanceQuery()
-                .taskAssignee(taskDTO.getCurrentUserInfo().getId()).count();
+                .taskAssignee(taskDTO.getCurrentUserInfo().getId()).finished().count();
         List<TaskVO> taskVOS= new ArrayList<>();
         Page<TaskVO> page =new Page<>();
         for (HistoricTaskInstance task : tasks) {
@@ -302,6 +302,7 @@ public class WorkspaceProcessController {
             Map<String, Object> processVariables = task.getProcessVariables();
             TaskVO taskVO=new TaskVO();
             taskVO.setTaskId(task.getId());
+            taskVO.setTaskName(task.getName());
             taskVO.setProcessInstanceId(task.getProcessInstanceId());
             taskVO.setProcessDefinitionName(bpmnModel.getMainProcess().getName());
             taskVO.setStartUser(JSONObject.parseObject(MapUtil.getStr(processVariables,START_USER_INFO),new TypeReference<UserInfo>(){}));

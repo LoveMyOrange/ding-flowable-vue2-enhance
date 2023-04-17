@@ -19,6 +19,7 @@
     "signature_pad": "^3.0.0-beta.4",
     "trim-canvas": "^0.1.2",
     "vue": "^2.6.11",
+    "vue-esign": "^1.1.4",
     "vue-router": "^3.4.3",
     "vuedraggable": "^2.24.1",
     "vuex": "^3.5.1"

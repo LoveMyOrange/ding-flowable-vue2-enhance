@@ -5,7 +5,9 @@
       <el-table-column type="index" label="#" />
       <el-table-column prop="processDefinitionName" label="流程类型" width="200" />
       <el-table-column prop="startUser.name" label="发起人" />
-      <el-table-column prop="startTime" label="提交时间" :formatter="formatTime" />
+      <el-table-column prop="taskName" label="任务节点名" />
+      <el-table-column prop="startTime" label="任务开始时间" :formatter="formatTime" />
+      <el-table-column prop="endTime" label="处理完成时间" :formatter="formatTime" />
       <el-table-column prop="duration" label="耗时" />
       <el-table-column prop="businessStatus" label="当前状态" :formatter="formatBusinessStatus" />
       <el-table-column  label="操作" >

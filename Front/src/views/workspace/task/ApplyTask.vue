@@ -6,11 +6,10 @@
       <el-table-column prop="processDefinitionName" label="流程类型" width="200" />
       <el-table-column prop="startUser.name" label="发起人" />
       <el-table-column prop="startTime" label="提交时间" :formatter="formatTime" />
-      <el-table-column prop="taskCreateTime" label="任务到达时间" :formatter="formatTime" />
+      <el-table-column prop="endTime" label="结束时间" :formatter="formatTime" />
       <el-table-column prop="currentActivityName" label="当前节点" />
-      <el-table-column prop="businessStatus" label="当前状态" :formatter="formatBusinessStatus" />
-   
-   
+      <el-table-column prop="businessStatus" label="审批状态" :formatter="formatBusinessStatus" />
+      <el-table-column prop="duration" label="已耗时"  />
       <el-table-column  label="操作" >
         <template  slot-scope="scope">
         <el-button type="primary"  @click="handleRowDbClick(scope.row)">处理</el-button>
