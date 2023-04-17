@@ -332,7 +332,7 @@ public class WorkspaceProcessController {
 
     @ApiOperation("同意按钮")
     @PostMapping("/agree")
-    public Result agree(@RequestBody HandleDataDTO handleDataDTO){
+    public Result agree(@RequestBody HandleDataDTO handleDataDTO,MultipartFile file){
         UserInfo currentUserInfo = handleDataDTO.getCurrentUserInfo();
         List<AttachmentDTO> attachments = handleDataDTO.getAttachments();
         String comments = handleDataDTO.getComments();

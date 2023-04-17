@@ -88,6 +88,7 @@ export default {
         this.formData = rsp.data.result.formData
         this.currentNode = rsp.data.result.currentNode
         this.processInfo.formData = this.formData
+        this.processInfo.signFlag = rsp.data.result.signFlag,
         this.form = form
 
       })
@@ -102,6 +103,7 @@ export default {
     this.processInfo = {
       processInstanceId: this.processInstanceId,
       taskId: this.taskId,
+      signFlag: null,
       currentUserInfo:currentUserInfo
     }
   },
