@@ -5,6 +5,7 @@
     </div>
     <div style="margin-top: 10px">
 <el-button type="success">下方按钮前端交互写的比较简陋, 相关入参前端传递的也有问题,前端水平有限, 大家可以PostMan去测试,参数可以可以参照swagger文档来传递</el-button><br/>
+<el-button type="success">3个Tab页的数据都是从instanceInfo接口返回回来的,目前只做了第一个和第三个tab页,第二个Tab页 暂时没有前端联调</el-button><br/>
 <el-button type="success">待办页面应该展现如下按钮: [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]</el-button><br/>
 <el-button type="success">我发起页面应该展现如下按钮: [撤销] [评论] </el-button><br/>
 <el-button type="success">关于我的页面应该展现如下按钮: [撤销] [评论]</el-button><br/>
