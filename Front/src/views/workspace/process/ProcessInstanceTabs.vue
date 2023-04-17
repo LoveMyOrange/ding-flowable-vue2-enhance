@@ -4,6 +4,10 @@
       <el-button icon="el-icon-back" class="back" type="info" size="mini" plain @click="$router.go(-1)">返回主页</el-button>
     </div>
     <div style="margin-top: 10px">
+<el-button type="success">下方按钮前端交互写的比较简陋, 相关入参前端传递的也有问题,前端水平有限, 大家可以PostMan去测试,参数可以可以参照swagger文档来传递</el-button><br/>
+<el-button type="success">待办页面应该展现如下按钮: [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]</el-button><br/>
+<el-button type="success">我发起页面应该展现如下按钮: [撤销] [评论] </el-button><br/>
+<el-button type="success">关于我的页面应该展现如下按钮: [撤销] [评论]</el-button><br/>
       <el-tabs type="border-card">
         <el-tab-pane label="表单详情">
           <process-form :processInfo="processInfo"></process-form>
@@ -49,7 +53,7 @@ export default {
       getProcessInstanceInfo(this.processInstanceId, this.taskId).then(rsp => {
         console.log('流程详情', rsp.data)
         let form = rsp.data.result.processTemplates
-   
+
         form.logo = JSON.parse(form.logo)
         form.settings = JSON.parse(form.settings)
         form.formItems = JSON.parse(form.formItems)
