@@ -25,15 +25,8 @@ import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
 public class TaskCreatedListener implements TaskListener {
     @Resource
     private TaskService taskService;
-    @Resource
-    private RepositoryService repositoryService;
     @Override
     public void notify(DelegateTask delegateTask) {
-        String taskDefinitionKey = delegateTask.getTaskDefinitionKey();
-        if("root".equalsIgnoreCase(taskDefinitionKey)){
-            taskService.complete(delegateTask.getId());
-        }
-        else{
             if("100000".equals(delegateTask.getAssignee())){
                 Object autoRefuse = delegateTask.getVariable("autoRefuse");
                 if(autoRefuse==null){
@@ -46,6 +39,5 @@ public class TaskCreatedListener implements TaskListener {
                     runtimeService.deleteProcessInstance(delegateTask.getProcessInstanceId(),"审批人为空,自动驳回");
                 }
             }
-        }
     }
 }

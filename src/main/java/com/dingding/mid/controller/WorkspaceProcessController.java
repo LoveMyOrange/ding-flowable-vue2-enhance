@@ -134,6 +134,11 @@ public class WorkspaceProcessController {
                     .variables(processVariables)
                     .businessStatus(BUSINESS_STATUS_1)
                     .start();
+            //手动完成第一个任务
+            Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+            if(task!=null){
+                taskService.complete(task.getId());
+            }
             return Result.OK(processInstance.getId());
         }
         catch (Exception e){
