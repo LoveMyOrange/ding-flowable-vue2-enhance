@@ -1,7 +1,7 @@
 # dingding-mid     中国式传统流程引擎开源标杆(Activiti 567 Flowable 56,Camunda7 )
 
 ### 大家可扫码加入交流群， 如果二维码失效了，可以加我微信 Doctor4JavaEE  备注 钉钉 拉你入群
-<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/3-10%E5%BE%AE%E4%BF%A1_1681807994326.png" alt="微信群" style="zoom:20%;" />
+<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/3-10%E5%BE%AE%E4%BF%A1_1682401511342.png" alt="微信群" style="zoom:20%;" />
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1_1665560718233.png" alt="作者微信" style="zoom:20%;" />
 
 在介绍本项目之前,我先想与大家谈论谈论业务框架 和 技术框架的问题 以及工作流的诸多问题
@@ -161,7 +161,7 @@
 
 ### 大家可扫码加入交流群， 如果二维码失效了，可以加我微信 Doctor4JavaEE  备注 钉钉 拉你入群
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1_1665560718233.png" alt="作者微信" style="zoom:20%;" />
-<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/3-10%E5%BE%AE%E4%BF%A1_1681807994326.png" alt="微信群" style="zoom:20%;" />
+<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/3-10%E5%BE%AE%E4%BF%A1_1682401511342.png" alt="微信群" style="zoom:20%;" />
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/QQ%E7%BE%A4_1667801471531.jpg" alt="QQ群更新" style="zoom:20%;" />
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E5%AE%9D%E5%90%88%E5%B9%B6_1666146178265.jpg" alt="打赏" style="zoom:20%;" />
 
@@ -329,4 +329,15 @@ IDEA2020及以上版本  | Maven 3.6.3及以上版本 |
 - 打开项目目录，依次打开`dingding-mid\target`，将`dingding-mid-{version}-RELEASE.jar`上传至服务器
 
 ### swagger接口文档
-- `http://localhost:10000/swagger-ui/`
+- `http://localhost:端口/swagger-ui/`
+
+
+### 启动前端(因为是前后端分离的项目) (B站有配套视频讲解了 各个版本的前端以及后端如何启动)
+
+- `Vue2 版本对应视频 :  https://www.bilibili.com/video/BV18D4y1C7qE/?spm_id_from=333.999.0.0`
+- `Vue3 版本对应视频 :  https://www.bilibili.com/video/BV1aG4y1t7JQ/?spm_id_from=333.788&vd_source=fb655b691713324522e551b8acef3630`
+- `AntDesignVue 版本对应视频 :  https://www.bilibili.com/video/BV1X84y1C7AD/?spm_id_from=333.788&vd_source=fb655b691713324522e551b8acef3630`
+- `React 版本对应视频 :  https://www.bilibili.com/video/BV13Y411d7g6/?spm_id_from=333.788&vd_source=fb655b691713324522e551b8acef3630`
+- `RuoYI-Vue-Camunda 版本对应视频 :  https://www.bilibili.com/video/BV1rv4y1L7wD/?spm_id_from=333.788&vd_source=fb655b691713324522e551b8acef3630`
+
+
