@@ -172,12 +172,14 @@ public class WorkspaceProcessController {
             }).getId();
             applyUserIds.add(id);
         }
+        Map<Long, Users> collect=new HashMap<>();
+        if(CollUtil.isNotEmpty(applyUserIds)){
+            LambdaQueryWrapper<Users> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.in(Users::getUserId,applyUserIds);
+            List<Users> list = userService.list(lambdaQueryWrapper);
+            collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
+        }
 
-
-        LambdaQueryWrapper<Users> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.in(Users::getUserId,applyUserIds);
-        List<Users> list = userService.list(lambdaQueryWrapper);
-        Map<Long, Users> collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
         List<HistoryProcessInstanceVO> historyProcessInstanceVOS= new ArrayList<>();
         Page<HistoryProcessInstanceVO> page=new Page<>();
         for (HistoricProcessInstance historicProcessInstance : historicProcessInstances) {
@@ -252,11 +254,13 @@ public class WorkspaceProcessController {
         }
 
 
-        LambdaQueryWrapper<Users> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.in(Users::getUserId,taskIds);
-        List<Users> list = userService.list(lambdaQueryWrapper);
-        Map<Long, Users> collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
-
+        Map<Long, Users> collect=new HashMap<>();
+        if(CollUtil.isNotEmpty(taskIds)){
+            LambdaQueryWrapper<Users> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.in(Users::getUserId,taskIds);
+            List<Users> list = userService.list(lambdaQueryWrapper);
+            collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
+        }
 
         for (Task task : tasks) {
             ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
@@ -300,6 +304,25 @@ public class WorkspaceProcessController {
                 .taskAssignee(taskDTO.getCurrentUserInfo().getId()).finished().count();
         List<TaskVO> taskVOS= new ArrayList<>();
         Page<TaskVO> page =new Page<>();
+
+        List<String> taskIds= new ArrayList<>();
+        for (HistoricTaskInstance task : tasks) {
+            Map<String, Object> processVariables = task.getProcessVariables();
+            String id = JSONObject.parseObject(MapUtil.getStr(processVariables, START_USER_INFO), new TypeReference<UserInfo>() {
+            }).getId();
+            taskIds.add(id);
+        }
+
+
+        Map<Long, Users> collect=new HashMap<>();
+        if(CollUtil.isNotEmpty(taskIds)){
+            LambdaQueryWrapper<Users> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.in(Users::getUserId,taskIds);
+            List<Users> list = userService.list(lambdaQueryWrapper);
+            collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
+        }
+
+
         for (HistoricTaskInstance task : tasks) {
             HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
             Boolean flag=historicProcessInstance.getEndTime()==null?false:true;
@@ -311,6 +334,7 @@ public class WorkspaceProcessController {
             taskVO.setProcessInstanceId(task.getProcessInstanceId());
             taskVO.setProcessDefinitionName(bpmnModel.getMainProcess().getName());
             taskVO.setStartUser(JSONObject.parseObject(MapUtil.getStr(processVariables,START_USER_INFO),new TypeReference<UserInfo>(){}));
+            taskVO.setUsers(collect.get(Long.valueOf(taskVO.getStartUser().getId())));
             taskVO.setStartTime(historicProcessInstance.getStartTime());
             taskVO.setCurrentActivityName(getCurrentName(task.getProcessInstanceId(),flag,task.getProcessDefinitionId()));
             taskVO.setBusinessStatus(MapUtil.getStr(processVariables,PROCESS_STATUS));
