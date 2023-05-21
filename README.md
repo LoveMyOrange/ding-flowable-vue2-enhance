@@ -3,7 +3,6 @@
 ### 大家可扫码加入交流群， 如果二维码失效了，可以加我微信 Doctor4JavaEE  备注 钉钉 拉你入群
 <table>
   <tr>
-
     <td><img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/54%E5%BE%AE%E4%BF%A1_1683164599103.jpg" alt="微信群" style="zoom:20%;" /></td>
     <td><img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1_1665560718233.png" alt="作者微信" style="zoom:20%;" /></td>
   </tr>
