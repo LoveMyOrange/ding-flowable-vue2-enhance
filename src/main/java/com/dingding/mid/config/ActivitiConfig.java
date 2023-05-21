@@ -72,11 +72,11 @@ public class ActivitiConfig {
 		config.setAsyncExecutorActivate(Boolean.TRUE);
 		HttpClientConfig httpClientConfig=new HttpClientConfig();
 		//连接超时
-		httpClientConfig.setConnectTimeout(10000);
+		httpClientConfig.setConnectTimeout(1000000);
 		//连接请求超时
-		httpClientConfig.setConnectionRequestTimeout(10000);
+		httpClientConfig.setConnectionRequestTimeout(1000000);
 		//双端建立socket连接
-		httpClientConfig.setSocketTimeout(10000);
+		httpClientConfig.setSocketTimeout(1000000);
 		//请求失败之后重试次数
 		httpClientConfig.setRequestRetryLimit(3);
 		config.setHttpClientConfig(httpClientConfig);
