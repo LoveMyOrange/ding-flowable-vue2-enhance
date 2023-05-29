@@ -1,1 +1,6 @@
-后续使用Zeebe流程引擎 用来适配多语言
+后续
+使用Zeebe流程引擎 用来适配多语言
+
+
+Zeebe此流程引擎 等同于 Redis  Kafka ElasticSearch 这样的 设计理念 分为 server端 和client 端
+从而从手段上直接适配多语言
