@@ -6,7 +6,10 @@
     <td><img src="https://qiaoqiaoyun.oss-cn-beijing.aliyuncs.com/upload/612%E5%BE%AE%E4%BF%A1_1686533353169.jpg" alt="微信群" style="zoom:20%;" /></td>
     <td><img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1_1665560718233.png" alt="作者微信" style="zoom:20%;" /></td>
   </tr>
-</table>
+</table> 
+  
+
+### 演示地址: http://123.249.74.161/ 
 
 在介绍本项目之前,我先想与大家谈论谈论业务框架 和 技术框架的问题 以及工作流的诸多问题
 
