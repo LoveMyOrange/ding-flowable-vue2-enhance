@@ -21,6 +21,11 @@ import javax.annotation.Resource;
 public class TimerListener implements ExecutionListener {
     @Resource
     private RepositoryService repositoryService;
+
+    /**
+     * 自行编写 触发逻辑既可
+     * @param execution
+     */
     @Override
     public void notify(DelegateExecution execution) {
         log.info("========");

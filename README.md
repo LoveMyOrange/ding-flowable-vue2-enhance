@@ -116,7 +116,8 @@
 > - 4>https://github.com/cedrusweng/workflow-react 提供了前端源码 保留版权信息 无LICENSE文件,未对其进行二次开发,仅引用 保留版权信息 (此是React版本的)  
 > - 5>https://github.com/wangzhenggui/dingding-approval-flow 提供了前端源码 保留版权信息 无LICENSE文件,未对其进行二次开发,仅引用 保留版权信息 (此是React版本的)  
 后台项目  
-> - 1>https://gitee.com/willianfu/jw-workflow-engine-server 提供了几个用户,部门表结构  Apache2.0协议  
+> - 1>https://gitee.com/willianfu/jw-workflow-engine-server 提供了几个用户,部门表结构  Apache2.0协议
+> - 2>https://gitee.com/zhijiantianya/ruoyi-vue-pro?_from=gitee_search 基于此项目重写了一个Ruoyi-Vue-Pro-Camunda MIT协议  
 个人  
 > - 1>感谢如下个人    
     李 銍 lzgabel  lz19960321lz@gmail.com  
@@ -335,8 +336,8 @@ IDEA2020及以上版本  | Maven 3.6.3及以上版本 |
 - 双击`package`打包项目
 - 打开项目目录，依次打开`dingding-mid\target`，将`dingding-mid-{version}-RELEASE.jar`上传至服务器
 
-### swagger接口文档
-- `http://localhost:端口/swagger-ui/`
+### knife4J接口文档
+- `http://ip:port/doc.html`
 
 
 ### 启动前端(因为是前后端分离的项目) (B站有配套视频讲解了 各个版本的前端以及后端如何启动)
@@ -346,5 +347,6 @@ IDEA2020及以上版本  | Maven 3.6.3及以上版本 |
 - `AntDesignVue 版本对应视频 :  https://www.bilibili.com/video/BV1X84y1C7AD/?spm_id_from=333.788&vd_source=fb655b691713324522e551b8acef3630`
 - `React 版本对应视频 :  https://www.bilibili.com/video/BV13Y411d7g6/?spm_id_from=333.788&vd_source=fb655b691713324522e551b8acef3630`
 - `RuoYI-Vue-Camunda 版本对应视频 :  https://www.bilibili.com/video/BV1rv4y1L7wD/?spm_id_from=333.788&vd_source=fb655b691713324522e551b8acef3630`
+- `Vue2带触发器-延时-抄送节点 版本对应视频 :  https://www.bilibili.com/video/BV1nL411i7d9/?spm_id_from=333.999.0.0`
 
 

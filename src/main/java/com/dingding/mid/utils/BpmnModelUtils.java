@@ -258,35 +258,13 @@ public class BpmnModelUtils {
             }
         }
         else if(Type.DELAY.isEqual(nodeType)){
-            throw new WorkFlowException("还不想写这个功能");
-//            childNodeMap.put(flowNode.getId(),flowNode);
-//            JSONObject incoming = flowNode.getIncoming();
-//            incoming.put("incoming", Collections.singletonList(fromId));
-//            String id = createTask(process,flowNode,sequenceFlows,childNodeMap);
-//            // 如果当前任务还有后续任务，则遍历创建后续任务
-//            ChildNode children = flowNode.getChildren();
-//            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
-//                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
-//            } else {
-//                return id;
-//            }
+            throw new WorkFlowException("在github版本提供了延时节点的实现!(免费),请联系V:ProcessEngine 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
         }
         else if(Type.TRIGGER.isEqual(nodeType)){
-            throw new WorkFlowException("还不想写这个功能");
+            throw new WorkFlowException("在github版本提供了触发器节点的实现!(免费),请联系V:ProcessEngine 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
         }
         else if(Type.CC.isEqual(nodeType)){
-            throw new WorkFlowException("代码呗回滚了 丢了,暂时先不做");
-//            childNodeMap.put(flowNode.getId(),flowNode);
-//            JSONObject incoming = flowNode.getIncoming();
-//            incoming.put("incoming", Collections.singletonList(fromId));
-//            String id = createServiceTask(process,flowNode,sequenceFlows,childNodeMap);
-//            // 如果当前任务还有后续任务，则遍历创建后续任务
-//            ChildNode children = flowNode.getChildren();
-//            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
-//                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
-//            } else {
-//                return id;
-//            }
+            throw new WorkFlowException("在github版本提供了触发器节点的实现!(免费),请联系V:ProcessEngine 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
         }
         else {
             throw new RuntimeException("未知节点类型: nodeType=" + nodeType);
@@ -640,7 +618,12 @@ public class BpmnModelUtils {
                             boundaryEvent.setAttachedToRef(userTask);
                             boundaryEvent.setCancelActivity(Boolean.TRUE);
                             TimerEventDefinition timerEventDefinition = new TimerEventDefinition();
-                            timerEventDefinition.setTimeDuration("PT"+1+"M");
+                            if("D".equals(unit)){
+                                timerEventDefinition.setTimeDuration("P"+value+unit);
+                            }
+                            else{
+                                timerEventDefinition.setTimeDuration("PT"+value+unit);
+                            }
                             timerEventDefinition.setId(id("timerEventDefinition"));
                             boundaryEvent.addEventDefinition(timerEventDefinition);
                             FlowableListener flowableListener = new FlowableListener();

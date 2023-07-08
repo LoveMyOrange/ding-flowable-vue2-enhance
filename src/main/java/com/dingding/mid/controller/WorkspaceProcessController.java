@@ -30,6 +30,7 @@ import io.minio.http.Method;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import liquibase.pro.packaged.S;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.FlowElement;
@@ -125,6 +126,19 @@ public class WorkspaceProcessController {
             processVariables.put(START_USER_INFO,JSONObject.toJSONString(startUserInfo));
             ArrayList<UserInfo> userInfos = CollUtil.newArrayList(startUserInfo);
             processVariables.put("root",JSONObject.toJSONString(userInfos));
+            Map<String, List<UserInfo>> processUsers = startProcessInstanceDTO.getProcessUsers();
+            if(CollUtil.isNotEmpty(processUsers)){
+                Set<String> strings = processUsers.keySet();
+                for (String string : strings) {
+                    List<UserInfo> selectUserInfo = processUsers.get(string);
+                    List<String> users=new ArrayList<>();
+                    for (UserInfo userInfo : selectUserInfo) {
+                        users.add(userInfo.getId());
+                    }
+                    processVariables.put(string,users);
+                }
+            }
+
             Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
             });
             processVariables.putAll(formValue);
@@ -576,7 +590,16 @@ public class WorkspaceProcessController {
         taskService.setAssignee(taskId,handleDataDTO.getTransferUserInfo().getId());
         return Result.OK();
     }
-
+    @ApiOperation("查询可退回的节点(这个是给 下面 rollback接口作为入参用的 )")
+    @PostMapping("/rollbackNodes")
+    public Result rollbackNodes(@RequestBody HandleDataDTO handleDataDTO){
+        List<ActivityInstance> list = runtimeService.createActivityInstanceQuery().unfinished().processInstanceId(handleDataDTO.getProcessInstanceId()).list();
+        Map<String,String> nodes=new HashMap<>();
+        for (ActivityInstance activityInstance : list) {
+            nodes.put(activityInstance.getActivityId(),activityInstance.getActivityName());
+        }
+        return Result.OK(nodes);
+    }
 
     @ApiOperation("退回按钮")
     @PostMapping("/rollback")

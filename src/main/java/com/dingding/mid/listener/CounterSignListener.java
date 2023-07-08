@@ -62,27 +62,22 @@ public class CounterSignListener implements ExecutionListener {
                 }
             }
             else if(AssigneeTypeEnums.SELF_SELECT.getTypeName().equals(assignedType)){
-
+                List<String> assigneeUsers = (List<String>) execution.getVariable(currentActivityId);
+                if(assigneeUsers!=null){
+                    assigneeList.addAll(assigneeUsers);
+                }
             }
             else if(AssigneeTypeEnums.LEADER_TOP.getTypeName().equals(assignedType)){
-                throw new WorkFlowException("暂不做这个功能,等发版!");
+                //来自于users表的admin列
+                throw new WorkFlowException("此项目没有RBAC功能,所以没法做这个功能,可以看一下我写的Ruoyi-Vue-Camunda的那个版本,里面有复杂的找人代码实现");
             }
             else if(AssigneeTypeEnums.LEADER.getTypeName().equals(assignedType)){
-                /*
-                这里代码应该怎么写???   你想想
-                应该是 通过leader 的code  查出来leader里面的人  然后添加到
-                assigneeList.addAll()  既可
-                不过本项目没有添加leader的CRUD页面 所以 先这样,
-                怎么实现就是上述实现手段
-                下面角色也一样, 希望我们<布尔什维克>的
-                同志们
-                可以举一反三 一通百通
-                 */
-//                throw new WorkFlowException("当前只是简单的系统 没有RBAC功能,各位可以自己实现!");
+                //向上找就行了
+                throw new WorkFlowException("此项目没有RBAC功能,所以没法做这个功能,可以看一下我写的Ruoyi-Vue-Camunda的那个版本,里面有复杂的找人代码实现");
             }
             else if(AssigneeTypeEnums.ROLE.getTypeName().equals(assignedType)){
-
-//                throw new WorkFlowException("当前只是简单的系统 没有RBAC功能,各位可以自己实现!");
+                //向上找就行了
+                throw new WorkFlowException("此项目没有RBAC功能,所以没法做这个功能,可以看一下我写的Ruoyi-Vue-Camunda的那个版本,里面有复杂的找人代码实现");
             }
             else if(AssigneeTypeEnums.SELF.getTypeName().equals(assignedType)){
                 String startUserJson = execution.getVariable(START_USER_INFO, String.class);
