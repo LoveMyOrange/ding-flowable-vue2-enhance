@@ -88,8 +88,17 @@ public class ExUtils {
     }
     public Boolean b(String controlId,Number...values){
         List<Number> numbers = Arrays.asList(values);
-        Long aLong = Long.valueOf(controlId);
-        if( aLong> numbers.get(0).longValue()  &&aLong   <numbers.get(1).longValue()){
+
+        Double a = Double.valueOf(controlId);
+        BigDecimal a1 = BigDecimal.valueOf(a);
+        Double b = Double.valueOf(numbers.get(0).doubleValue());
+        BigDecimal a2 = BigDecimal.valueOf(b);
+
+        Double c = Double.valueOf(numbers.get(1).doubleValue());
+        BigDecimal a3 = BigDecimal.valueOf(c);
+
+
+        if( NumberUtil.isGreater(a1,a2)  && NumberUtil.isLess(a1,a3)  ){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
@@ -99,24 +108,54 @@ public class ExUtils {
 
     public Boolean ab(String controlId,Number...values){
         List<Number> numbers = Arrays.asList(values);
-        Long aLong = Long.valueOf(controlId);
-        if(aLong >= numbers.get(0).longValue()  &&aLong   <numbers.get(1).longValue()){
+
+        Double a = Double.valueOf(controlId);
+        BigDecimal a1 = BigDecimal.valueOf(a);
+        Double b = Double.valueOf(numbers.get(0).doubleValue());
+        BigDecimal a2 = BigDecimal.valueOf(b);
+
+        Double c = Double.valueOf(numbers.get(1).doubleValue());
+        BigDecimal a3 = BigDecimal.valueOf(c);
+
+
+        if(NumberUtil.isGreaterOrEqual(a1,a2)  &&NumberUtil.isLess(a1,a3)){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
     }
     public Boolean ba(String controlId,Number...values){
+
         List<Number> numbers = Arrays.asList(values);
-        Long aLong = Long.valueOf(controlId);
-        if(aLong > numbers.get(0).longValue()  &&aLong   <=numbers.get(1).longValue()){
+
+        Double a = Double.valueOf(controlId);
+        BigDecimal a1 = BigDecimal.valueOf(a);
+        Double b = Double.valueOf(numbers.get(0).doubleValue());
+        BigDecimal a2 = BigDecimal.valueOf(b);
+
+        Double c = Double.valueOf(numbers.get(1).doubleValue());
+        BigDecimal a3 = BigDecimal.valueOf(c);
+
+
+        if(NumberUtil.isGreater(a1,a2)  &&NumberUtil.isLessOrEqual(a1,a3)){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
+
+
     }
     public Boolean aba(String controlId,Number...values){
         List<Number> numbers = Arrays.asList(values);
-        Long aLong = Long.valueOf(controlId);
-        if(aLong >= numbers.get(0).longValue()  && aLong   <=numbers.get(1).longValue()){
+
+        Double a = Double.valueOf(controlId);
+        BigDecimal a1 = BigDecimal.valueOf(a);
+        Double b = Double.valueOf(numbers.get(0).doubleValue());
+        BigDecimal a2 = BigDecimal.valueOf(b);
+
+        Double c = Double.valueOf(numbers.get(1).doubleValue());
+        BigDecimal a3 = BigDecimal.valueOf(c);
+
+
+        if(NumberUtil.isGreaterOrEqual(a1,a2)  &&NumberUtil.isLessOrEqual(a1,a3)){
             return Boolean.TRUE;
         }
         return Boolean.FALSE;
