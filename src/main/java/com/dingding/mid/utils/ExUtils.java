@@ -5,6 +5,8 @@ import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.dingding.mid.dto.json.UserInfo;
+import org.apache.commons.lang3.StringUtils;
+import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -52,6 +54,27 @@ public class ExUtils {
     }
 
 
+    public Boolean userStrContainsMethod(String controlId, String fromText, DelegateExecution execution){
+        String variable = (String) execution.getVariable(controlId);
+        if(StringUtils.isBlank(variable)){
+            return Boolean.FALSE;
+        }
+
+        List<UserInfo> userInfos = JSONObject.parseObject(variable, new TypeReference<List<UserInfo>>() {
+        });
+        List<String> idsList= new ArrayList<>();
+        for (UserInfo userInfo : userInfos) {
+            idsList.add(userInfo.getId());
+        }
+        String[] split = fromText.split(",");
+        List<String> strings = Arrays.asList(split);
+        Collection<String> intersection = CollUtil.intersection(strings, idsList);
+        if(CollUtil.isEmpty(intersection)){
+            return Boolean.FALSE;
+        }
+        return Boolean.TRUE;
+    }
+
     public Boolean userStrContainsMethod(String controlId,String...values){
         List<String> strings = Arrays.asList(values);
         List<UserInfo> userInfos = JSONObject.parseObject(controlId, new TypeReference<List<UserInfo>>() {
@@ -67,20 +90,28 @@ public class ExUtils {
         return Boolean.TRUE;
     }
 
-    public Boolean deptStrContainsMethod(String controlId,String...values){
-        List<String> strings = Arrays.asList(values);
-        List<UserInfo> userInfos = JSONObject.parseObject(controlId, new TypeReference<List<UserInfo>>() {
+    public Boolean deptStrContainsMethod(String controlId,String fromText,DelegateExecution execution){
+        String variable = (String) execution.getVariable(controlId);
+        if(StringUtils.isBlank(variable)){
+            return Boolean.FALSE;
+        }
+
+        List<UserInfo> userInfos = JSONObject.parseObject(variable, new TypeReference<List<UserInfo>>() {
         });
         List<String> idsList= new ArrayList<>();
         for (UserInfo userInfo : userInfos) {
             idsList.add(userInfo.getId());
         }
+        String[] split = fromText.split(",");
+        List<String> strings = Arrays.asList(split);
         Collection<String> intersection = CollUtil.intersection(strings, idsList);
         if(CollUtil.isEmpty(intersection)){
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
     }
+
+
 
     public Boolean numberContains(Number controlId,Number...values){
         List<Number> list = Arrays.asList(values);

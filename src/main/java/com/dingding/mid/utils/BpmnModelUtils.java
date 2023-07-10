@@ -146,8 +146,10 @@ public class BpmnModelUtils {
                                                     JSONObject obj=(JSONObject)o;
                                                     userIds.add(obj.getString("id"));
                                                 }
-                                                String str = StringUtils.join(userIds, ",");
-                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"userStrContainsMethod("+id+","+str+") " );
+                                                String str=" "+ EXPRESSION_CLASS+"userStrContainsMethod(\"{0}\",\"{1}\",    execution) ";
+                                                str = str.replace("{0}", id);
+                                                str = str.replace("{1}", StringUtils.join(userIds, ","));
+                                                conditionExpression.append(str );
                                             }
                                             else if("Dept".equals(valueType)){
                                                 List<String> userIds=new ArrayList<>();
@@ -155,8 +157,10 @@ public class BpmnModelUtils {
                                                     JSONObject obj=(JSONObject)o;
                                                     userIds.add(obj.getString("id"));
                                                 }
-                                                String str = StringUtils.join(userIds, ",");
-                                                conditionExpression.append(" "+ EXPRESSION_CLASS+"deptStrContainsMethod("+id+","+str+") " );
+                                                String str=" "+ EXPRESSION_CLASS+"deptStrContainsMethod(\"{0}\",\"{1}\",    execution) ";
+                                                str = str.replace("{0}", id);
+                                                str = str.replace("{1}", StringUtils.join(userIds, ","));
+                                                conditionExpression.append(str );
                                             }
                                             else{
                                                 continue;
