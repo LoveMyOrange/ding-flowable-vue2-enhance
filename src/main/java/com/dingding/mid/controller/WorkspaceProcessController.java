@@ -796,7 +796,7 @@ public class WorkspaceProcessController {
                 while (iterator.hasNext()){
                     FormOperates next = iterator.next();
                     if("H".equals(next.getPerm())){
-                        iterator.remove();
+//                        iterator.remove();
                         if(jsonObject!=null){
                             jsonObject.remove(next.getId());
                         }
