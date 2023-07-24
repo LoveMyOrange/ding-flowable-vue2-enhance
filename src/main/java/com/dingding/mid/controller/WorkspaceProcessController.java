@@ -810,6 +810,7 @@ public class WorkspaceProcessController {
         if(sign){
             handleDataVO.setSignFlag(true);
         }
+        else{
         if(StringUtils.isNotBlank(HandleDataDTO.getTaskId())){
             if(currentNode!=null){
                 if(currentNode.getProps().getSign()){
@@ -819,6 +820,10 @@ public class WorkspaceProcessController {
                     handleDataVO.setSignFlag(false);
                 }
             }
+        }
+        else {
+            handleDataVO.setSignFlag(false);
+        }
         }
 
 
