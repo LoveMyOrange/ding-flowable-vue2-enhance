@@ -1,0 +1,114 @@
+# 应用服务器
+server:
+  tomcat:
+    uri-encoding: UTF-8 #tomcat编码
+  port: 9999 #tomcat端口
+
+  #===================== 数据源配置 =====================
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PWD:123456}
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3306}/${MYSQL_DB:dingding_mid_3}?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&allowMultiQueries=true&allowPublicKeyRetrieval=true&queryTimeout=2400&nullCatalogMeansCurrent=true
+  #===================== Redis配置 =====================
+  data:
+    redis:
+      database: 1 #缓存库编号
+      host: 127.0.0.1
+      port: 6379
+      password:
+      timeout: 3000 #超时时间(单位：秒)
+      lettuce: #Lettuce为Redis的Java驱动包
+        pool:
+          max-active: 8 # 连接池最大连接数
+          max-wait: -1ms  # 连接池最大阻塞等待时间（使用负值表示没有限制）
+          min-idle: 0 # 连接池中的最小空闲连接
+          max-idle: 8 # 连接池中的最大空闲连接
+
+  mail:
+    host: smtp.qq.com #邮件服务器的host
+    password: sb #邮件服务器的发件人密码
+    username: 6666@qq.com #邮件服务器的发件人
+    port: 25 #smtp默认端口
+    protocol: smtp #使用smtp协议
+    default-encoding: UTF-8 #邮件使用的字符集
+    properties:
+      mail:
+        debug: true #启调试模式(发送邮件的细节都能看出来) 默认值为fasle
+        debug.auth: true
+        smtp:
+          auth: true #如果为true ,则尝试使用auth命令对用户进行身份验证 默认为false
+          connectiontimeout: 20000 #套接字连接超时值（毫秒）。默认值为无限超时。
+          sendpartial: true #如果为true 并且邮件有一些有效和无效的地址 并使用SendFailException 报告部分失败, 如果设置为false(默认值) 如果存在无效的收件人地址, 则不会将邮件发送给任何收件人
+          starttls:
+            #如果为true,则在发出任何登录命令之前,启用starttl命令(如果服务器支持) 将连接切换到受TLS保护的连接,请注意,必须配置适当的信任存储,以便客户端信任服务器的证书,默认为false
+            enable: true
+            # 如果为true,则需要使用 starttl命令,如果服务器不支持此命令,或者该命令失败,connect()将失败,默认为false 如果此设置为true james邮件服务器会报错 STARTTLS is required but host does not support STARTTLS
+            required: false
+          timeout: 20000 #I/O超时值(ms) 默认为无限超时
+          userset: true #如果设置为true,则在isConnected()中使用RSET命令而不是NOOP命令 在某些情况下,sendmail在执行许多NOOP命令后响应缓存,使用RSET可以避免这个sendMail问题,默认为false
+
+
+
+flowable:
+  dmn:
+    enabled: false
+  cmmn:
+    enabled: false
+  idm:
+    enabled: false
+  async-history-executor-activate: false
+  async-executor-activate: false
+  check-process-definitions: false
+  content:
+    enabled: false
+  app:
+    enabled: false
+  eventregistry:
+    enabled: false
+
+config:
+  minio:
+    endpoint: http://192.168.0.147:9000/ #服务端地址
+    accessKey: admin #账号
+    secretKey: test. #密码
+    fileHost: http://192.168.0.147:9000/ #地址
+
+
+# springdoc-openapi项目配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.dingding.mid.controller
+
+knife4j:
+  enable: true
+  openapi:
+    title: 仿钉钉
+    description: "`仿钉钉流程设计器兼容,Activiti-Flowable-Camunda`"
+    email: 2471089198@qq.com
+    concat: ProcessEngine
+    url: https://baidu.com
+    version: v4.0
+    license: Apache 2.0
+    license-url: https://stackoverflow.com/
+    terms-of-service-url: https://stackoverflow.com/
+    group:
+      test1:
+        group-name: Vue2版本接口
+        api-rule: package
+        api-rule-resources:
+          - com.dingding.mid.controller
+mybatis-plus:
+  mapper-locations: classpath:mapper/*/*/*.xml
+  type-aliases-package: com.dingding.mid.entity
+
