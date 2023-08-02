@@ -43,4 +43,6 @@ public class TaskVO {
     private DelegationState delegationState;
     @ApiModelProperty("发起人(带icon)")
     private Users users;
+    @ApiModelProperty("节点id")
+    private String nodeId;
 }

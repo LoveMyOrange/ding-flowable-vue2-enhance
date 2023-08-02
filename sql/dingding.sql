@@ -103,8 +103,8 @@ CREATE TABLE `users` (
   `user_id` bigint(15) NOT NULL AUTO_INCREMENT COMMENT '用户id',
   `user_name` varchar(50) NOT NULL COMMENT '用户名',
   `pingyin` varchar(50) NOT NULL COMMENT '拼音',
-  `alisa` varchar(50) DEFAULT NULL COMMENT '昵称',
-  `avatar` varchar(50) DEFAULT NULL COMMENT '头像',
+  `alisa` varchar(999) DEFAULT NULL COMMENT '昵称',
+  `avatar` varchar(999) DEFAULT NULL COMMENT '头像',
   `sex` tinyint(3) DEFAULT NULL COMMENT '性别',
   `department_ids` varchar(50) DEFAULT NULL COMMENT '部门id，分隔',
   `entry_date` datetime DEFAULT NULL COMMENT '入职日期',
@@ -117,7 +117,26 @@ CREATE TABLE `users` (
 
 /*Data for the table `users` */
 
-insert  into `users`(`user_id`,`user_name`,`pingyin`,`alisa`,`avatar`,`sex`,`department_ids`,`entry_date`,`leave_date`,`admin`,`created`,`updated`) values (381496,'旅人','lvren','旅人','https://pic.rmb.bdstatic.com/bjh/203726324a891b194',0,'1486186','2022-10-20 13:33:36','2023-10-28 13:33:39',1,'2022-10-19 13:32:49','2022-10-19 13:32:52'),(489564,'李秋香','liqiuxiang','李秋香',NULL,NULL,'689698',NULL,NULL,NULL,NULL,NULL),(568898,'王翠花','wangcuihua','王翠花',NULL,NULL,'4319868',NULL,NULL,NULL,NULL,NULL),(6418616,'张三','zhangsan','张三',NULL,NULL,'6179678',NULL,NULL,NULL,NULL,NULL),(61769798,'李四','lisi','李四',NULL,NULL,'231535',NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100001, 'Java1号', 'lvren', 'Java1号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100002, 'Java2号', 'lvren', 'Java2号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100003, 'Java3号', 'lvren', 'Java3号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100004, 'Java4号', 'lvren', 'Java4号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100005, 'Java5号', 'lvren', 'Java5号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100006, 'Java6号', 'lvren', 'Java6号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100007, 'Java7号', 'lvren', 'Java7号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100008, 'Java8号', 'lvren', 'Java8号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (100009, 'Java9号', 'lvren', 'Java9号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
+INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (1000010, 'Java10号', 'lvren', 'Java10号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
+
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
