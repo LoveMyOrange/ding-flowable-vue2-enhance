@@ -10,12 +10,12 @@
         <org-picker type="user" :multiple="multiple" ref="orgPicker" :selected="_value" @ok="selected"/>
         <span class="placeholder"> {{placeholder}}</span>
         <div style="margin-top: 5px">
-          <el-tag size="mini" style="margin: 5px" closable v-for="(dept, i) in _value" @close="delDept(i)">{{dept.name}}</el-tag>
+          <el-tag v-for="(dept, i) in _value" :key="i" size="mini" style="margin: 5px" closable  @close="delDept(i)">{{dept.name}}</el-tag>
         </div>
       </template>
       <template v-else>
         <div>
-          <el-tag size="mini" style="margin: 5px" v-for="(dept, i) in _value">{{dept.name}}</el-tag>
+          <el-tag size="mini" style="margin: 5px" v-for="(dept, i) in _value" :key="i">{{dept.name}}</el-tag>
         </div>
       </template>
 

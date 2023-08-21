@@ -20,7 +20,7 @@
       <div v-if="rowLayout">
         <el-table size="medium" :header-cell-style="{background:'#f5f7fa', padding:'3px 0'}" :border="showBorder" :data="_value" style="width: 100%">
           <el-table-column fixed type="index" label="序号" width="50"></el-table-column>
-          <el-table-column :min-width="getMinWidth(column)" v-for="(column, index) in _columns" :prop="column.id" :label="column.title">
+          <el-table-column :min-width="getMinWidth(column)" v-for="(column, index) in _columns" :key="index" :prop="column.id" :label="column.title">
             <template slot-scope="scope">
               <form-design-render :class="{'valid-error': showError(column, _value[scope.$index][column.id])}" v-model="_value[scope.$index][column.id]" :mode="mode" :config="column"/>
             </template>
