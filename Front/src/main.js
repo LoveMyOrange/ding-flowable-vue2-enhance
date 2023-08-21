@@ -24,7 +24,7 @@ Vue.use(vueEsign)
 
 Vue.config.productionTip = false
 
-Vue.prototype.BASE_URL = 'http://' + (process.env.NODE_ENV === 'development-' ? "127.0.0.1" : "127.0.0.1");
+Vue.prototype.BASE_URL = 'http://' + (process.env.NODE_ENV === 'development' ? "123.249.74.161" : "127.0.0.1");
 
 Vue.prototype.$isNotEmpty = function(obj){
   return (obj !== undefined && obj !== null && obj !== '' && obj !== 'null')
