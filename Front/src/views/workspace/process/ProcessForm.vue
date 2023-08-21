@@ -3,19 +3,7 @@
     <!-- <el-input v-model="fromData.comments" placeholder="请输入审批内容"></el-input> -->
     <el-row :gutter="10">
       <el-col :span="24">
-        <el-button type="primary" @click="onAgree">同意</el-button>
-        <el-button type="primary" @click="onDelegateTask">委派</el-button>
-        <el-button type="primary" @click="onResolveTask">委派人完成</el-button>
-        <el-button type="primary" @click="onRefuse">拒绝</el-button>
-        <el-button type="primary" @click="onRevoke">撤销</el-button>
-        <el-button type="primary" @click="onAssignee">转办</el-button>
-        <el-button type="primary" @click="onrollback">退回</el-button>
-        <el-button type="primary" @click="onAddMulti">加签</el-button>
-        <el-button type="primary" @click="onQueryMultiUsersInfo"
-          >查到签上的人</el-button
-        >
-        <el-button type="primary" @click="onDeleteMulti">减签</el-button>
-        <el-button type="primary" @click="onComments">评论</el-button>
+        <el-button type="primary" v-for="item in buttonConfig" :key="item.key" @click="handleClickByType(item.key)">{{ item.text }}</el-button>
       </el-col>
     </el-row>
     <AgreenForm ref="AgreenForm"></AgreenForm>
@@ -45,8 +33,74 @@ import {
 import AgreenForm from "./AgreenForm";
 import OrgPicker from "@/components/common/OrgPicker";
 
+// 待我处理
+const TODO_TASK_KEYS = ['agree', 'delegate', 'resolve', 'refuse', 'assignee', 'rollback', 'addMulti', 'deleteMulti', 'comments', 'queryMultiUsersInfo'];
+
+// 我发起的
+// [撤销] [评论]
+const APPLY_TASK_KEYS = ['revoke', 'comments']
+
+// 关于我的
+// [撤销] [评论]
+const DONE_TASK_KEYS = ['revoke', 'comments'];
+
+// 根据类型 映射对应关系
+const BUTTON_KEYS_MAP = {
+  todoTask: TODO_TASK_KEYS,
+  applyTask: APPLY_TASK_KEYS,
+  doneTask: DONE_TASK_KEYS,
+};
+
+// 对应映射关系
+const OPERATION_BUTTON_CONFIG = [
+  {
+    text: "同意",
+    key: "agree",
+  },
+  {
+    text: "委派",
+    key: "delegate",
+  },
+  {
+    text: "委派人完成",
+    key: "resolve",
+  },
+  {
+    text: "拒绝",
+    key: "refuse",
+  },
+  {
+    text: "撤销",
+    key: "revoke",
+  },
+  {
+    text: "转办",
+    key: "assignee",
+  },
+  {
+    text: "退回",
+    key: "rollback",
+  },
+  {
+    text: "加签",
+    key: "addMulti",
+  },
+  {
+    text: "查到签上的人",
+    key: "queryMultiUsersInfo",
+  },
+  {
+    text: "减签",
+    key: "deleteMulti",
+  },
+  {
+    text: "评论",
+    key: "comments",
+  },
+];
+
 export default {
-  props: ["processInfo"],
+  props: ["processInfo", "type"],
   components: {
     AgreenForm,
     OrgPicker,
@@ -60,38 +114,55 @@ export default {
         processInstanceId: "",
         taskId: "",
       },
-      select:[]
+      select: [],
     };
   },
+  computed: {
+    buttonConfig() {
+      return OPERATION_BUTTON_CONFIG.filter(item => BUTTON_KEYS_MAP[this.type].includes(item.key))
+    }
+  },
   methods: {
+    handleClickByType(type) {
+      const METHOD_MAP = {
+        agree: this.onAgree,
+        delegate: this.onDelegateTask,
+        resolve: this.onResolveTask,
+        refuse: this.onRefuse,
+        revoke: this.onRevoke,
+        assignee: this.onAssignee,
+        rollback: this.onRollback,
+        addMulti: this.onAddMulti,
+        queryMultiUsersInfo: this.onQueryMultiUsersInfo,
+        deleteMulti: this.onDeleteMulti,
+        comments: this.onComments,
+      }
+      METHOD_MAP[type]?.()
+    },
     onSelected(select) {
-        
       this.select.length = 0;
       select.forEach((val) => this.select.push(val));
       switch (this.selectType) {
         case delegateTask:
-            
-            break;
-      
+          break;
+
         default:
-            break;
+          break;
       }
     },
     onAgree() {
-      this.$refs.AgreenForm.initFrom(this.processInfo,this.callback);
+      this.$refs.AgreenForm.initFrom(this.processInfo, this.callback);
     },
-    callback(){
-
-    },
+    callback() {},
     onDelegateTask() {
       this.$refs.orgPicker.show();
-     this.selectType = "delegateTask"
-    //   const data = { ...this.fromData, ...this.processInfo };
+      this.selectType = "delegateTask";
+      //   const data = { ...this.fromData, ...this.processInfo };
 
-    //   delegateTask(data).then((res) => {
-    //     console.log("同意res", res);
-    //     this.$message.success("审批成功");
-    //   });
+      //   delegateTask(data).then((res) => {
+      //     console.log("同意res", res);
+      //     this.$message.success("审批成功");
+      //   });
     },
 
     onResolveTask() {
@@ -125,7 +196,7 @@ export default {
       });
     },
 
-    onrollback() {
+    onRollback() {
       const data = { ...this.fromData, ...this.processInfo };
 
       rollback(data).then((res) => {

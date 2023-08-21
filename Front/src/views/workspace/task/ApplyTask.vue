@@ -60,7 +60,8 @@ export default {
       this.$router.push({
         path: '/workspace/process/instance/tabs',
         query: {
-          processInstanceId: row.processInstanceId
+          processInstanceId: row.processInstanceId,
+          type: 'applyTask'
         }
       })
     },

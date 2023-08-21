@@ -58,6 +58,7 @@ export default {
         query: {
           processInstanceId: row.processInstanceId,
           taskId: row.taskId,
+          type: 'todoTask'
         }
       })
     },

@@ -40,7 +40,6 @@ export default {
   },
   methods: {
     getDomTree(h, node) {
-      console.log(66666666666)
       this.toMapping(node);
       if (this.isPrimaryNode(node)){
         //普通业务节点
