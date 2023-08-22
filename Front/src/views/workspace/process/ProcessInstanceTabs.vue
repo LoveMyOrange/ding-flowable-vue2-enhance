@@ -81,15 +81,13 @@ export default {
       getProcessInstanceInfo(this.processInstanceId, this.taskId).then(
         (rsp) => {
           console.log("流程详情", rsp.data);
-          let form = rsp.data.result.processTemplates;
+          let form = {...rsp.data.result.processTemplates};
 
           form.logo = JSON.parse(form.logo);
           form.settings = JSON.parse(form.settings);
           form.formItems = JSON.parse(form.formItems);
           form.process = JSON.parse(form.process);
-
           const formItems = flatFormItem(form.formItems);
-          console.log("formItems 1", formItems);
 
           const perms = rsp.data.result?.currentNode?.props?.formPerms || [];
 
