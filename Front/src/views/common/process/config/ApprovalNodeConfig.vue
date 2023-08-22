@@ -46,7 +46,7 @@
         <div v-else-if="nodeProps.assignedType === 'FORM_USER'">
           <el-form-item label="选择表单联系人项" prop="text" class="approve-end">
             <el-select style="width: 80%;" size="small" v-model="nodeProps.formUser" placeholder="请选择包含联系人的表单项">
-              <el-option v-for="op in forms" :label="op.title" :value="op.id"></el-option>
+              <el-option v-for="op in forms" :label="op.title" :value="op.id" :key="op.id"></el-option>
             </el-select>
           </el-form-item>
         </div>
