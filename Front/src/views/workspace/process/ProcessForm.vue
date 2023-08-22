@@ -3,7 +3,7 @@
     <!-- <el-input v-model="fromData.comments" placeholder="请输入审批内容"></el-input> -->
     <el-row :gutter="10">
       <el-col :span="24">
-        <el-button type="primary" v-for="item in buttonConfig" :key="item.key" @click="handleClickByType(item.key)">{{ item.text }}</el-button>
+        <el-button size="small" type="primary" v-for="item in buttonConfig" :key="item.key" @click="handleClickByType(item.key)">{{ item.text }}</el-button>
       </el-col>
     </el-row>
     <AgreenForm ref="AgreenForm"></AgreenForm>
@@ -14,6 +14,8 @@
       :selected="select"
       @ok="onSelected"
     />
+    <!-- 评论 -->
+    <comment-modal :visible.sync="modalConfig.commentVisible" :processInfo="processInfo" />
   </div>
 </template>
 
@@ -28,12 +30,13 @@ import {
   addMulti,
   queryMultiUsersInfo,
   deleteMulti,
-  comments,
 } from "@/api/design";
 import AgreenForm from "./AgreenForm";
 import OrgPicker from "@/components/common/OrgPicker";
+import CommentModal from './CommentModal';
 
 // 待我处理
+// [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
 const TODO_TASK_KEYS = ['agree', 'delegate', 'resolve', 'refuse', 'assignee', 'rollback', 'addMulti', 'deleteMulti', 'comments', 'queryMultiUsersInfo'];
 
 // 我发起的
@@ -104,11 +107,15 @@ export default {
   components: {
     AgreenForm,
     OrgPicker,
+    CommentModal,
   },
 
   name: "ProcessForm",
   data() {
     return {
+      modalConfig: {
+        commentVisible: false
+      },
       fromData: {
         comments: "同意",
         processInstanceId: "",
@@ -225,11 +232,9 @@ export default {
         console.log("同意res", res);
       });
     },
+    // 添加评论
     onComments() {
-      const data = { ...this.fromData, ...this.processInfo };
-      comments(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.commentVisible = true;
     },
   },
 };
