@@ -28,6 +28,8 @@
     <rollback-modal :visible.sync="modalConfig.rollbackVisible" :processInfo="processInfo" />
     <!-- 加签 -->
     <add-multi-modal :visible.sync="modalConfig.addMultiVisible" :processInfo="processInfo" />
+    <!-- 查到签上的人 -->
+    <query-multi-user-modal :visible.sync="modalConfig.queryMultiUserVisible" :processInfo="processInfo" />
   </div>
 </template>
 
@@ -35,7 +37,6 @@
 import {
   delegateTask,
   revoke,
-  queryMultiUsersInfo,
   deleteMulti,
 } from "@/api/design";
 import AgreenForm from "./AgreenForm";
@@ -47,6 +48,7 @@ import ResolveModal from './ResolveModal';
 import RefuseModal from './RefuseModal';
 import RollbackModal from './RollbackModal';
 import AddMultiModal from './AddMultiModal';
+import QueryMultiUserModal from './QueryMultiUserModal';
 
 // 待我处理
 // [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
@@ -127,6 +129,7 @@ export default {
     RefuseModal,
     RollbackModal,
     AddMultiModal,
+    QueryMultiUserModal,
   },
   name: "ProcessForm",
   data() {
@@ -138,7 +141,8 @@ export default {
         resolveVisible: false,
         refuseVisible: false,
         rollbackVisible: false,
-        addMultiVisible: false
+        addMultiVisible: false,
+        queryMultiUserVisible: false
       },
       fromData: {
         comments: "同意",
@@ -211,13 +215,8 @@ export default {
     onAddMulti() {
       this.modalConfig.addMultiVisible = true;
     },
-
     onQueryMultiUsersInfo() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      queryMultiUsersInfo(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.queryMultiUserVisible = true;
     },
     onDeleteMulti() {
       const data = { ...this.fromData, ...this.processInfo };
