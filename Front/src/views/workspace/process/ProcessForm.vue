@@ -16,6 +16,8 @@
     />
     <!-- 评论 -->
     <comment-modal :visible.sync="modalConfig.commentVisible" :processInfo="processInfo" />
+    <!-- 委派 -->
+    <delegate-modal :visible.sync="modalConfig.delegateVisible" :processInfo="processInfo" />
   </div>
 </template>
 
@@ -34,6 +36,7 @@ import {
 import AgreenForm from "./AgreenForm";
 import OrgPicker from "@/components/common/OrgPicker";
 import CommentModal from './CommentModal';
+import DelegateModal from './DelegateModal';
 
 // 待我处理
 // [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
@@ -108,13 +111,14 @@ export default {
     AgreenForm,
     OrgPicker,
     CommentModal,
+    DelegateModal,
   },
-
   name: "ProcessForm",
   data() {
     return {
       modalConfig: {
-        commentVisible: false
+        commentVisible: false,
+        delegateVisible: false
       },
       fromData: {
         comments: "同意",
@@ -162,14 +166,7 @@ export default {
     },
     callback() {},
     onDelegateTask() {
-      this.$refs.orgPicker.show();
-      this.selectType = "delegateTask";
-      //   const data = { ...this.fromData, ...this.processInfo };
-
-      //   delegateTask(data).then((res) => {
-      //     console.log("同意res", res);
-      //     this.$message.success("审批成功");
-      //   });
+      this.modalConfig.delegateVisible = true;
     },
 
     onResolveTask() {
