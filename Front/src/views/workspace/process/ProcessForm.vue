@@ -24,6 +24,8 @@
     <refuse-modal :visible.sync="modalConfig.refuseVisible" :processInfo="processInfo" />
     <!-- 转办 -->
     <assignee-modal :visible.sync="modalConfig.assigneeVisible" :processInfo="processInfo" />
+    <!-- 退回 -->
+    <rollback-modal :visible.sync="modalConfig.rollbackVisible" :processInfo="processInfo" />
     
   </div>
 </template>
@@ -32,7 +34,6 @@
 import {
   delegateTask,
   revoke,
-  rollback,
   addMulti,
   queryMultiUsersInfo,
   deleteMulti,
@@ -44,6 +45,7 @@ import DelegateModal from './DelegateModal';
 import AssigneeModal from './AssigneeModal';
 import ResolveModal from './ResolveModal';
 import RefuseModal from './RefuseModal';
+import RollbackModal from './RollbackModal.vue';
 
 // 待我处理
 // [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
@@ -122,6 +124,7 @@ export default {
     AssigneeModal,
     ResolveModal,
     RefuseModal,
+    RollbackModal,
   },
   name: "ProcessForm",
   data() {
@@ -132,6 +135,7 @@ export default {
         assigneeVisible: false,
         resolveVisible: false,
         refuseVisible: false,
+        rollbackVisible: false
       },
       fromData: {
         comments: "同意",
@@ -198,15 +202,9 @@ export default {
     onAssignee() {
       this.modalConfig.assigneeVisible = true
     },
-
     onRollback() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      rollback(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.rollbackVisible = true;
     },
-
     onAddMulti() {
       const data = { ...this.fromData, ...this.processInfo };
 
