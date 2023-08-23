@@ -30,13 +30,14 @@
     <add-multi-modal :visible.sync="modalConfig.addMultiVisible" :processInfo="processInfo" />
     <!-- 查到签上的人 -->
     <query-multi-user-modal :visible.sync="modalConfig.queryMultiUserVisible" :processInfo="processInfo" />
+    <!-- 撤销 -->
+    <revoke-modal :visible.sync="modalConfig.revokeVisible" :processInfo="processInfo" />
   </div>
 </template>
 
 <script>
 import {
   delegateTask,
-  revoke,
   deleteMulti,
 } from "@/api/design";
 import AgreenForm from "./AgreenForm";
@@ -49,6 +50,7 @@ import RefuseModal from './RefuseModal';
 import RollbackModal from './RollbackModal';
 import AddMultiModal from './AddMultiModal';
 import QueryMultiUserModal from './QueryMultiUserModal';
+import RevokeModal from './RevokeModal'
 
 // 待我处理
 // [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
@@ -97,6 +99,7 @@ export default {
     RollbackModal,
     AddMultiModal,
     QueryMultiUserModal,
+    RevokeModal
   },
   name: "ProcessForm",
   data() {
@@ -109,7 +112,8 @@ export default {
         refuseVisible: false,
         rollbackVisible: false,
         addMultiVisible: false,
-        queryMultiUserVisible: false
+        queryMultiUserVisible: false,
+        revokeVisible: false
       },
       fromData: {
         comments: "同意",
@@ -171,11 +175,7 @@ export default {
       this.modalConfig.refuseVisible = true
     },
     onRevoke() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      revoke(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.revokeVisible = true;
     },
 
     onAssignee() {
