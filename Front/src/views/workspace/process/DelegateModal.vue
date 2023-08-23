@@ -104,7 +104,7 @@ export default {
         return
       }
       const [ item ] = selected;
-      if(item.id === this.processInfo.currentUserInfo.id * 1) {
+      if(`${item.id}` === this.processInfo.currentUserInfo.id) {
         this.$message.error('不能委派给自己');
         return
       }
