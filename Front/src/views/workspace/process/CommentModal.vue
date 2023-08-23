@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="评论" :visible.sync="show" width="550px" v-bind="$attrs" v-on="$listeners">
+  <el-dialog title="评论" :visible.sync="show" width="500px" v-bind="$attrs" v-on="$listeners" @close="handleCancel">
     <el-form v-loading="loading" ref="formRef" :model="formValue" :rules="rules">
       <el-form-item prop="comments" required>
         <el-input type="textarea" v-model="formValue.comments" placeholder="评论内容" maxlength="255" rows="4"  show-word-limit />
@@ -52,6 +52,7 @@ export default {
     }
   },
   methods: {
+    // 确认操作
     handleConfirm() {
       this.$refs.formRef.validate(valid => {
         if(!valid) return;
@@ -69,6 +70,7 @@ export default {
         })
       })
     },
+    // 取消操作
     handleCancel() {
       this.$refs.formRef.resetFields();
       this.show = false;
