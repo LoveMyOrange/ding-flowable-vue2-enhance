@@ -18,6 +18,8 @@
     <comment-modal :visible.sync="modalConfig.commentVisible" :processInfo="processInfo" />
     <!-- 委派 -->
     <delegate-modal :visible.sync="modalConfig.delegateVisible" :processInfo="processInfo" />
+    <!-- 转办 -->
+    <assignee-modal :visible.sync="modalConfig.assigneeVisible" :processInfo="processInfo" />
   </div>
 </template>
 
@@ -27,7 +29,6 @@ import {
   resolveTask,
   refuse,
   revoke,
-  assignee,
   rollback,
   addMulti,
   queryMultiUsersInfo,
@@ -37,6 +38,7 @@ import AgreenForm from "./AgreenForm";
 import OrgPicker from "@/components/common/OrgPicker";
 import CommentModal from './CommentModal';
 import DelegateModal from './DelegateModal';
+import AssigneeModal from './AssigneeModal';
 
 // 待我处理
 // [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
@@ -112,13 +114,15 @@ export default {
     OrgPicker,
     CommentModal,
     DelegateModal,
+    AssigneeModal,
   },
   name: "ProcessForm",
   data() {
     return {
       modalConfig: {
         commentVisible: false,
-        delegateVisible: false
+        delegateVisible: false,
+        assigneeVisible: false
       },
       fromData: {
         comments: "同意",
@@ -193,11 +197,7 @@ export default {
     },
 
     onAssignee() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      assignee(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.assigneeVisible = true
     },
 
     onRollback() {
