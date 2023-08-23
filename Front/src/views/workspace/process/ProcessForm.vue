@@ -20,15 +20,17 @@
     <delegate-modal :visible.sync="modalConfig.delegateVisible" :processInfo="processInfo" />
     <!-- 委派人完成 -->
     <resolve-modal :visible.sync="modalConfig.resolveVisible" :processInfo="processInfo" />
+    <!-- 拒绝 -->
+    <refuse-modal :visible.sync="modalConfig.refuseVisible" :processInfo="processInfo" />
     <!-- 转办 -->
     <assignee-modal :visible.sync="modalConfig.assigneeVisible" :processInfo="processInfo" />
+    
   </div>
 </template>
 
 <script>
 import {
   delegateTask,
-  refuse,
   revoke,
   rollback,
   addMulti,
@@ -41,6 +43,7 @@ import CommentModal from './CommentModal';
 import DelegateModal from './DelegateModal';
 import AssigneeModal from './AssigneeModal';
 import ResolveModal from './ResolveModal';
+import RefuseModal from './RefuseModal';
 
 // 待我处理
 // [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
@@ -118,6 +121,7 @@ export default {
     DelegateModal,
     AssigneeModal,
     ResolveModal,
+    RefuseModal,
   },
   name: "ProcessForm",
   data() {
@@ -127,6 +131,7 @@ export default {
         delegateVisible: false,
         assigneeVisible: false,
         resolveVisible: false,
+        refuseVisible: false,
       },
       fromData: {
         comments: "同意",
@@ -180,13 +185,8 @@ export default {
       this.modalConfig.resolveVisible = true
     },
     onRefuse() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      refuse(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.refuseVisible = true
     },
-
     onRevoke() {
       const data = { ...this.fromData, ...this.processInfo };
 
