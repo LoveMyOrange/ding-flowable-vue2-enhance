@@ -6,8 +6,8 @@
       </el-form-item>
     </el-form>
     <template #footer>
-      <el-button size="small" @click="handleCancel">取 消</el-button>
-      <el-button size="small" type="primary" :loading="loading" @click="handleConfirm">确 定</el-button>
+      <el-button size="mini" @click="handleCancel">取 消</el-button>
+      <el-button size="mini" type="primary" :loading="loading" @click="handleConfirm">确 定</el-button>
     </template>
   </el-dialog>
 </template>
