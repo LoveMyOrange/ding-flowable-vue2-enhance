@@ -69,53 +69,20 @@ const BUTTON_KEYS_MAP = {
   doneTask: DONE_TASK_KEYS,
 };
 
-// 对应映射关系
-const OPERATION_BUTTON_CONFIG = [
-  {
-    text: "同意",
-    key: "agree",
-  },
-  {
-    text: "委派",
-    key: "delegate",
-  },
-  {
-    text: "委派人完成",
-    key: "resolve",
-  },
-  {
-    text: "拒绝",
-    key: "refuse",
-  },
-  {
-    text: "撤销",
-    key: "revoke",
-  },
-  {
-    text: "转办",
-    key: "assignee",
-  },
-  {
-    text: "退回",
-    key: "rollback",
-  },
-  {
-    text: "加签",
-    key: "addMulti",
-  },
-  {
-    text: "查到签上的人",
-    key: "queryMultiUsersInfo",
-  },
-  {
-    text: "减签",
-    key: "deleteMulti",
-  },
-  {
-    text: "评论",
-    key: "comments",
-  },
-];
+// 对应按钮映射关系
+const OPERATION_BUTTON_MAP = {
+  agree: "同意",
+  delegate: "委派",
+  resolve: "委派人完成",
+  refuse: "拒绝",
+  revoke: "撤销",
+  assignee: "转办",
+  rollback: "退回",
+  addMulti: "加签",
+  queryMultiUsersInfo: "查到签上的人",
+  deleteMulti: "减签",
+  comments: "评论"
+}
 
 export default {
   props: ["processInfo", "type"],
@@ -154,7 +121,12 @@ export default {
   },
   computed: {
     buttonConfig() {
-      return OPERATION_BUTTON_CONFIG.filter(item => BUTTON_KEYS_MAP[this.type].includes(item.key))
+      return Object.keys(OPERATION_BUTTON_MAP).filter(key => BUTTON_KEYS_MAP[this.type].includes(key)).map(key => {
+        return {
+          text: OPERATION_BUTTON_MAP[key],
+          key
+        }
+      })
     }
   },
   methods: {
