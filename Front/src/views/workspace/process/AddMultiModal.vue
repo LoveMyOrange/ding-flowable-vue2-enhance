@@ -104,7 +104,7 @@ export default {
         return
       }
       const [ item ] = selected;
-      if(`${item.id}` === this.processInfo.currentUserInfo.id) {
+      if(`${item.id}` === this.processInfo?.currentUserInfo?.id) {
         this.$message.error('不允许加签本人');
         return
       }
