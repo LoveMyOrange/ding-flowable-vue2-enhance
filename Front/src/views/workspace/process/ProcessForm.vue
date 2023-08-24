@@ -32,13 +32,14 @@
     <query-multi-user-modal :visible.sync="modalConfig.queryMultiUserVisible" :processInfo="processInfo" />
     <!-- 撤销 -->
     <revoke-modal :visible.sync="modalConfig.revokeVisible" :processInfo="processInfo" />
+    <!-- 减签 -->
+    <delete-multi-modal :visible.sync="modalConfig.deleteMultiVisible" :processInfo="processInfo" />
   </div>
 </template>
 
 <script>
 import {
   delegateTask,
-  deleteMulti,
 } from "@/api/design";
 import AgreenForm from "./AgreenForm";
 import OrgPicker from "@/components/common/OrgPicker";
@@ -51,6 +52,7 @@ import RollbackModal from './RollbackModal';
 import AddMultiModal from './AddMultiModal';
 import QueryMultiUserModal from './QueryMultiUserModal';
 import RevokeModal from './RevokeModal'
+import DeleteMultiModal from './DeleteMultiModal';
 
 // 待我处理
 // [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
@@ -99,7 +101,8 @@ export default {
     RollbackModal,
     AddMultiModal,
     QueryMultiUserModal,
-    RevokeModal
+    RevokeModal,
+    DeleteMultiModal
   },
   name: "ProcessForm",
   data() {
@@ -113,7 +116,8 @@ export default {
         rollbackVisible: false,
         addMultiVisible: false,
         queryMultiUserVisible: false,
-        revokeVisible: false
+        revokeVisible: false,
+        deleteMultiVisible: false
       },
       fromData: {
         comments: "同意",
@@ -191,10 +195,7 @@ export default {
       this.modalConfig.queryMultiUserVisible = true;
     },
     onDeleteMulti() {
-      const data = { ...this.fromData, ...this.processInfo };
-      deleteMulti(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.deleteMultiVisible = true;
     },
     // 添加评论
     onComments() {
