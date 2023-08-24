@@ -71,7 +71,7 @@ export default {
       const { processInstanceId, taskId } = this.processInfo;
       this.loading = true;
       queryMultiUsersInfo({ processInstanceId, taskId }).then((res) => {
-        this.dataList = res.data.result || {};
+        this.dataList = res.data.result || [];
       }).finally(() => {
         this.loading = false
       });
