@@ -12,7 +12,7 @@
       >
     </div>
     <div style="margin-top: 10px">
-      <el-button type="success"
+      <!-- <el-button type="success"
         >下方按钮前端交互写的比较简陋, 相关入参前端传递的也有问题,前端水平有限,
         大家可以PostMan去测试,参数可以可以参照swagger文档来传递</el-button
       ><br />
@@ -29,7 +29,7 @@
       ><br />
       <el-button type="success"
         >关于我的页面应该展现如下按钮: [撤销] [评论]</el-button
-      ><br />
+      ><br /> -->
       <el-tabs type="border-card">
         <el-tab-pane label="表单详情">
           <process-form :processInfo="processInfo" :type="type"></process-form>
