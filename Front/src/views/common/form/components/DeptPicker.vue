@@ -9,7 +9,7 @@
       <org-picker type="dept" :multiple="multiple" ref="orgPicker" :selected="_value" @ok="selected"/>
       <span class="placeholder"> {{placeholder}}</span>
       <div style="margin-top: 5px">
-        <el-tag size="mini" style="margin: 5px" closable v-for="(dept, i) in _value" @close="delDept(i)">{{dept.name}}</el-tag>
+        <el-tag size="mini" style="margin: 5px" closable v-for="(dept, i) in _value" :key="i" @close="delDept(i)">{{dept.name}}</el-tag>
       </div>
     </div>
   </div>

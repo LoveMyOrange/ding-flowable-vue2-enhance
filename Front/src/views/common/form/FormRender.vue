@@ -1,10 +1,14 @@
 <template>
   <!--渲染表单-->
   <el-form ref="form" class="process-form" label-position="top" :rules="rules" :model="_value">
-    <el-form-item v-if="item.name !== 'SpanLayout' && item.name !== 'Description'" :prop="item.id" :label="item.title" v-for="(item, index) in forms" :key="item.name + index">
-      <form-design-render :ref="`sub-item_${item.id}`" v-model="_value[item.id]" mode="PC" :config="item"/>
-    </el-form-item>
-    <form-design-render ref="span-layout" v-else v-model="_value" mode="PC" :config="item"/>
+    <template v-for="(item, index) in forms" >
+      <el-form-item :key="item.name + index" v-if="item.name !== 'SpanLayout' && item.name !== 'Description'" :prop="item.id" :label="item.title">
+        <form-design-render :ref="`sub-item_${item.id}`" v-model="_value[item.id]" mode="PC" :config="item"/>
+      </el-form-item>
+      <template v-else>
+        <form-design-render :key="index" ref="span-layout"  v-model="_value" mode="PC" :config="item"/>
+      </template>
+    </template>
   </el-form>
 </template>
 

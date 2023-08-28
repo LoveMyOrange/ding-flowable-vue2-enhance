@@ -1,11 +1,27 @@
 <template>
-  <el-dialog custom-class="custom-dialog" class="border" :width="width" :title="title"
-             append-to-body :close-on-click-modal="clickClose"
-             :destroy-on-close="closeFree" :visible.sync="_value">
+  <el-dialog
+    custom-class="custom-dialog"
+    class="border"
+    :width="width"
+    :title="title"
+    append-to-body
+    :close-on-click-modal="clickClose"
+    :destroy-on-close="closeFree"
+    :visible.sync="_value"
+  >
     <slot></slot>
     <div slot="footer" v-if="showFooter">
-      <el-button size="mini" @click="_value = false; $emit('cancel')">{{ cancelText }}</el-button>
-      <el-button size="mini" type="primary" @click="$emit('ok')">{{ okText }}</el-button>
+      <el-button
+        size="mini"
+        @click="
+          _value = false;
+          $emit('cancel');
+        "
+        >{{ cancelText }}</el-button
+      >
+      <el-button size="mini" type="primary" @click="$emit('ok')">{{
+        okText
+      }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -14,46 +30,46 @@
 export default {
   name: "WDialog",
   install(Vue) {
-    Vue.component('WDialog', this)
+    Vue.component("WDialog", this);
   },
   components: {},
   props: {
     title: {
       type: String,
-      default: ''
+      default: "",
     },
     width: {
       type: String,
-      default: '50%'
+      default: "50%",
     },
     value: {
       type: Boolean,
-      default: false
+      default: false,
     },
     clickClose: {
       type: Boolean,
-      default: false
+      default: false,
     },
     closeFree: {
       type: Boolean,
-      default: false
+      default: false,
     },
     showFooter: {
       type: Boolean,
-      default: true
+      default: true,
     },
     cancelText: {
       type: String,
-      default: '取 消'
+      default: "取 消",
     },
     okText: {
       type: String,
-      default: '确 定'
+      default: "确 定",
     },
-    border:{
+    border: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   computed: {
     _value: {
@@ -62,26 +78,26 @@ export default {
       },
       set(val) {
         this.$emit("input", val);
-      }
-    }
+      },
+    },
   },
   data() {
-    return {}
+    return {};
   },
-  methods: {}
-}
+  methods: {},
+};
 </script>
 
 <style lang="less" scoped>
 /deep/ .custom-dialog {
   .el-dialog__header {
     padding: 10px 20px;
-    .el-dialog__title{
+    .el-dialog__title {
       font-size: 17px;
     }
-    .el-dialog__headerbtn{
+    .el-dialog__headerbtn {
       top: 15px;
-      .i{
+      .i {
         font-size: large;
       }
     }
@@ -92,11 +108,11 @@ export default {
   }
 }
 
- .border {
-   /deep/ .el-dialog__header {
+.border {
+  /deep/ .el-dialog__header {
     border-bottom: 1px solid #e8e8e8;
   }
-   /deep/ .el-dialog__footer {
+  /deep/ .el-dialog__footer {
     border-top: 1px solid #e8e8e8;
   }
 }

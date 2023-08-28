@@ -1,7 +1,6 @@
 <template>
   <div class="workspace">
-    <el-button icon="el-icon-back" class="back" type="info" size="mini" plain
-               @click="$router.push('/')">返回主页
+    <el-button icon="el-icon-back" class="back" type="info" size="mini" plain @click="$router.push('/')">返回主页
     </el-button>
     <el-tabs type="border-card">
       <el-tab-pane label="审批列表">
@@ -13,14 +12,13 @@
           </el-col>
         </el-row>
         <el-collapse v-model="actives" v-show="formList.inputs === ''">
-          <el-collapse-item v-for="(group, index) in formList.list" :key="index"
-                            :title="group.name" :name="group.name"
-                            v-show="group.items.length > 0 && group.id > 0">
+          <el-collapse-item v-for="(group, index) in formList.list" :key="index" :title="group.name" :name="group.name"
+            v-show="group.items.length > 0 && group.id > 0">
             <div>
               <div v-for="(item, index) in group.items" :key="index" class="form-item" @click="enterItem(item)">
-                <i :class="item.logo.icon" :style="'background: '+item.logo.background"></i>
+                <i :class="item.logo.icon" :style="'background: ' + item.logo.background"></i>
                 <div>
-                  <ellipsis hover-tip :content="item.formName"/>
+                  <ellipsis hover-tip :content="item.formName" />
                   <span>发起审批</span>
                 </div>
               </div>
@@ -29,7 +27,7 @@
         </el-collapse>
         <div>
           <div v-for="(item, index) in formList.searchResult" :key="index" class="form-item" @click="enterItem(item)">
-            <i :class="item.icon" :style="'background: '+item.background"></i>
+            <i :class="item.icon" :style="'background: ' + item.background"></i>
             <div>
               <span>{{ item.formName }}</span>
               <span>发起审批</span>
@@ -44,28 +42,27 @@
         <todo-task />
       </el-tab-pane>
       <el-tab-pane label="我发起的">
-        <apply-task/>
+        <apply-task />
       </el-tab-pane>
       <el-tab-pane label="关于我的">
-        <done-task/>
+        <done-task />
       </el-tab-pane>
     </el-tabs>
 
     <el-dialog title="发起审批" width="800px" :visible.sync="openItemDl" :close-on-click-modal="false">
       <sponsor-process ref="processForm" :code="selectForm.formId" v-if="openItemDl"></sponsor-process>
 
-<!--      <initiate-process ref="processForm" :code="selectForm.formId" v-if="openItemDl"></initiate-process>-->
+      <!--      <initiate-process ref="processForm" :code="selectForm.formId" v-if="openItemDl"></initiate-process>-->
       <span slot="footer" class="dialog-footer">
-				<el-button size="mini" @click="openItemDl = false">取 消</el-button>
-				<el-button size="mini" type="primary" @click="submitForm">提 交</el-button>
-			</span>
+        <el-button size="mini" @click="openItemDl = false">取 消</el-button>
+        <el-button size="mini" type="primary" @click="submitForm">提 交</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import { getFormGroups, startProcess } from '@/api/design'
-import InitiateProcess from "./InitiateProcess";
 import SponsorProcess from "@/views/workspace/SponsorProcess";
 import TodoTask from "@/views/workspace/task/TodoTask";
 import ApplyTask from "@/views/workspace/task/ApplyTask";
@@ -73,7 +70,7 @@ import DoneTask from "@/views/workspace/task/DoneTask";
 
 export default {
   name: "workSpace",
-  components: { InitiateProcess, SponsorProcess,TodoTask, ApplyTask, DoneTask },
+  components: { SponsorProcess, TodoTask, ApplyTask, DoneTask },
   data() {
     return {
       openItemDl: false,
@@ -101,13 +98,13 @@ export default {
           this.actives.push(group.name)
         })
         this.groups = rsp.data
-      }).catch(err => this.$message.error('获取分组异常'))
+      }).catch(() => this.$message.error('获取分组异常'))
     },
     enterItem(item) {
       this.selectForm = item
       this.openItemDl = true
     },
-    submitForm(){
+    submitForm() {
       const formData = this.$refs.processForm.getFormData()
       const form = this.$refs.processForm.getForm()
       const processUser = this.$refs.processForm.getProcessUser();
@@ -119,9 +116,9 @@ export default {
             formData,
             processUsers: processUser,
             startUserInfo: JSON.parse(strUserInfo)
-          }).then(res=>{
-            console.log("startProcess",res)
-            this.openItemDl  = false
+          }).then(res => {
+            console.log("startProcess", res)
+            this.openItemDl = false
             this.$message.success("提交成功")
           })
 
@@ -203,7 +200,7 @@ export default {
       height: 35px;
       line-height: 35px;
 
-      div{
+      div {
         display: inline-block;
         margin-left: 10px;
         width: 100px;

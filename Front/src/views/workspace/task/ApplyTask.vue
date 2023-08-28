@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <el-table :data="tableData" border stripe @row-dblclick="handleRowDbClick">
+    <el-table :data="tableData" :border="true" v-loading="loading" stripe @row-dblclick="handleRowDbClick">
       <el-table-column type="index" label="#" />
       <el-table-column prop="processDefinitionName" label="流程类型" width="200" />
       <el-table-column prop="startUser.name" label="发起人" />
@@ -33,6 +33,7 @@ export default {
       total: 0,
       pageNo: 1,
       pageSize: 50,
+      loading: false,
     }
   },
   methods: {
@@ -41,6 +42,7 @@ export default {
       const str = sessionStorage.getItem("user")
       const currentUserInfo = JSON.parse(str)
       currentUserInfo.id = currentUserInfo.id.toString()
+      this.loading = true;
       applyList({
         currentUserInfo,
         pageNo: this.pageNo,
@@ -49,13 +51,17 @@ export default {
         this.tableData = rsp.data.result.records
         this.total = rsp.data.result.total
       })
+      .finally(() => {
+        this.loading = false
+      })
     },
     handleRowDbClick(row) {
 
       this.$router.push({
         path: '/workspace/process/instance/tabs',
         query: {
-          processInstanceId: row.processInstanceId
+          processInstanceId: row.processInstanceId,
+          type: 'applyTask'
         }
       })
     },

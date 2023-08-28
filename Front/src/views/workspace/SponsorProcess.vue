@@ -1,68 +1,113 @@
 <template>
   <div>
-    <div class="el-row" style="margin-left: -10px;margin-right: -10px">
-      <div class="el-col el-col-15"
-           style="padding-left: 10px; padding-right: 10px; border-right: 1px solid rgb(232, 232, 232);">
-        <form-render class="process-form" ref="form" :forms="forms" v-model="formData"/>
+    <div class="el-row" style="margin-left: -10px; margin-right: -10px">
+      <div
+        class="el-col el-col-15"
+        style="
+          padding-left: 10px;
+          padding-right: 10px;
+          border-right: 1px solid rgb(232, 232, 232);
+        "
+      >
+        <form-render
+          class="process-form"
+          ref="form"
+          :forms="forms"
+          v-model="formData"
+        />
       </div>
-      <div class="el-col el-col-9" style="padding-left: 10px; padding-right: 10px;">
+      <div
+        class="el-col el-col-9"
+        style="padding-left: 10px; padding-right: 10px"
+      >
         <div>
           <el-timeline>
             <el-timeline-item
-                v-for="(activity, index) in cc"
-                :key="index"
-                :icon="activity.icon"
-                size="large"
-                class="task">
-              <div class="process-node-render" v-if="!activity.hasOwnProperty('options')">
+              v-for="(activity, index) in cc"
+              :key="index"
+              :icon="activity.icon"
+              size="large"
+              class="task"
+            >
+              <div
+                class="process-node-render"
+                v-if="!activity.hasOwnProperty('options')"
+              >
                 <div>
-                  <div style="font-size: 16px;">{{ activity.title }}</div>
-                  <span style="color: rgb(168, 173, 175);">{{ activity.desc }}</span>
+                  <div style="font-size: 16px">{{ activity.title }}</div>
+                  <span style="color: rgb(168, 173, 175)">{{
+                    activity.desc
+                  }}</span>
                 </div>
-                <div style="display: flex;">
-                  <div class="avatar show-y" v-for="(user,index) in activity.users">
+                <div style="display: flex">
+                  <div
+                    class="avatar show-y"
+                    v-for="(user, index) in activity.users"
+                    :key="index"
+                  >
                     <div class="a-img">
-                      <el-avatar style="height: 38px; width: 38px; line-height: 38px;"
-                                 :src="user.avatar"></el-avatar>
-                      <i class="close el-icon-close" v-if="activity.isEdit" @click="delUser(activity.users,user)"></i>
-                      <i class="status" style="display: none;"></i>
+                      <el-avatar
+                        style="height: 38px; width: 38px; line-height: 38px"
+                        :src="user.avatar"
+                      ></el-avatar>
+                      <i
+                        class="close el-icon-close"
+                        v-if="activity.isEdit"
+                        @click="delUser(activity.users, user)"
+                      ></i>
+                      <i class="status" style="display: none"></i>
                     </div>
                     <span class="name line">{{ user.name }}</span>
                   </div>
-                  <span class="add-user" v-if="activity.isEdit && (activity.multiple || 0 === activity.users.length)"
-                        @click="addUser(activity)"><i class="el-icon-plus"></i><div>添加</div></span>
+                  <span
+                    class="add-user"
+                    v-if="
+                      activity.isEdit &&
+                      (activity.multiple || 0 === activity.users.length)
+                    "
+                    @click="addUser(activity)"
+                    ><i class="el-icon-plus"></i>
+                    <div>添加</div></span
+                  >
                 </div>
               </div>
               <el-radio-group v-model="activity.id" size="mini" v-else>
-                <el-radio-button :label="d.title" :value="d.id" v-for="(d,index) in activity.options"></el-radio-button>
+                <el-radio-button
+                  :label="d.title"
+                  :value="d.id"
+                  v-for="(d, index) in activity.options"
+                  :key="index"
+                ></el-radio-button>
               </el-radio-group>
             </el-timeline-item>
           </el-timeline>
         </div>
-        <org-picker :type="this.selectedNode.type || 'user'" :multiple="this.selectedNode.multiple || !1"
-                    ref="orgPicker" :selected="this.selectedNode.users || []" @ok="selected"></org-picker>
+        <org-picker
+          :type="this.selectedNode.type || 'user'"
+          :multiple="this.selectedNode.multiple || !1"
+          ref="orgPicker"
+          :selected="this.selectedNode.users || []"
+          @ok="selected"
+        ></org-picker>
       </div>
     </div>
-    <div>
-    </div>
+    <div></div>
   </div>
 </template>
 
 <script>
-import FormRender from '@/views/common/form/FormRender'
-import FormDesignRender from '@/views/admin/layout/form/FormDesignRender'
-import {getFormDetail, getFormDetailV2} from '@/api/design'
+import FormRender from "@/views/common/form/FormRender";
+import { getFormDetailV2 } from "@/api/design";
 import OrgPicker from "@/components/common/OrgPicker";
-
 
 export default {
   name: "SponsorProcess",
-  components: {FormDesignRender, FormRender, OrgPicker},
+  components: { FormRender, OrgPicker },
   props: {
     code: {
       type: String,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
@@ -72,7 +117,7 @@ export default {
       selectedNode: {},
       processUsers: {},
       form: {
-        formId: '',
+        formId: "",
         formName: "",
         logo: {},
         formItems: [],
@@ -82,21 +127,22 @@ export default {
       loginUser: {},
       conditionFormItem: new Set(),
       activities: [],
-      cc: []
-    }
+      cc: [],
+    };
   },
   mounted() {
-    this.loadLoginUser()
-    this.loadFormInfo(this.code)
+    this.loadLoginUser();
+    this.loadFormInfo(this.code);
   },
   watch: {
     // 被侦听的变量count
-    formData: { // 对对象进行深度监听
+    formData: {
+      // 对对象进行深度监听
       handler(nv) {
-        this.startProcess(nv, this.cc = []);
+        this.startProcess(nv, (this.cc = []));
       },
       immediate: true,
-      deep: true
+      deep: true,
     },
   },
   computed: {
@@ -117,51 +163,45 @@ export default {
       this.loginUser = JSON.parse(sessionStorage.getItem("user"));
     },
     loadFormInfo(formId) {
-      this.loading = true
-      getFormDetailV2(formId).then(rsp => {
-        this.loading = false
-        let form = rsp.data.result;
-        form.logo = JSON.parse(form.logo)
-        form.settings = JSON.parse(form.settings)
-        form.formItems = JSON.parse(form.formItems)
-        form.process = JSON.parse(form.process)
-        this.form = form
-        //构建表单及校验规则
-        this.$store.state.design = form
-        this.startProcess(form.process, this.formData);
-      }).catch(err => {
-        this.loading = false
-        this.$message.error(err)
-      })
-    }
-    ,
+      this.loading = true;
+      getFormDetailV2(formId)
+        .then((rsp) => {
+          this.loading = false;
+          let form = rsp.data.result;
+          form.logo = JSON.parse(form.logo);
+          form.settings = JSON.parse(form.settings);
+          form.formItems = JSON.parse(form.formItems);
+          form.process = JSON.parse(form.process);
+          this.form = form;
+          //构建表单及校验规则
+          this.$store.state.design = form;
+          this.startProcess(form.process, this.formData);
+        })
+        .catch((err) => {
+          this.loading = false;
+          this.$message.error(err);
+        });
+    },
     validate(call) {
       this.$refs.form.validate(call);
-    }
-    ,
+    },
     getFormData() {
-      return this.formData
-    }
-    ,
+      return this.formData;
+    },
     getProcessUser() {
       return this.processUsers;
-    }
-    ,
+    },
     getForm() {
-      return this.form
-    }
-    ,
+      return this.form;
+    },
     addUser(e) {
       (this.selectedNode = e), this.$refs.orgPicker.show();
-    }
-    ,
+    },
     delUser(e, t) {
       e.splice(t, 1);
       this.processUsers = e;
-    }
-    ,
-    startProcess(process, cc) {
-      var keys = Object.keys(process)
+    },
+    startProcess() {
       this.cc = [];
       this.getProcess(this.form.process, this.activities, this.cc);
 
@@ -170,9 +210,8 @@ export default {
         name: "END",
         icon: "el-icon-success",
         isEdit: false,
-      })
-    }
-    ,
+      });
+    },
     selected(e) {
       var t = this;
       t.processUsers[t.selectedNode.id] = [];
@@ -180,21 +219,20 @@ export default {
       e.forEach((user) => {
         var ddd = t.selectedNode.users.findIndex((t) => {
           return t.id === user.id;
-        })
+        });
         if (ddd === -1) {
-          t.selectedNode.users.push(user)
+          t.selectedNode.users.push(user);
           t.processUsers[t.selectedNode.id].push(user);
           t.$set(e, "isEdit", true);
         }
-      })
-    }
-    ,
+      });
+    },
     getProcess(process, data, cc) {
       if (null != process && undefined != process) {
-        if ('ROOT' === process.type) {
+        if ("ROOT" === process.type) {
           //发起人节点
           this.getRootNode(cc, process);
-        } else if ('APPROVAL' === process.type) {
+        } else if ("APPROVAL" === process.type) {
           //审批节点
           this.getApprovalNode(cc, process);
         } else if ("CC" === process.type) {
@@ -211,8 +249,7 @@ export default {
           this.getProcess(process.children, data, cc);
         }
       }
-    }
-    ,
+    },
     //封装开始节点
     getRootNode(cc, process) {
       cc.push({
@@ -222,9 +259,8 @@ export default {
         icon: "el-icon-user-solid",
         isEdit: false,
         users: [this.loginUser],
-      })
-    }
-    ,
+      });
+    },
     //封装审批节点
     getApprovalNode(cc, process) {
       var data = {
@@ -237,7 +273,7 @@ export default {
         mode: process.props.mode,
         users: [],
         desc: "",
-      }
+      };
       //判断审批人类型
       switch (process.props.assignedType) {
         case "ASSIGN_USER":
@@ -248,7 +284,7 @@ export default {
           data.desc = "指定部门的领导";
           break;
         case "SELF":
-          data.users = [this.loginUser]
+          data.users = [this.loginUser];
           data.desc = "发起人自己审批";
           break;
         case "SELF_SELECT":
@@ -261,16 +297,16 @@ export default {
           break;
         case "LEADER":
           data.desc =
-              1 === process.props.leader.level
-                  ? "直接主管审批"
-                  : "第".concat(process.props.leader.level, "级主管审批");
+            1 === process.props.leader.level
+              ? "直接主管审批"
+              : "第".concat(process.props.leader.level, "级主管审批");
           break;
         case "ROLE":
           data.desc = "由角色[".concat(
-              (process.props.role || []).map(function (e) {
-                return e.name;
-              }),
-              "]审批"
+            (process.props.role || []).map(function (e) {
+              return e.name;
+            }),
+            "]审批"
           );
           break;
         case "REFUSE":
@@ -278,8 +314,7 @@ export default {
           break;
       }
       cc.push(data);
-    }
-    ,
+    },
     getCcNode(cc, process) {
       var data = {
         id: process.id,
@@ -293,12 +328,18 @@ export default {
         users: this.$deepCopy(process.props.assignedUser),
       };
       cc.push(data);
-    }
-    ,
+    },
     getConditionNode(cc, process) {
       for (var r = null, s = 0; s < process.branchs.length; s++) {
-        for (var a = process.branchs[s], n = false, o = 0, i = 0; i < a.props.groups.length; i++) {
-          if (((n = this.getConditionResultByGroup(a.props.groups[i])), "OR" === a.props.groupsType && n)) {
+        for (
+          var a = process.branchs[s], n = false, o = 0, i = 0;
+          i < a.props.groups.length;
+          i++
+        ) {
+          if (
+            ((n = this.getConditionResultByGroup(a.props.groups[i])),
+            "OR" === a.props.groupsType && n)
+          ) {
             r = a;
             break;
           }
@@ -312,19 +353,21 @@ export default {
           r = a;
           break;
         }
-
       }
-      var d = []
-      console.log("符合分支条件,继续执行递归,获取符合条件下节点下的子节点!" + JSON.stringify(r));
-      r ? this.getProcess(r, d, cc)
-          : console.log(
-              "条件节点 "
-                  .concat(process.id, " => ")
-                  .concat(process.name, " 均不满足，无法继续"),
-              process
+      var d = [];
+      console.log(
+        "符合分支条件,继续执行递归,获取符合条件下节点下的子节点!" +
+          JSON.stringify(r)
+      );
+      r
+        ? this.getProcess(r, d, cc)
+        : console.log(
+            "条件节点 "
+              .concat(process.id, " => ")
+              .concat(process.name, " 均不满足，无法继续"),
+            process
           );
-    }
-    ,
+    },
     getConcurrentNode(cc, process) {
       var data = {
         id: process.id,
@@ -336,22 +379,19 @@ export default {
         options: [],
         desc: "切换分支可显示对应执行流程",
         branchs: {},
-      }
+      };
       cc.push(data);
       process.branchs.forEach((b) => {
-        data.options.push({id: b.id, title: b.name});
+        data.options.push({ id: b.id, title: b.name });
         this.$set(data.branchs, b.id, []);
         var d = [];
-        this.getProcess(b.children, d, data.branchs[b.id])
-      })
-
-    }
-    ,
-
+        this.getProcess(b.children, d, data.branchs[b.id]);
+      });
+    },
     getConditionResultByGroup: function (e) {
       var t = this,
-          r = !1,
-          s = 0;
+        r = !1,
+        s = 0;
       e.conditions.forEach(function (e) {
         return t.conditionFormItem.add(e.id);
       });
@@ -360,8 +400,8 @@ export default {
         var n = e.conditions[a];
         switch (n.valueType) {
           case "Number":
-            console.log("这是number类型判断")
-            r = this.numberCompare(n)
+            console.log("这是number类型判断");
+            r = this.numberCompare(n);
             break;
           case "String":
             console.log("这是string类型判断");
@@ -382,11 +422,8 @@ export default {
         if (r && "OR" === e.groupType) break;
         r && "AND" === e.groupType && s++;
       }
-      return (
-          "AND" === e.groupType && (r = s === e.conditions.length), r
-      );
-    }
-    ,
+      return "AND" === e.groupType && (r = s === e.conditions.length), r;
+    },
     numberCompare: function (e) {
       var t = this.formData[e.id];
       switch (e.compare) {
@@ -401,31 +438,21 @@ export default {
         case "<=":
           return t <= parseFloat(e.value[0]);
         case "B":
-          return (
-              t > parseFloat(e.value[0]) && t < parseFloat(e.value[1])
-          );
+          return t > parseFloat(e.value[0]) && t < parseFloat(e.value[1]);
         case "AB":
-          return (
-              t >= parseFloat(e.value[0]) && t < parseFloat(e.value[1])
-          );
+          return t >= parseFloat(e.value[0]) && t < parseFloat(e.value[1]);
         case "BA":
-          return (
-              t > parseFloat(e.value[0]) && t <= parseFloat(e.value[1])
-          );
+          return t > parseFloat(e.value[0]) && t <= parseFloat(e.value[1]);
         case "ABA":
-          return (
-              t >= parseFloat(e.value[0]) && t <= parseFloat(e.value[1])
-          );
+          return t >= parseFloat(e.value[0]) && t <= parseFloat(e.value[1]);
         case "IN":
           return e.value.indexOf(String(t)) > -1;
         default:
           return !1;
       }
-    }
-    ,
-
-  }
-}
+    },
+  },
+};
 </script>
 
 <style lang="less" scoped>
@@ -444,7 +471,10 @@ export default {
   display: inline-block;
 }
 
-.el-timeline-item .el-timeline-item__content .process-node-render > div:last-child {
+.el-timeline-item
+  .el-timeline-item__content
+  .process-node-render
+  > div:last-child {
   right: 0;
   top: -10px;
 }
@@ -461,7 +491,8 @@ export default {
   flex-direction: column !important;
 }
 
-.show-y, .w-h-center {
+.show-y,
+.w-h-center {
   display: flex;
   align-items: center;
 }

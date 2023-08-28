@@ -3,19 +3,7 @@
     <!-- <el-input v-model="fromData.comments" placeholder="请输入审批内容"></el-input> -->
     <el-row :gutter="10">
       <el-col :span="24">
-        <el-button type="primary" @click="onAgree">同意</el-button>
-        <el-button type="primary" @click="onDelegateTask">委派</el-button>
-        <el-button type="primary" @click="onResolveTask">委派人完成</el-button>
-        <el-button type="primary" @click="onRefuse">拒绝</el-button>
-        <el-button type="primary" @click="onRevoke">撤销</el-button>
-        <el-button type="primary" @click="onAssignee">转办</el-button>
-        <el-button type="primary" @click="onrollback">退回</el-button>
-        <el-button type="primary" @click="onAddMulti">加签</el-button>
-        <el-button type="primary" @click="onQueryMultiUsersInfo"
-          >查到签上的人</el-button
-        >
-        <el-button type="primary" @click="onDeleteMulti">减签</el-button>
-        <el-button type="primary" @click="onComments">评论</el-button>
+        <el-button size="small" type="primary" v-for="item in buttonConfig" :key="item.key" @click="handleClickByType(item.key)">{{ item.text }}</el-button>
       </el-col>
     </el-row>
     <AgreenForm ref="AgreenForm"></AgreenForm>
@@ -26,139 +14,192 @@
       :selected="select"
       @ok="onSelected"
     />
+    <!-- 评论 -->
+    <comment-modal :visible.sync="modalConfig.commentVisible" :processInfo="processInfo" />
+    <!-- 委派 -->
+    <delegate-modal :visible.sync="modalConfig.delegateVisible" :processInfo="processInfo" />
+    <!-- 委派人完成 -->
+    <resolve-modal :visible.sync="modalConfig.resolveVisible" :processInfo="processInfo" />
+    <!-- 拒绝 -->
+    <refuse-modal :visible.sync="modalConfig.refuseVisible" :processInfo="processInfo" />
+    <!-- 转办 -->
+    <assignee-modal :visible.sync="modalConfig.assigneeVisible" :processInfo="processInfo" />
+    <!-- 退回 -->
+    <rollback-modal :visible.sync="modalConfig.rollbackVisible" :processInfo="processInfo" />
+    <!-- 加签 -->
+    <add-multi-modal :visible.sync="modalConfig.addMultiVisible" :processInfo="processInfo" />
+    <!-- 查到签上的人 -->
+    <query-multi-user-modal :visible.sync="modalConfig.queryMultiUserVisible" :processInfo="processInfo" />
+    <!-- 撤销 -->
+    <revoke-modal :visible.sync="modalConfig.revokeVisible" :processInfo="processInfo" />
+    <!-- 减签 -->
+    <delete-multi-modal :visible.sync="modalConfig.deleteMultiVisible" :processInfo="processInfo" />
   </div>
 </template>
 
 <script>
 import {
   delegateTask,
-  resolveTask,
-  refuse,
-  revoke,
-  assignee,
-  rollback,
-  addMulti,
-  queryMultiUsersInfo,
-  deleteMulti,
-  comments,
 } from "@/api/design";
 import AgreenForm from "./AgreenForm";
 import OrgPicker from "@/components/common/OrgPicker";
+import CommentModal from './CommentModal';
+import DelegateModal from './DelegateModal';
+import AssigneeModal from './AssigneeModal';
+import ResolveModal from './ResolveModal';
+import RefuseModal from './RefuseModal';
+import RollbackModal from './RollbackModal';
+import AddMultiModal from './AddMultiModal';
+import QueryMultiUserModal from './QueryMultiUserModal';
+import RevokeModal from './RevokeModal'
+import DeleteMultiModal from './DeleteMultiModal';
+
+// 待我处理
+// [同意][委派][委派人完成][拒绝][转办][退回][加签][减签][评论][查到签上的人]
+const TODO_TASK_KEYS = ['agree', 'delegate', 'resolve', 'refuse', 'assignee', 'rollback', 'addMulti', 'deleteMulti', 'comments', 'queryMultiUsersInfo'];
+
+// 我发起的
+// [撤销] [评论]
+const APPLY_TASK_KEYS = ['revoke', 'comments']
+
+// 关于我的
+// [撤销] [评论]
+const DONE_TASK_KEYS = ['revoke', 'comments'];
+
+// 根据类型 映射对应关系
+const BUTTON_KEYS_MAP = {
+  todoTask: TODO_TASK_KEYS,
+  applyTask: APPLY_TASK_KEYS,
+  doneTask: DONE_TASK_KEYS,
+};
+
+// 对应按钮映射关系
+const OPERATION_BUTTON_MAP = {
+  agree: "同意",
+  delegate: "委派",
+  resolve: "委派人完成",
+  refuse: "拒绝",
+  revoke: "撤销",
+  assignee: "转办",
+  rollback: "退回",
+  addMulti: "加签",
+  queryMultiUsersInfo: "查到签上的人",
+  deleteMulti: "减签",
+  comments: "评论"
+}
 
 export default {
-  props: ["processInfo"],
+  props: ["processInfo", "type"],
   components: {
     AgreenForm,
     OrgPicker,
+    CommentModal,
+    DelegateModal,
+    AssigneeModal,
+    ResolveModal,
+    RefuseModal,
+    RollbackModal,
+    AddMultiModal,
+    QueryMultiUserModal,
+    RevokeModal,
+    DeleteMultiModal
   },
-
   name: "ProcessForm",
   data() {
     return {
+      modalConfig: {
+        commentVisible: false,
+        delegateVisible: false,
+        assigneeVisible: false,
+        resolveVisible: false,
+        refuseVisible: false,
+        rollbackVisible: false,
+        addMultiVisible: false,
+        queryMultiUserVisible: false,
+        revokeVisible: false,
+        deleteMultiVisible: false
+      },
       fromData: {
         comments: "同意",
         processInstanceId: "",
         taskId: "",
       },
-      select:[]
+      select: [],
     };
   },
+  computed: {
+    buttonConfig() {
+      return Object.keys(OPERATION_BUTTON_MAP).filter(key => BUTTON_KEYS_MAP[this.type].includes(key)).map(key => {
+        return {
+          text: OPERATION_BUTTON_MAP[key],
+          key
+        }
+      })
+    }
+  },
   methods: {
+    handleClickByType(type) {
+      const METHOD_MAP = {
+        agree: this.onAgree,
+        delegate: this.onDelegateTask,
+        resolve: this.onResolveTask,
+        refuse: this.onRefuse,
+        revoke: this.onRevoke,
+        assignee: this.onAssignee,
+        rollback: this.onRollback,
+        addMulti: this.onAddMulti,
+        queryMultiUsersInfo: this.onQueryMultiUsersInfo,
+        deleteMulti: this.onDeleteMulti,
+        comments: this.onComments,
+      }
+      METHOD_MAP[type]?.()
+    },
     onSelected(select) {
-        
       this.select.length = 0;
       select.forEach((val) => this.select.push(val));
       switch (this.selectType) {
         case delegateTask:
-            
-            break;
-      
+          break;
+
         default:
-            break;
+          break;
       }
     },
     onAgree() {
-      this.$refs.AgreenForm.initFrom(this.processInfo,this.callback);
+      this.$refs.AgreenForm.initFrom(this.processInfo, this.callback);
     },
-    callback(){
-
-    },
+    callback() {},
     onDelegateTask() {
-      this.$refs.orgPicker.show();
-     this.selectType = "delegateTask"
-    //   const data = { ...this.fromData, ...this.processInfo };
-
-    //   delegateTask(data).then((res) => {
-    //     console.log("同意res", res);
-    //     this.$message.success("审批成功");
-    //   });
+      this.modalConfig.delegateVisible = true;
     },
-
     onResolveTask() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      resolveTask(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.resolveVisible = true
     },
     onRefuse() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      refuse(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.refuseVisible = true
     },
-
     onRevoke() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      revoke(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.revokeVisible = true;
     },
 
     onAssignee() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      assignee(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.assigneeVisible = true
     },
-
-    onrollback() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      rollback(data).then((res) => {
-        console.log("同意res", res);
-      });
+    onRollback() {
+      this.modalConfig.rollbackVisible = true;
     },
-
     onAddMulti() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      addMulti(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.addMultiVisible = true;
     },
-
     onQueryMultiUsersInfo() {
-      const data = { ...this.fromData, ...this.processInfo };
-
-      queryMultiUsersInfo(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.queryMultiUserVisible = true;
     },
     onDeleteMulti() {
-      const data = { ...this.fromData, ...this.processInfo };
-      deleteMulti(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.deleteMultiVisible = true;
     },
+    // 添加评论
     onComments() {
-      const data = { ...this.fromData, ...this.processInfo };
-      comments(data).then((res) => {
-        console.log("同意res", res);
-      });
+      this.modalConfig.commentVisible = true;
     },
   },
 };

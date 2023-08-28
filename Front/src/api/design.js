@@ -245,3 +245,12 @@ export function downLoadFileApi(data) {
     responseType: 'blob', //必须加，否则可能出现乱码或者文件错误，导致文件无法打开
   });
 }
+
+// 查询可退回的节点
+export function getRollbackNodes(data) {
+  return request({
+    url: 'workspace/rollbackNodes',
+    method: 'POST',
+    data,
+  });
+}
