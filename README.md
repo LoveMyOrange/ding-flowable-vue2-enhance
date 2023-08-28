@@ -335,8 +335,8 @@ IDEA2020及以上版本  | Maven 3.6.3及以上版本 |
 - 双击`package`打包项目
 - 打开项目目录，依次打开`dingding-mid\target`，将`dingding-mid-{version}-RELEASE.jar`上传至服务器
 
-### swagger接口文档
-- `http://localhost:端口/swagger-ui/`
+### knife4j接口文档
+- `http://ip:端口/doc.html
 
 
 ### 启动前端(因为是前后端分离的项目) (B站有配套视频讲解了 各个版本的前端以及后端如何启动)
