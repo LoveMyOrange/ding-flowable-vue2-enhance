@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
+import static com.dingding.mid.common.WorkFlowConstants.AUTO_REFUSE_STR;
+import static com.dingding.mid.common.WorkFlowConstants.DEFAULT_NULL_ASSIGNEE;
 import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
 
 /**
@@ -27,8 +29,8 @@ public class TaskCreatedListener implements TaskListener {
     private TaskService taskService;
     @Override
     public void notify(DelegateTask delegateTask) {
-            if("100000".equals(delegateTask.getAssignee())){
-                Object autoRefuse = delegateTask.getVariable("autoRefuse");
+            if(DEFAULT_NULL_ASSIGNEE.equals(delegateTask.getAssignee())){
+                Object autoRefuse = delegateTask.getVariable(AUTO_REFUSE_STR);
                 if(autoRefuse==null){
                     taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),"opinion","审批人为空,自动通过");
                     taskService.complete(delegateTask.getId());

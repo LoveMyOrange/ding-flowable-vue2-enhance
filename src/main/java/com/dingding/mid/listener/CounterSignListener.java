@@ -24,6 +24,7 @@ import java.util.Map;
 
 import static com.dingding.mid.common.CommonConstants.PROCESS_STATUS;
 import static com.dingding.mid.common.CommonConstants.START_USER_INFO;
+import static com.dingding.mid.common.WorkFlowConstants.*;
 import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
 
 /**
@@ -99,16 +100,16 @@ public class CounterSignListener implements ExecutionListener {
             if(CollUtil.isEmpty(assigneeList)){
                 String handler = MapUtil.getStr(nobody, "handler");
                 if("TO_PASS".equals(handler)){
-                    assigneeList.add("100000");
+                    assigneeList.add(DEFAULT_NULL_ASSIGNEE);
                     execution.setVariable(variable,assigneeList);
                 }
                 else if("TO_REFUSE".equals(handler)){
-                    execution.setVariable("autoRefuse",Boolean.TRUE);
-                    assigneeList.add("100000");
+                    execution.setVariable(AUTO_REFUSE_STR,Boolean.TRUE);
+                    assigneeList.add(DEFAULT_NULL_ASSIGNEE);
                     execution.setVariable(variable,assigneeList);
                 }
                 else if("TO_ADMIN".equals(handler)){
-                    assigneeList.add("381496");
+                    assigneeList.add(DEFAULT_ADMIN_ASSIGNEE);
                     execution.setVariable(variable,assigneeList);
                 }
                 else if("TO_USER".equals(handler)){
@@ -122,7 +123,7 @@ public class CounterSignListener implements ExecutionListener {
                             execution.setVariable(variable,assigneeList);
                         }
                         else{
-                            assigneeList.add("100000");
+                            assigneeList.add(DEFAULT_NULL_ASSIGNEE);
                             execution.setVariable(variable,assigneeList);
                         }
 

@@ -94,6 +94,9 @@ public class WorkspaceProcessController {
     @Resource
     private UserService userService;
 
+
+
+
     @ApiOperation("通过模板id查看流程信息 会附带流程定义id")
     @ApiOperationSupport(order = 1)
     @ApiParam(required = true,name = "模板id",value = "该值从form/groupps接口 里面去取")
@@ -383,6 +386,9 @@ public class WorkspaceProcessController {
         JSONObject formData = handleDataDTO.getFormData();
         String taskId = handleDataDTO.getTaskId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        if(DelegationState.PENDING.equals(task.getDelegationState())){
+            return Result.error("委派人不可以点击同意按钮,而应该点击 委派人完成按钮");
+        }
         Map<String,Object> map=new HashMap<>();
         if(formData!=null &&formData.size()>0){
             Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
@@ -593,7 +599,7 @@ public class WorkspaceProcessController {
     @ApiOperation("查询可退回的节点(这个是给 下面 rollback接口作为入参用的 )")
     @PostMapping("/rollbackNodes")
     public Result rollbackNodes(@RequestBody HandleDataDTO handleDataDTO){
-        List<ActivityInstance> list = runtimeService.createActivityInstanceQuery().unfinished().processInstanceId(handleDataDTO.getProcessInstanceId()).list();
+        List<ActivityInstance> list = runtimeService.createActivityInstanceQuery().activityType("userTask").finished().processInstanceId(handleDataDTO.getProcessInstanceId()).list();
         Map<String,String> nodes=new HashMap<>();
         for (ActivityInstance activityInstance : list) {
             nodes.put(activityInstance.getActivityId(),activityInstance.getActivityName());
@@ -704,6 +710,14 @@ public class WorkspaceProcessController {
             .taskDefinitionKey(task.getTaskDefinitionKey()).list();
         Iterator<Task> iterator = list.iterator();
         List<MultiVO> multiVOList= new ArrayList<>();
+        List<String> assignees=new ArrayList<>();
+        for (Task task1 : list) {
+            assignees.add(task1.getAssignee());
+        }
+        LambdaQueryWrapper<Users> lambdaQueryWrapper= new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.in(Users::getUserId,assignees);
+        List<Users> usersList = userService.list(lambdaQueryWrapper);
+        Map<Long, String> maps = usersList.stream().collect(Collectors.toMap(Users::getUserId, Users::getUserName, (key1, key2) -> key2));
         while (iterator.hasNext()){
             Task next = iterator.next();
             if(!taskId.equals(next.getId())){
@@ -712,6 +726,7 @@ public class WorkspaceProcessController {
                 multiVO.setProcessInstanceId(next.getProcessInstanceId());
                 multiVO.setExecutionId(next.getExecutionId());
                 multiVO.setUserId(next.getAssignee());
+                multiVO.setUserName(maps.get(Long.valueOf(next.getAssignee())));
                 multiVOList.add(multiVO);
             }
 
@@ -721,7 +736,8 @@ public class WorkspaceProcessController {
 
     @ApiOperation("减签按钮")
     @PostMapping("/deleteMulti")
-    public Result deleteMulti(@RequestBody List<String> executionIds){
+    public Result deleteMulti(@RequestBody Map<String,Object> map){
+        List<String> executionIds = MapUtil.get(map, "executionIds", List.class);
         for (String executionId : executionIds) {
             runtimeService.deleteMultiInstanceExecution(executionId,true);
         }
@@ -746,7 +762,7 @@ public class WorkspaceProcessController {
             map.putAll(formValue);
             map.put(FORM_VAR,formData);
         }
-        map.put(PROCESS_STATUS,BUSINESS_STATUS_1);
+//        map.put(PROCESS_STATUS,BUSINESS_STATUS_1);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
             taskService.addComment(task.getId(),task.getProcessInstanceId(),"comments",comments);
@@ -761,6 +777,79 @@ public class WorkspaceProcessController {
             taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
         }
         return Result.OK();
+    }
+
+    @ApiOperation("通过流程实例查看审批记录")
+    @PostMapping("process/record/{processInstanceId}")
+    public Result<List<TaskDetailVO>> record(@PathVariable("processInstanceId") String processInstanceId){
+        List<Comment> processInstanceComments = taskService.getProcessInstanceComments(processInstanceId);
+        Map<String, List<Comment>> commentsMap = processInstanceComments.stream()
+                .collect(Collectors.groupingBy(Comment::getTaskId));
+        List<Attachment> processInstanceAttachments = taskService.getProcessInstanceAttachments(processInstanceId);
+        Map<String, List<Attachment>> attachmentMap = processInstanceAttachments.stream()
+                .collect(Collectors.groupingBy(Attachment::getTaskId));
+        List<HistoricActivityInstance> list = historyService.createHistoricActivityInstanceQuery().processInstanceId(processInstanceId).orderByHistoricActivityInstanceStartTime().asc().list();
+        List<TaskDetailVO> taskDetailVOS= new ArrayList<>();
+        for (HistoricActivityInstance historicActivityInstance : list) {
+            if("startEvent".equals(historicActivityInstance.getActivityType())){
+                TaskDetailVO taskDetailVO= new TaskDetailVO();
+                taskDetailVO.setTaskId(historicActivityInstance.getTaskId());
+                taskDetailVO.setActivityId(historicActivityInstance.getActivityId());
+                taskDetailVO.setName("流程开始");
+                taskDetailVO.setCreateTime(historicActivityInstance.getStartTime());
+                taskDetailVO.setEndTime(historicActivityInstance.getEndTime());
+                taskDetailVOS.add(taskDetailVO);
+
+//                taskDetailVO.setSignImage();
+//                taskDetailVO.setAttachmentVOList();
+//                taskDetailVO.setOptionVOList();
+//                taskDetailVO.setCommentVOList();
+            }
+            else if("enEvent".equals(historicActivityInstance.getActivityType())){
+                TaskDetailVO taskDetailVO= new TaskDetailVO();
+                taskDetailVO.setTaskId(historicActivityInstance.getTaskId());
+                taskDetailVO.setActivityId(historicActivityInstance.getActivityId());
+                taskDetailVO.setName("流程结束");
+                taskDetailVO.setCreateTime(historicActivityInstance.getStartTime());
+                taskDetailVO.setEndTime(historicActivityInstance.getEndTime());
+                taskDetailVOS.add(taskDetailVO);
+            }
+            else if("userTask".equals(historicActivityInstance.getActivityType())){
+                List<Comment> comments = commentsMap.get(historicActivityInstance.getTaskId());
+                if(CollUtil.isNotEmpty(comments)){
+                    for (Comment comment : comments) {
+                        if("option".equals(comment.getType())){
+                            TaskDetailVO taskDetailVO= new TaskDetailVO();
+                            taskDetailVO.setTaskId(historicActivityInstance.getTaskId());
+                            taskDetailVO.setActivityId(historicActivityInstance.getActivityId());
+                            taskDetailVO.setName(historicActivityInstance.getActivityName());
+                            taskDetailVO.setCreateTime(historicActivityInstance.getStartTime());
+                            taskDetailVO.setEndTime(historicActivityInstance.getEndTime());
+                            taskDetailVO.setComment(comment.getFullMessage());
+                            List<Attachment> attachments = attachmentMap.get(historicActivityInstance.getTaskId());
+                            List<AttachmentVO> attachmentVOList = new ArrayList<>();
+                            for (Attachment attachment : attachments) {
+                                AttachmentVO attachmentVO = new AttachmentVO();
+                                attachmentVO.setId(attachment.getId());
+                                attachmentVO.setName(attachment.getName());
+                                attachmentVO.setUrl(attachment.getUrl());
+                                attachmentVOList.add(attachmentVO);
+                            }
+
+                            for (Comment comment1 : comments) {
+                                if("sign".equals(comment1.getType())){
+                                    taskDetailVO.setSignImage(comment1.getFullMessage());
+                                }
+                            }
+
+                            taskDetailVO.setAttachmentVOList(attachmentVOList);
+                            taskDetailVOS.add(taskDetailVO);
+                        }
+                    }
+                }
+            }
+        }
+        return Result.OK(taskDetailVOS);
     }
 
     @ApiOperation("通过流程实例id查看详情")

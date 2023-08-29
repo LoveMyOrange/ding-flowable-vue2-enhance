@@ -22,4 +22,5 @@ public class TaskDetailVO {
     private List<AttachmentVO> attachmentVOList;
     private List<OptionVO> optionVOList;
     private List<CommentVO> commentVOList;
+    private String comment;
 }
