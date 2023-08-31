@@ -1,117 +1,74 @@
 <template>
-  <div>
-      <el-upload
-        :file-list="_value"
-        action="#"
-        :limit="maxSize"
-        with-credentials
-        :multiple="maxSize > 0"
-        :data="uploadParams"
-        :auto-upload="false"
-        :before-upload="beforeUpload"
-        :http-request="requestUpload"
-      >
-        <el-button size="small" icon="el-icon-paperclip" round>选择文件</el-button>
-        <ellipsis :row="1" :content="placeholder + sizeTip" hoverTip slot="tip" class="el-upload__tip" />
-
-      </el-upload>
-  </div>
+  <el-upload
+    class="file-upload"
+    withCredentials
+    action="http://106.13.16.28:10000/wflow/res"
+    :on-success="handleSuccess"
+    :on-remove="handleRemove"
+    :data="params"
+    :before-upload="beforeAvatarUpload"
+    show-file-list
+    :limit="5"
+  >
+    <el-button round size="small">
+      <i class="el-icon-link"></i>
+      选择文件
+    </el-button>
+    <div slot="tip" class="el-upload__tip">添加附件 | 单个附件不超过100MB</div>
+  </el-upload>
 </template>
 
 <script>
-import { upLoadFileApi, downLoadFileApi } from '@/api/design';
-import {  downloadFileBlob } from '@/utils/index';
 export default {
-  name: 'ImageUpload',
-  components: {},
+  name: "FileUpload",
   props: {
-    placeholder: {
-      type: String,
-      default: '请选择附件',
-    },
-    _value: {
+    value: {
       type: Array,
-      default: () => {
-        return [];
-      },
-    },
-    maxSize: {
-      type: Number,
-      default: 5,
-    },
-    maxNumber: {
-      type: Number,
-      default: 10,
-    },
-    fileTypes: {
-      type: Array,
-      default: () => {
-        return [];
-      },
-    },
-  },
-  computed: {
-    sizeTip() {
-      if (this.fileTypes.length > 0) {
-        return ` | 只允许上传[${String(this.fileTypes).replaceAll(',', '、')}]格式的文件，且单个附件不超过${this.maxSize}MB`;
-      }
-      return this.maxSize > 0 ? ` | 单个附件不超过${this.maxSize}MB` : '';
+      default: () => [],
     },
   },
   data() {
     return {
-      disabled: false,
-      uploadParams: {},
+      dialogImageUrl: "",
+      dialogVisible: false,
+      params: {
+        isImg: false
+      }
     };
   },
   methods: {
-           // 覆盖默认的上传行为
-           requestUpload() {
-            
-           },
-    beforeUpload(file) {
-
-      // const alows = [];
-      // if (alows.indexOf(file.type) === -1) {
-      //   this.$message.warning('存在不支持的图片格式');
-      // } else 
-      if (this.maxSize > 0 && file.size / 1024 / 1024 > this.maxSize) {
-        this.$message.warning(`单张图片最大不超过 ${this.maxSize}MB`);
-      } else {
-         //上传文件的需要formdata类型;所以要转
-         let FormDatas = new FormData();
-        FormDatas.append('file', file);
-        upLoadFileApi(FormDatas).then(res => {
-        console.log('uploadFile', res);
-
-        if (res.data.result) {
-            this._value.push(res.data.result); //成功过后手动将文件添加到展示列表里
-            this.$emit('input', this._value);
-          }
-        });
-
-        return true;
+    beforeAvatarUpload(file) {
+      if(this.value.length === 5) {
+        this.$message.error('最多上传5个附件!');
+        return false;
       }
-      return false;
+      const isLt2M = file.size / 1024 / 1024 < 100;
+      if (!isLt2M) {
+        this.$message.error('附件大小不能超过100MB!');
+        return false
+      }
+      return isLt2M;
     },
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
+    handleSuccess(_, __, fileList) {
+      this.handleUpdateValue(fileList)
+      this.$message.success('上传成功')
+    },
+    handleRemove(_, fileList) {
+      this.handleUpdateValue(fileList)
+    },
+    handleUpdateValue(fileList) {
+      const files = fileList.map(file => file.response);
+      this.$emit('input', files)
     },
     handlePictureCardPreview(file) {
-      console.log(file);
-    },
-    handleDownload(file) {
-        //上传文件的需要formdata类型;所以要转
-      let FormDatas = new FormData();
-      FormDatas.append('name', file.name);
-      downLoadFileApi(FormDatas).then(res => {
-        if (res.data) {
-          downloadFileBlob(res.data,file.name)
-        }
-      });
-    },
+      this.dialogImageUrl = file.url;
+      this.dialogVisible = true;
+    }
   },
 };
 </script>
 
-<style lang="less" scoped></style>
+<style lang="less" scoped>
+.image-upload {
+}
+</style>
