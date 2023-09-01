@@ -4,6 +4,12 @@
       <el-form-item prop="comments">
         <el-input type="textarea" v-model="formValue.comments" placeholder="意见" maxlength="255" rows="4"  show-word-limit />
       </el-form-item>
+      <el-form-item>
+        <image-upload v-model="formValue.imageList" />
+      </el-form-item>
+      <el-form-item>
+        <file-upload v-model="formValue.fileList" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <el-button size="mini" @click="handleCancel">取 消</el-button>
@@ -14,9 +20,12 @@
 
 <script>
 import { resolveTask } from '@/api/design';
+import ImageUpload from './ImageUpload';
+import FileUpload from './FileUpload'
 
 export default {
   name: 'ResolveModal',
+  components: { ImageUpload, FileUpload },
   props: {
     // 是否显示
     visible: {
@@ -32,7 +41,9 @@ export default {
     return {
       loading: false,
       formValue: {
-        comments: ''
+        comments: '',
+        imageList: [],
+        fileList: []
       },
     }
   },
@@ -51,9 +62,11 @@ export default {
     handleConfirm() {
       this.$refs.formRef.validate(valid => {
         if(!valid) return;
+        const { imageList, fileList, ...restParams } = this.formValue;
         const params = {
           ...this.processInfo,
-          ...this.formValue,
+          ...restParams,
+          attachments: [...imageList, ...fileList]
         }
         this.loading = true
         resolveTask(params).then(() => {
