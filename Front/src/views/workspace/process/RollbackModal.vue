@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    destroy-on-close
     title="退回到之前节点"
     :visible.sync="show"
     width="500px"
@@ -17,6 +18,7 @@
     >
       <el-form-item label="回退节点" prop="rollbackId" required>
         <el-select
+          size="small"
           v-model="formValue.rollbackId"
           placeholder="选择要回退到的节点"
         >
@@ -24,7 +26,8 @@
             v-for="item in options"
             :key="item.value"
             :label="item.label"
-            :value="item.value">
+            :value="item.value"
+          >
           </el-option>
         </el-select>
       </el-form-item>
@@ -37,6 +40,12 @@
           rows="4"
           show-word-limit
         />
+      </el-form-item>
+      <el-form-item>
+        <image-upload v-model="formValue.imageList" />
+      </el-form-item>
+      <el-form-item>
+        <file-upload v-model="formValue.fileList" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -54,9 +63,12 @@
 
 <script>
 import { rollback, getRollbackNodes } from "@/api/design";
+import ImageUpload from "./ImageUpload";
+import FileUpload from "./FileUpload";
 
 export default {
   name: "RollbackModal",
+  components: { ImageUpload, FileUpload },
   props: {
     // 是否显示
     visible: {
@@ -74,6 +86,8 @@ export default {
       formValue: {
         rollbackId: "",
         comments: "",
+        imageList: [],
+        fileList: [],
       },
       options: [],
       rules: {
@@ -102,9 +116,11 @@ export default {
     handleConfirm() {
       this.$refs.formRef.validate((valid) => {
         if (!valid) return;
+        const { imageList, fileList, ...restParams } = this.formValue;
         const params = {
           ...this.processInfo,
-          ...this.formValue,
+          ...restParams,
+          attachments: [...imageList, ...fileList],
         };
         this.loading = true;
         rollback(params)
@@ -121,20 +137,26 @@ export default {
     // 取消操作
     handleCancel() {
       this.$refs.formRef.resetFields();
-      this.show = false;
+      this.formValue = {
+        rollbackId: "",
+        comments: "",
+        imageList: [],
+        fileList: [],
+      };
       this.options = [];
+      this.show = false;
     },
     // 打开弹框操作
     handleOpen() {
       const { processInstanceId, taskId } = this.processInfo;
       getRollbackNodes({ processInstanceId, taskId }).then((res) => {
         const nodes = res.data.result || {};
-        this.options = Object.keys(nodes).map(key => {
+        this.options = Object.keys(nodes).map((key) => {
           return {
             label: nodes[key],
-            value: key
-          }
-        })
+            value: key,
+          };
+        });
       });
     },
   },
