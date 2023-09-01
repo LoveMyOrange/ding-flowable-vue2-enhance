@@ -8,6 +8,12 @@
       <el-form-item prop="comments">
         <el-input type="textarea" v-model="formValue.comments" placeholder="委派意见" maxlength="255" rows="4" show-word-limit />
       </el-form-item>
+      <el-form-item>
+        <image-upload v-model="formValue.imageList" />
+      </el-form-item>
+      <el-form-item>
+        <file-upload v-model="formValue.fileList" />
+      </el-form-item>
     </el-form>
     <template #footer>
       <el-button size="mini" @click="handleCancel">取 消</el-button>
@@ -25,10 +31,12 @@
 
 <script>
 import OrgPicker from '@/components/common/OrgPicker';
+import ImageUpload from './ImageUpload';
+import FileUpload from './FileUpload'
 import { delegateTask } from '@/api/design';
 
 export default {
-  components: { OrgPicker },
+  components: { OrgPicker, ImageUpload, FileUpload },
   name: 'DelegateModal',
   props: {
     // 是否显示
@@ -46,7 +54,9 @@ export default {
       loading: false,
       formValue: {
         comments: '',
-        delegateUserInfo: null
+        delegateUserInfo: null,
+        imageList: [],
+        fileList: []
       },
       rules: {
         delegateUserInfo: [
@@ -74,9 +84,11 @@ export default {
     handleConfirm() {
       this.$refs.formRef.validate(valid => {
         if(!valid) return;
+        const { imageList, fileList, ...restParams } = this.formValue;
         const params = {
           ...this.processInfo,
-          ...this.formValue,
+          ...restParams,
+          attachments: [...imageList, ...fileList]
         }
         this.loading = true
         delegateTask(params).then(() => {
