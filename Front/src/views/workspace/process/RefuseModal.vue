@@ -1,8 +1,14 @@
 <template>
-  <el-dialog title="拒绝" :visible.sync="show" width="500px" v-bind="$attrs" v-on="$listeners" @close="handleCancel" :close-on-click-modal="false">
+  <el-dialog destroy-on-close title="拒绝" :visible.sync="show" width="500px" v-bind="$attrs" v-on="$listeners" @close="handleCancel" :close-on-click-modal="false">
     <el-form v-loading="loading" ref="formRef" :model="formValue">
       <el-form-item prop="comments">
         <el-input type="textarea" v-model="formValue.comments" placeholder="意见" maxlength="255" rows="4"  show-word-limit />
+      </el-form-item>
+      <el-form-item>
+        <image-upload v-model="formValue.imageList" />
+      </el-form-item>
+      <el-form-item>
+        <file-upload v-model="formValue.fileList" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -14,9 +20,12 @@
 
 <script>
 import { refuse } from '@/api/design';
+import ImageUpload from './ImageUpload';
+import FileUpload from './FileUpload'
 
 export default {
   name: 'RefuseModal',
+  components: { ImageUpload, FileUpload },
   props: {
     // 是否显示
     visible: {
@@ -32,7 +41,9 @@ export default {
     return {
       loading: false,
       formValue: {
-        comments: ''
+        comments: '',
+        imageList: [],
+        fileList: []
       },
     }
   },
@@ -51,9 +62,11 @@ export default {
     handleConfirm() {
       this.$refs.formRef.validate(valid => {
         if(!valid) return;
+        const { imageList, fileList, ...restParams } = this.formValue;
         const params = {
           ...this.processInfo,
-          ...this.formValue,
+          ...restParams,
+          attachments: [...imageList, ...fileList]
         }
         this.loading = true
         refuse(params).then(() => {
@@ -68,6 +81,11 @@ export default {
     // 取消操作
     handleCancel() {
       this.$refs.formRef.resetFields();
+      this.formValue = {
+        comments: '',
+        imageList: [],
+        fileList: []
+      },
       this.show = false;
     }
   }
