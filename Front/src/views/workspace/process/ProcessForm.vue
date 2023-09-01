@@ -1,19 +1,12 @@
 <template>
   <div>
-    <!-- <el-input v-model="fromData.comments" placeholder="请输入审批内容"></el-input> -->
     <el-row :gutter="10">
       <el-col :span="24">
         <el-button size="small" type="primary" v-for="item in buttonConfig" :key="item.key" @click="handleClickByType(item.key)">{{ item.text }}</el-button>
       </el-col>
     </el-row>
-    <AgreenForm ref="AgreenForm"></AgreenForm>
-    <org-picker
-      title="请选择可发起本审批的人员/部门"
-      multiple
-      ref="orgPicker"
-      :selected="select"
-      @ok="onSelected"
-    />
+    <!-- 同意 -->
+    <agree-modal :visible.sync="modalConfig.agreeVisible" :processInfo="processInfo" /> 
     <!-- 评论 -->
     <comment-modal :visible.sync="modalConfig.commentVisible" :processInfo="processInfo" />
     <!-- 委派 -->
@@ -38,11 +31,7 @@
 </template>
 
 <script>
-import {
-  delegateTask,
-} from "@/api/design";
-import AgreenForm from "./AgreenForm";
-import OrgPicker from "@/components/common/OrgPicker";
+import AgreeModal from './AgreeModal';
 import CommentModal from './CommentModal';
 import DelegateModal from './DelegateModal';
 import AssigneeModal from './AssigneeModal';
@@ -91,8 +80,6 @@ const OPERATION_BUTTON_MAP = {
 export default {
   props: ["processInfo", "type"],
   components: {
-    AgreenForm,
-    OrgPicker,
     CommentModal,
     DelegateModal,
     AssigneeModal,
@@ -102,12 +89,14 @@ export default {
     AddMultiModal,
     QueryMultiUserModal,
     RevokeModal,
-    DeleteMultiModal
+    DeleteMultiModal,
+    AgreeModal
   },
   name: "ProcessForm",
   data() {
     return {
       modalConfig: {
+        agreeVisible: false,
         commentVisible: false,
         delegateVisible: false,
         assigneeVisible: false,
@@ -154,21 +143,9 @@ export default {
       }
       METHOD_MAP[type]?.()
     },
-    onSelected(select) {
-      this.select.length = 0;
-      select.forEach((val) => this.select.push(val));
-      switch (this.selectType) {
-        case delegateTask:
-          break;
-
-        default:
-          break;
-      }
-    },
     onAgree() {
-      this.$refs.AgreenForm.initFrom(this.processInfo, this.callback);
+      this.modalConfig.agreeVisible = true;
     },
-    callback() {},
     onDelegateTask() {
       this.modalConfig.delegateVisible = true;
     },
