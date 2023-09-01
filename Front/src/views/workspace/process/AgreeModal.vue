@@ -154,6 +154,7 @@ export default {
         comments: "",
         imageList: [],
         fileList: [],
+        signInfo: "",
       };
       this.show = false;
     },
