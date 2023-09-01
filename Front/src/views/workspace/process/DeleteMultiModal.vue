@@ -1,5 +1,6 @@
 <template>
   <el-dialog
+    destroy-on-close
     title="减签"
     :visible.sync="show"
     width="500px"
@@ -15,7 +16,12 @@
       :rules="rules"
     >
       <el-form-item label="给谁减签" prop="executionIds" required>
-        <el-select v-model="formValue.executionIds" :multiple="true" placeholder="选择减签用户">
+        <el-select
+          size="small"
+          v-model="formValue.executionIds"
+          :multiple="true"
+          placeholder="选择减签用户"
+        >
           <el-option
             v-for="item in options"
             :key="item.value"
@@ -24,6 +30,12 @@
           >
           </el-option>
         </el-select>
+      </el-form-item>
+      <el-form-item>
+        <image-upload v-model="formValue.imageList" />
+      </el-form-item>
+      <el-form-item>
+        <file-upload v-model="formValue.fileList" />
       </el-form-item>
     </el-form>
     <template #footer>
@@ -41,9 +53,12 @@
 
 <script>
 import { deleteMulti, queryMultiUsersInfo } from "@/api/design";
+import ImageUpload from "./ImageUpload";
+import FileUpload from "./FileUpload";
 
 export default {
   name: "DeleteMultiModal",
+  components: { ImageUpload, FileUpload },
   props: {
     // 是否显示
     visible: {
@@ -60,6 +75,8 @@ export default {
       loading: false,
       formValue: {
         executionIds: [],
+        imageList: [],
+        fileList: [],
       },
       rules: {
         executionIds: [
@@ -84,10 +101,12 @@ export default {
     handleConfirm() {
       this.$refs.formRef.validate((valid) => {
         if (!valid) return;
+        const { imageList, fileList, ...restParams } = this.formValue;
         const params = {
           ...this.processInfo,
-          ...this.formValue,
-        }
+          ...restParams,
+          attachments: [...imageList, ...fileList],
+        };
         this.loading = true;
         deleteMulti(params)
           .then(() => {
@@ -104,6 +123,11 @@ export default {
     handleCancel() {
       this.options = [];
       this.$refs.formRef.resetFields();
+      this.formValue = {
+        executionIds: [],
+        imageList: [],
+        fileList: [],
+      };
       this.show = false;
     },
     // 打开弹框操作
