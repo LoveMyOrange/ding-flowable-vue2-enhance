@@ -11,6 +11,20 @@
 [![star](https://gitee.com/willianfu/jw-workflow-engine/badge/star.svg?theme=dark)](https://gitee.com/willianfu/jw-workflow-engine/stargazers) [![fork](https://gitee.com/willianfu/jw-workflow-engine/badge/fork.svg?theme=dark)](https://gitee.com/willianfu/jw-workflow-engine/members) <img src="https://img.shields.io/badge/release-v0.0.1-brightgreen.svg"> <img src="https://shields.io/badge/license-APACHE2.0-blue">
 
 
+## 🔑 启动
+
+版本说明：node版本原作者使用的为14.18.0，其它版本的node可能会依赖安装失败。
+
+建议用 [fnm版本管理](https://www.yuque.com/hjy/blog/dze26zmg34secza3) 或者 [nvm版本管理](https://www.yuque.com/hjy/blog/qgs6f4gm740mueqy)
+
+
+```shell
+# 安装依赖
+npm i
+# 启动前端服务
+npm run serve
+```
+
 ## 📋 简介
 
 > 区别于传统Bpmn自带流程设计器，传统设计器晦涩难懂，对于普通企业用户使用门槛偏高，没有经过专业培训根本无从下手，需要相关专业人员辅助来创建流程。而本设计器界面简单，符合普通大众的思维逻辑，易于理解和上手使用。
