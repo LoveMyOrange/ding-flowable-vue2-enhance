@@ -1,5 +1,5 @@
 <template>
-  <component ref="form" :is="config.name" :mode="mode" v-model="_value" v-bind="config.props"/>
+  <component ref="form" :is="config.name" :mode="mode" v-bind="config.props" v-model="_value" />
 </template>
 <script>
 
@@ -26,10 +26,14 @@ export default {
   computed: {
     _value: {
       get() {
-        return this.value;
+        const valueType = this.config.valueType
+        const value = valueType === "Number" && this.value ? Number(this.value) : this.value;
+        return value;
       },
       set(val) {
-        this.$emit("input", val);
+        const valueType = this.config.valueType
+        const value = valueType === "Number" ? Number(val) : val
+        this.$emit("input", value);
       }
     }
   },

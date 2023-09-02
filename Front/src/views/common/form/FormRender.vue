@@ -82,7 +82,7 @@ export default {
           this.$set(this._value, item.id, this.value[item.id])
           if(item.props.required){
             this.$set(this.rules, item.id, [{
-              type: item.valueType === 'Array' ? 'array':undefined,
+              type: item.valueType === 'Array' ? 'array': undefined,
               required: true,
               message: `请填写${item.title}`, trigger: 'blur'
             }])
