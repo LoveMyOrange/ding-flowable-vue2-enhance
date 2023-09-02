@@ -29,7 +29,6 @@ export default {
     }
   },
   render(h, ctx) {
-    console.log("渲染流程树")
     this.nodeMap.clear()
     let processTrees = this.getDomTree(h, this.dom)
     //插入末端节点
