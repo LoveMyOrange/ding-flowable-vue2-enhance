@@ -11,4 +11,6 @@ public class AttachmentDTO {
     private String id;
     private String name;
     private String url;
+    private Boolean isImage;
+    private Integer size;
 }

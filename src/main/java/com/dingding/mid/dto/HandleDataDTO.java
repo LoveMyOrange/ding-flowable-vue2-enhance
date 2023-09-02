@@ -22,7 +22,7 @@ public class HandleDataDTO {
     @ApiModelProperty("表单数据")
     private JSONObject formData;
     @ApiModelProperty("附件")
-    private List attachments;
+    private List<AttachmentDTO> attachments;
     @ApiModelProperty("意见")
     private String comments;
     @ApiModelProperty("签名信息")
