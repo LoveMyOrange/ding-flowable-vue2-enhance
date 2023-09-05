@@ -805,7 +805,7 @@ public class WorkspaceProcessController {
 //                taskDetailVO.setOptionVOList();
 //                taskDetailVO.setCommentVOList();
             }
-            else if("enEvent".equals(historicActivityInstance.getActivityType())){
+            else if("endEvent".equals(historicActivityInstance.getActivityType())){
                 TaskDetailVO taskDetailVO= new TaskDetailVO();
                 taskDetailVO.setTaskId(historicActivityInstance.getTaskId());
                 taskDetailVO.setActivityId(historicActivityInstance.getActivityId());
@@ -818,7 +818,7 @@ public class WorkspaceProcessController {
                 List<Comment> comments = commentsMap.get(historicActivityInstance.getTaskId());
                 if(CollUtil.isNotEmpty(comments)){
                     for (Comment comment : comments) {
-                        if("option".equals(comment.getType())){
+                        if("opinion".equals(comment.getType())){
                             TaskDetailVO taskDetailVO= new TaskDetailVO();
                             taskDetailVO.setTaskId(historicActivityInstance.getTaskId());
                             taskDetailVO.setActivityId(historicActivityInstance.getActivityId());
