@@ -620,7 +620,7 @@ public class BpmnModelUtils {
                             boundaryEvent.setId(id("boundaryEvent"));
                             boundaryEvent.setAttachedToRefId(id);
                             boundaryEvent.setAttachedToRef(userTask);
-                            boundaryEvent.setCancelActivity(Boolean.TRUE);
+                            boundaryEvent.setCancelActivity(Boolean.FALSE);
                             TimerEventDefinition timerEventDefinition = new TimerEventDefinition();
                             if("D".equals(unit)){
                                 timerEventDefinition.setTimeDuration("P"+value+unit);
