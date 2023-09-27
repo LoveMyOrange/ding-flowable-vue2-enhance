@@ -35,7 +35,7 @@ import static org.flowable.bpmn.model.ImplementationType.IMPLEMENTATION_TYPE_DEL
  * @author LoveMyOrange
  * @create 2022-10-10 17:47
  */
-public class BpmnModelUtils {
+public class    BpmnModelUtils {
 
     private static String id(String prefix) {
         return prefix + "_" + UUID.randomUUID().toString().replace("-", "").toLowerCase();

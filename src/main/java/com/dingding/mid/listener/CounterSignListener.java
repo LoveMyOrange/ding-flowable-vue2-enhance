@@ -40,13 +40,13 @@ public class CounterSignListener implements ExecutionListener {
         String currentActivityId = execution.getCurrentActivityId();
         Process mainProcess = repositoryService.getBpmnModel(execution.getProcessDefinitionId()).getMainProcess();
         UserTask userTask = (UserTask) mainProcess.getFlowElement(currentActivityId);
-        String dingDing = mainProcess.getAttributeValue("http://flowable.org/bpmn", "DingDing");
+        String dingDing = mainProcess.getAttributeValue(FLOWABLE_NAME_SPACE, FLOWABLE_NAME_SPACE_NAME);
         JSONObject jsonObject = JSONObject.parseObject(dingDing, new TypeReference<JSONObject>() {
         });
-        String processJson = jsonObject.getString("processJson");
+        String processJson = jsonObject.getString(VIEW_PROCESS_JSON_NAME);
         ChildNode childNode = JSONObject.parseObject(processJson, new TypeReference<ChildNode>(){});
         List<String> assigneeList= new ArrayList<>();
-        String variable=currentActivityId+"assigneeList";
+        String variable=currentActivityId+ASSIGNEE_LIST_SUFFIX;
         List usersValue = (List) execution.getVariable(variable);
         if(usersValue==null){
             ChildNode currentNode = getChildNode(childNode, currentActivityId);
@@ -91,34 +91,34 @@ public class CounterSignListener implements ExecutionListener {
                 List<JSONObject> assigneeUsers = execution.getVariable(formUser, List.class);
                 if(assigneeUsers!=null){
                     for (JSONObject assigneeUser : assigneeUsers) {
-                        assigneeList.add(assigneeUser.getString("id"));
+                        assigneeList.add(assigneeUser.getString(VIEW_ID_NAME));
                     }
                 }
 
             }
 
             if(CollUtil.isEmpty(assigneeList)){
-                String handler = MapUtil.getStr(nobody, "handler");
-                if("TO_PASS".equals(handler)){
+                String handler = MapUtil.getStr(nobody, ASSIGNEE_NULL_ACTION_NAME);
+                if(TO_PASS_ACTION.equals(handler)){
                     assigneeList.add(DEFAULT_NULL_ASSIGNEE);
                     execution.setVariable(variable,assigneeList);
                 }
-                else if("TO_REFUSE".equals(handler)){
+                else if(TO_REFUSE_ACTION.equals(handler)){
                     execution.setVariable(AUTO_REFUSE_STR,Boolean.TRUE);
                     assigneeList.add(DEFAULT_NULL_ASSIGNEE);
                     execution.setVariable(variable,assigneeList);
                 }
-                else if("TO_ADMIN".equals(handler)){
+                else if(TO_ADMIN_ACTION.equals(handler)){
                     assigneeList.add(DEFAULT_ADMIN_ASSIGNEE);
                     execution.setVariable(variable,assigneeList);
                 }
-                else if("TO_USER".equals(handler)){
-                    Object assignedUserObj = nobody.get("assignedUser");
+                else if(TO_USER_ACTION.equals(handler)){
+                    Object assignedUserObj = nobody.get(VIEW_ASSIGNEE_USER_NAME);
                     if(assignedUserObj!=null ){
                         List<JSONObject> assignedUser =(List<JSONObject>)assignedUserObj;
                         if(assignedUser.size()>0){
                             for (JSONObject object : assignedUser) {
-                                assigneeList.add(object.getString("id"));
+                                assigneeList.add(object.getString(VIEW_ID_NAME));
                             }
                             execution.setVariable(variable,assigneeList);
                         }

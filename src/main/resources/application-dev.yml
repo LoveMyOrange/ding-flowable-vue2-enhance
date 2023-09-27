@@ -95,3 +95,9 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.dingding.mid.controller
+workflow:
+  db-type: mysql
+  email-host: xxx.qq.com
+  email-password: xxxx
+  email-addr: xxx.qq.com
+  email-port: 25

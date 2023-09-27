@@ -56,20 +56,32 @@ public class ActivitiConfig {
 	private  PlatformTransactionManager transactionManager;
 	@Resource
 	private IdWorkerIdGenerator idWorkerIdGenerator;
+	@Resource
+	private FlowableExConfig flowableExConfig;
+
 	@Bean
 	public SpringProcessEngineConfiguration getSpringProcessEngineConfiguration() {
 		SpringProcessEngineConfiguration config = new SpringProcessEngineConfiguration();
+		config.setDisableEventRegistry(Boolean.TRUE);
 		config.setActivityFontName("宋体");
 		config.setAnnotationFontName("宋体");
 		config.setLabelFontName("黑体");
 		config.setDataSource(dataSource);
 		config.setTransactionManager(transactionManager);
 		config.setDisableIdmEngine(true);
-		config.setDatabaseType(ProcessEngineConfigurationImpl.DATABASE_TYPE_MYSQL);
+		config.setDatabaseType(flowableExConfig.getDbType());
 		config.setDatabaseSchemaUpdate(ProcessEngineConfiguration.DB_SCHEMA_UPDATE_TRUE);
 		config.setDelegateExpressionFieldInjectionMode(DelegateExpressionFieldInjectionMode.MIXED);
 		config.setIdGenerator(idWorkerIdGenerator);
 		config.setAsyncExecutorActivate(Boolean.TRUE);
+
+		config.setMailServerHost(flowableExConfig.getEmailHost());
+		config.setMailServerPort(flowableExConfig.getEmailPort());
+		config.setMailServerUsername(flowableExConfig.getEmailAddr());
+		config.setMailServerPassword(flowableExConfig.getEmailPassword());
+
+
+
 		HttpClientConfig httpClientConfig=new HttpClientConfig();
 		//连接超时
 		httpClientConfig.setConnectTimeout(1000000);

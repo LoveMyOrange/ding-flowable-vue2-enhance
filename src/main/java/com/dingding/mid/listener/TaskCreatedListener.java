@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
-import static com.dingding.mid.common.WorkFlowConstants.AUTO_REFUSE_STR;
-import static com.dingding.mid.common.WorkFlowConstants.DEFAULT_NULL_ASSIGNEE;
+import static com.dingding.mid.common.WorkFlowConstants.*;
 import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
 
 /**
@@ -32,11 +31,11 @@ public class TaskCreatedListener implements TaskListener {
             if(DEFAULT_NULL_ASSIGNEE.equals(delegateTask.getAssignee())){
                 Object autoRefuse = delegateTask.getVariable(AUTO_REFUSE_STR);
                 if(autoRefuse==null){
-                    taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),"opinion","审批人为空,自动通过");
+                    taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),OPINION_COMMENT,"审批人为空,自动通过");
                     taskService.complete(delegateTask.getId());
                 }
                 else{
-                    taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),"opinion","审批人为空,自动驳回");
+                    taskService.addComment(delegateTask.getId(),delegateTask.getProcessInstanceId(),OPINION_COMMENT,"审批人为空,自动驳回");
                     RuntimeService runtimeService = SpringContextHolder.getBean(RuntimeService.class);
                     runtimeService.deleteProcessInstance(delegateTask.getProcessInstanceId(),"审批人为空,自动驳回");
                 }

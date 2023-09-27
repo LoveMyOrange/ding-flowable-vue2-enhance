@@ -68,7 +68,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.dingding.mid.common.CommonConstants.*;
-import static com.dingding.mid.common.WorkFlowConstants.PROCESS_PREFIX;
+import static com.dingding.mid.common.WorkFlowConstants.*;
 import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
 
 /**
@@ -400,16 +400,16 @@ public class WorkspaceProcessController {
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         Authentication.setAuthenticatedUserId(currentUserInfo.getId());
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
 
 
@@ -437,16 +437,16 @@ public class WorkspaceProcessController {
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         Authentication.setAuthenticatedUserId(currentUserInfo.getId());
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
 
         UserInfo delegateUserInfo = handleDataDTO.getDelegateUserInfo();
@@ -474,16 +474,16 @@ public class WorkspaceProcessController {
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         Authentication.setAuthenticatedUserId(currentUserInfo.getId());
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
 
         taskService.resolveTask(taskId);
@@ -511,16 +511,16 @@ public class WorkspaceProcessController {
         map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
         runtimeService.deleteProcessInstance(task.getProcessInstanceId(),"拒绝");
         return Result.OK();
@@ -546,16 +546,16 @@ public class WorkspaceProcessController {
         map.put(PROCESS_STATUS,BUSINESS_STATUS_2);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
         runtimeService.deleteProcessInstance(task.getProcessInstanceId(),"撤销");
         return Result.OK();
@@ -582,16 +582,16 @@ public class WorkspaceProcessController {
         map.put(PROCESS_STATUS,BUSINESS_STATUS_1);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
         taskService.setAssignee(taskId,handleDataDTO.getTransferUserInfo().getId());
         return Result.OK();
@@ -640,16 +640,16 @@ public class WorkspaceProcessController {
         map.put(PROCESS_STATUS,BUSINESS_STATUS_3);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
 
 
@@ -681,16 +681,16 @@ public class WorkspaceProcessController {
         map.put(PROCESS_STATUS,BUSINESS_STATUS_1);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
 
         Map<String,Object> variableMap= new HashMap<>();
@@ -765,16 +765,16 @@ public class WorkspaceProcessController {
 //        map.put(PROCESS_STATUS,BUSINESS_STATUS_1);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"comments",comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),COMMENTS_COMMENT,comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
         return Result.OK();
     }
@@ -818,7 +818,7 @@ public class WorkspaceProcessController {
                 List<Comment> comments = commentsMap.get(historicActivityInstance.getTaskId());
                 if(CollUtil.isNotEmpty(comments)){
                     for (Comment comment : comments) {
-                        if("opinion".equals(comment.getType())){
+                        if(OPINION_COMMENT.equals(comment.getType())){
                             TaskDetailVO taskDetailVO= new TaskDetailVO();
                             taskDetailVO.setTaskId(historicActivityInstance.getTaskId());
                             taskDetailVO.setActivityId(historicActivityInstance.getActivityId());
@@ -837,7 +837,7 @@ public class WorkspaceProcessController {
                             }
 
                             for (Comment comment1 : comments) {
-                                if("sign".equals(comment1.getType())){
+                                if(SIGN_COMMENT.equals(comment1.getType())){
                                     taskDetailVO.setSignImage(comment1.getFullMessage());
                                 }
                             }
@@ -1025,7 +1025,7 @@ public class WorkspaceProcessController {
             taskDetailVO.setName(activityInstance.getActivityName());
             taskDetailVO.setCreateTime(activityInstance.getStartTime());
             taskDetailVO.setEndTime(activityInstance.getEndTime());
-            Comment signComment = processInstanceComments.stream().filter(h -> h.getTaskId().equals(historicActivityInstance.getTaskId()) && h.getType().equals("sign")).findFirst().orElse(null);
+            Comment signComment = processInstanceComments.stream().filter(h -> h.getTaskId().equals(historicActivityInstance.getTaskId()) && h.getType().equals(SIGN_COMMENT)).findFirst().orElse(null);
             if(signComment!=null){
                 taskDetailVO.setSignImage(signComment.getFullMessage());
             }
@@ -1042,7 +1042,7 @@ public class WorkspaceProcessController {
                 taskDetailVO.setAttachmentVOList(attachmentVOList);
             }
 
-            List<Comment> options = processInstanceComments.stream().filter(h -> h.getTaskId().equals(historicActivityInstance.getTaskId()) && h.getType().equals("opinion")).collect(Collectors.toList());
+            List<Comment> options = processInstanceComments.stream().filter(h -> h.getTaskId().equals(historicActivityInstance.getTaskId()) && h.getType().equals(OPINION_COMMENT)).collect(Collectors.toList());
             if(CollUtil.isNotEmpty(options)){
                 List<OptionVO> optionVOList =new ArrayList<>();
                 for (Comment option : options) {
@@ -1056,7 +1056,7 @@ public class WorkspaceProcessController {
                 taskDetailVO.setOptionVOList(optionVOList);
             }
 
-            List<Comment> comments = processInstanceComments.stream().filter(h -> h.getTaskId().equals(historicActivityInstance.getTaskId()) && h.getType().equals("comments")).collect(Collectors.toList());
+            List<Comment> comments = processInstanceComments.stream().filter(h -> h.getTaskId().equals(historicActivityInstance.getTaskId()) && h.getType().equals(COMMENTS_COMMENT)).collect(Collectors.toList());
             if(CollUtil.isNotEmpty(comments)){
                 List<CommentVO> commentsVOList =new ArrayList<>();
                 for (Comment comment : comments) {
