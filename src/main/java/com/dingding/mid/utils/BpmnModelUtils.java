@@ -4,9 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.dingding.mid.dto.json.ChildNode;
-import com.dingding.mid.dto.json.ConditionInfo;
-import com.dingding.mid.dto.json.GroupsInfo;
+import com.dingding.mid.dto.json.*;
 import com.dingding.mid.dto.json.Properties;
 import com.dingding.mid.entity.Users;
 import com.dingding.mid.enums.ModeEnums;
@@ -268,7 +266,17 @@ public class    BpmnModelUtils {
             throw new WorkFlowException("在github版本提供了触发器节点的实现!(免费),请联系V:ProcessEngine 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
         }
         else if(Type.CC.isEqual(nodeType)){
-            throw new WorkFlowException("在github版本提供了触发器节点的实现!(免费),请联系V:ProcessEngine 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
+            childNodeMap.put(flowNode.getId(),flowNode);
+            JSONObject incoming = flowNode.getIncoming();
+            incoming.put("incoming", Collections.singletonList(fromId));
+            String id = createServiceTask(process,flowNode,sequenceFlows,childNodeMap);
+            // 如果当前任务还有后续任务，则遍历创建后续任务
+            ChildNode children = flowNode.getChildren();
+            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
+                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
+            } else {
+                return id;
+            }
         }
         else {
             throw new RuntimeException("未知节点类型: nodeType=" + nodeType);
@@ -654,7 +662,16 @@ public class    BpmnModelUtils {
         List<String> incoming = incomingJson.getJSONArray("incoming").toJavaList(String.class);
         String id=flowNode.getId();
         if (incoming != null && !incoming.isEmpty()) {
-
+            Properties props = flowNode.getProps();
+            String type = props.getType();
+            ServiceTask serviceTask = new ServiceTask();
+            serviceTask.setName(flowNode.getName());
+            serviceTask.setId(id);
+            process.addFlowElement(serviceTask);
+            process.addFlowElement(connect(incoming.get(0), id,sequenceFlows,childNodeMap,process));
+            List<UserInfo> assignedUser = props.getAssignedUser();
+            serviceTask.setImplementation("${ccListener}");
+            serviceTask.setImplementationType(IMPLEMENTATION_TYPE_DELEGATEEXPRESSION);
         }
         return id;
     }

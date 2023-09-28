@@ -13,9 +13,11 @@ import com.dingding.mid.dto.json.ChildNode;
 import com.dingding.mid.dto.json.FormOperates;
 import com.dingding.mid.dto.json.SettingsInfo;
 import com.dingding.mid.dto.json.UserInfo;
+import com.dingding.mid.entity.Cc;
 import com.dingding.mid.entity.ProcessTemplates;
 import com.dingding.mid.entity.Users;
 import com.dingding.mid.exception.WorkFlowException;
+import com.dingding.mid.service.CcService;
 import com.dingding.mid.service.ProcessTemplateService;
 import com.dingding.mid.service.UserService;
 import com.dingding.mid.utils.MinioUploadUtil;
@@ -93,6 +95,8 @@ public class WorkspaceProcessController {
     private TaskService taskService;
     @Resource
     private UserService userService;
+    @Resource
+    private CcService ccService;
 
 
 
@@ -168,6 +172,77 @@ public class WorkspaceProcessController {
             return Result.error("启动流程失败");
         }
     }
+    @ApiOperation("查看抄送")
+    @PostMapping("process/ccList")
+    public Result<Page<TaskVO>> ccList(@RequestBody TaskDTO taskDTO){
+        LambdaQueryWrapper<Cc> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Cc::getUserId,taskDTO.getCurrentUserInfo().getId());
+        Page page= new Page();
+        page.setCurrent(taskDTO.getPageNo());
+        page.setSize(taskDTO.getPageSize());
+        Page page1 = ccService.page(page, lambdaQueryWrapper);
+        List<Cc> ccList = page1.getRecords();
+        if(CollUtil.isNotEmpty(ccList)){
+            Set<String> processInstanceIds= new HashSet<>();
+            for (Cc cc : ccList) {
+                processInstanceIds.add(cc.getProcessInstanceId());
+            }
+            List<HistoricProcessInstance> processInstanceList = historyService.createHistoricProcessInstanceQuery().processInstanceIds(processInstanceIds).includeProcessVariables().list();
+            Map<String,HistoricProcessInstance> map =new HashMap<>();
+            for (HistoricProcessInstance historicProcessInstance : processInstanceList) {
+                map.put(historicProcessInstance.getId(),historicProcessInstance);
+            }
+
+            List<String> applyUserIds= new ArrayList<>();
+            for (HistoricProcessInstance historicProcessInstance : processInstanceList) {
+                Map<String, Object> processVariables = historicProcessInstance.getProcessVariables();
+                String id = JSONObject.parseObject(MapUtil.getStr(processVariables, START_USER_INFO), new TypeReference<UserInfo>() {
+                }).getId();
+                applyUserIds.add(id);
+            }
+            Map<Long, Users> collect=new HashMap<>();
+            if(CollUtil.isNotEmpty(applyUserIds)){
+                LambdaQueryWrapper<Users> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+                userLambdaQueryWrapper.in(Users::getUserId,applyUserIds);
+                List<Users> list = userService.list(userLambdaQueryWrapper);
+                collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
+            }
+
+
+
+            for (Cc cc : ccList) {
+                HistoricProcessInstance historicProcessInstance = map.get(cc.getProcessInstanceId());
+                Map<String, Object> processVariables = historicProcessInstance.getProcessVariables();
+                cc.setProcessInstanceId(historicProcessInstance.getId());
+                cc.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
+                cc.setStartUser(JSONObject.parseObject(MapUtil.getStr(processVariables,START_USER_INFO),new TypeReference<UserInfo>(){}));
+                cc.setUsers(collect.get(Long.valueOf(cc.getStartUser().getId())));
+                cc.setStartTime(historicProcessInstance.getStartTime());
+                cc.setEndTime(historicProcessInstance.getEndTime());
+                Boolean flag= historicProcessInstance.getEndTime() != null;
+                cc.setCurrentActivityName(getCurrentName(historicProcessInstance.getId(),flag,historicProcessInstance.getProcessDefinitionId()));
+                cc.setBusinessStatus(MapUtil.getStr(processVariables,PROCESS_STATUS));
+
+
+                long totalTimes = historicProcessInstance.getEndTime()==null?
+                        (Calendar.getInstance().getTimeInMillis()-historicProcessInstance.getStartTime().getTime()):
+                        (historicProcessInstance.getEndTime().getTime()-historicProcessInstance.getStartTime().getTime());
+                long dayCount = totalTimes /(1000*60*60*24);//计算天
+                long restTimes = totalTimes %(1000*60*60*24);//剩下的时间用于计于小时
+                long hourCount = restTimes/(1000*60*60);//小时
+                restTimes = restTimes % (1000*60*60);
+                long minuteCount = restTimes / (1000*60);
+
+                String spendTimes = dayCount+"天"+hourCount+"小时"+minuteCount+"分";
+                cc.setDuration(spendTimes);
+
+            }
+
+
+        }
+        return Result.OK(page1);
+    }
+
 
 
     @ApiOperation("查看我发起的流程")

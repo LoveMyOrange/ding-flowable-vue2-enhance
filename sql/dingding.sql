@@ -137,6 +137,13 @@ INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`,
 
 INSERT INTO `users`(`user_id`, `user_name`, `pingyin`, `alisa`, `avatar`, `sex`, `department_ids`, `entry_date`, `leave_date`, `admin`, `created`, `updated`) VALUES (1000010, 'Java10号', 'lvren', 'Java10号', 'https://dd-static.jd.com/ddimg/jfs/t1/188230/26/28979/10654/633026fdEf64e5e84/fc5c07ab3d5eac19.png', 0, '1486186', '2022-10-20 13:33:36', '2023-10-28 13:33:39', 1, '2022-10-19 13:32:49', '2022-10-19 13:32:52');
 
+CREATE TABLE `cc` (
+                      `id` varchar(64) NOT NULL  COMMENT '主键',
+                      `user_id` bigint(15)  COMMENT '用户id',
+                      `process_instance_id` varchar(64) NOT NULL COMMENT '流程实例id',
+                      PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COMMENT='抄送';
+
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
