@@ -115,23 +115,6 @@
         <artifactId>mybatis-plus-boot-starter</artifactId>
         <version>${mybatis-plus.vesion}</version>
       </dependency>
-      <!-- 代码生成 -->
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>mybatis-plus-generator</artifactId>
-        <version>${mybatis-plus.generator.vesion}</version>
-        <exclusions>
-          <exclusion>
-            <artifactId>mybatis-plus-extension</artifactId>
-            <groupId>com.baomidou</groupId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>com.baomidou</groupId>
-        <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-        <version>${mybatis-plus.dynamic.vesion}</version>
-      </dependency>
 
       <!-- mysql -->
       <dependency>
