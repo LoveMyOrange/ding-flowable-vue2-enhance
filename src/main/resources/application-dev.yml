@@ -95,7 +95,18 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.dingding.mid.controller
+
+##################################################################################重要--避免为了在ActivitiConfig中写死############################################################################################
+##### db-Type  只有如下可选值,flowable源码并未对这里进行忽略大小写判断,所以我们新增一个配置项来进行配置,防止有人写大写的情况
 workflow:
+#  public static final String DATABASE_TYPE_H2 = "h2";
+#  public static final String DATABASE_TYPE_HSQL = "hsql";
+#  public static final String DATABASE_TYPE_MYSQL = "mysql";
+#  public static final String DATABASE_TYPE_ORACLE = "oracle";
+#  public static final String DATABASE_TYPE_POSTGRES = "postgres";
+#  public static final String DATABASE_TYPE_MSSQL = "mssql";
+#  public static final String DATABASE_TYPE_DB2 = "db2";
+#  public static final String DATABASE_TYPE_COCKROACHDB = "cockroachdb";
   db-type: mysql
   email-host: xxx.qq.com
   email-password: xxxx
