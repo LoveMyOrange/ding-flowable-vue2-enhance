@@ -610,7 +610,20 @@ public class WorkspaceProcessController {
         String comments = handleDataDTO.getComments();
         JSONObject formData = handleDataDTO.getFormData();
         String taskId = handleDataDTO.getTaskId();
-        HistoricTaskInstance task = historyService.createHistoricTaskInstanceQuery().taskId(taskId).singleResult();
+        HistoricTaskInstance task = null;
+        if(null == taskId){
+            //通过流程实例id找最新的taskId
+            List<HistoricTaskInstance> list = historyService.createHistoricTaskInstanceQuery()
+                    .processInstanceId(handleDataDTO.getProcessInstanceId()).orderByTaskId().desc().list();
+            if(CollUtil.isNotEmpty(list)){
+                task = list.get(0);
+            }
+        }else {
+            task = historyService.createHistoricTaskInstanceQuery().taskId(taskId).singleResult();
+        }
+        if(null == task){
+            return Result.error("找不到任务");
+        }
         Map<String,Object> map=new HashMap<>();
         if(formData!=null &&formData.size()>0){
             Map formValue = JSONObject.parseObject(formData.toJSONString(), new TypeReference<Map>() {
@@ -621,16 +634,16 @@ public class WorkspaceProcessController {
         map.put(PROCESS_STATUS,BUSINESS_STATUS_2);
         runtimeService.setVariables(task.getProcessInstanceId(),map);
         if(StringUtils.isNotBlank(comments)){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),OPINION_COMMENT,comments);
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),"opinion",comments);
         }
         if(attachments!=null && attachments.size()>0){
             for (AttachmentDTO attachment : attachments) {
-                taskService.createAttachment(OPTION_COMMENT,taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
+                taskService.createAttachment("option",taskId,task.getProcessInstanceId(),attachment.getName(),attachment.getName(),attachment.getUrl());
             }
         }
 
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
-            taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
+            taskService.addComment(task.getId(),task.getProcessInstanceId(),"sign",handleDataDTO.getSignInfo());
         }
         runtimeService.deleteProcessInstance(task.getProcessInstanceId(),"撤销");
         return Result.OK();
