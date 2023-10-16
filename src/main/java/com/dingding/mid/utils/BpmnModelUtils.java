@@ -278,10 +278,10 @@ public class    BpmnModelUtils {
             }
         }
         else if(Type.DELAY.isEqual(nodeType)){
-            throw new WorkFlowException("在github版本提供了延时节点的实现!(免费),请联系V:ProcessEngine 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
+            throw new WorkFlowException("在github版本提供了延时节点的实现!(免费),请联系V:JavaWorkFlow 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
         }
         else if(Type.TRIGGER.isEqual(nodeType)){
-            throw new WorkFlowException("在github版本提供了触发器节点的实现!(免费),请联系V:ProcessEngine 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
+            throw new WorkFlowException("在github版本提供了触发器节点的实现!(免费),请联系V:JavaWorkFlow 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
         }
         else if(Type.CC.isEqual(nodeType)){
             childNodeMap.put(flowNode.getId(),flowNode);
