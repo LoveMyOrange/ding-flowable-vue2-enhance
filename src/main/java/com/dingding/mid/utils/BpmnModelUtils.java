@@ -233,7 +233,25 @@ public class    BpmnModelUtils {
             return createParallelGatewayBuilder(fromId, flowNode,process,bpmnModel,sequenceFlows,childNodeMap);
         } else if (Type.CONDITIONS.isEqual(nodeType)) {
             return createExclusiveGatewayBuilder(fromId, flowNode,process,bpmnModel,sequenceFlows,childNodeMap);
-        } else if (Type.USER_TASK.isEqual(nodeType)) {
+        }
+        else if (Type.IN_CONDITIONS.isEqual(nodeType)) {
+            return createInclusiveGatewayBuilder(fromId, flowNode,process,bpmnModel,sequenceFlows,childNodeMap);
+        }
+
+        else if (Type.USER_TASK.isEqual(nodeType)) {
+            childNodeMap.put(flowNode.getId(),flowNode);
+            JSONObject incoming = flowNode.getIncoming();
+            incoming.put("incoming", Collections.singletonList(fromId));
+            String id = createTask(process,flowNode,sequenceFlows,childNodeMap);
+            // 如果当前任务还有后续任务，则遍历创建后续任务
+            ChildNode children = flowNode.getChildren();
+            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
+                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
+            } else {
+                return id;
+            }
+        }
+        else if (Type.APPROVE_USER_TASK.isEqual(nodeType)) {
             childNodeMap.put(flowNode.getId(),flowNode);
             JSONObject incoming = flowNode.getIncoming();
             incoming.put("incoming", Collections.singletonList(fromId));
@@ -437,8 +455,170 @@ public class    BpmnModelUtils {
         return exclusiveGatewayId;
     }
 
+    private static String createInclusiveGatewayBuilder(String formId,  ChildNode flowNode,Process process,BpmnModel bpmnModel,List<SequenceFlow> sequenceFlows,Map<String,ChildNode> childNodeMap) throws InvocationTargetException, IllegalAccessException {
+        childNodeMap.put(flowNode.getId(),flowNode);
+        String name =flowNode.getName();
+        String exclusiveGatewayId = flowNode.getId();
+        InclusiveGateway exclusiveGateway = new InclusiveGateway();
+        exclusiveGateway.setId(exclusiveGatewayId);
+        exclusiveGateway.setName(name);
+        process.addFlowElement(exclusiveGateway);
+        process.addFlowElement(connect(formId, exclusiveGatewayId,sequenceFlows,childNodeMap,process));
+
+        if (Objects.isNull(flowNode.getBranchs()) && Objects.isNull(flowNode.getChildren())) {
+            return exclusiveGatewayId;
+        }
+        List<ChildNode> flowNodes = flowNode.getBranchs();
+        List<String> incoming = Lists.newArrayListWithCapacity(flowNodes.size());
+        List<JSONObject> conditions = Lists.newCopyOnWriteArrayList();
+        for (ChildNode element : flowNodes) {
+            Boolean typeElse = element.getTypeElse();
+            if(Boolean.TRUE.equals(typeElse)){
+                exclusiveGateway.setDefaultFlow(element.getId());
+            }
+            childNodeMap.put(element.getId(),element);
+            ChildNode childNode = element.getChildren();
+
+            String nodeName = element.getName();
+            Properties props = element.getProps();
+            String expression = props.getExpression();
+
+
+            if (Objects.isNull(childNode) ||  StringUtils.isBlank(childNode.getId())) {
+
+                incoming.add(exclusiveGatewayId);
+                JSONObject condition = new JSONObject();
+                condition.fluentPut("nodeName", nodeName)
+                        .fluentPut("expression", expression)
+                        .fluentPut("groups",props.getGroups())
+                        .fluentPut("groupsType",props.getGroupsType()
+                        )
+                        .fluentPut("elseSequenceFlowId",element.getId());
+                conditions.add(condition);
+                continue;
+            }
+            // 只生成一个任务，同时设置当前任务的条件
+            JSONObject incomingObj = childNode.getIncoming();
+            incomingObj.put("incoming", Collections.singletonList(exclusiveGatewayId));
+            String identifier = create(exclusiveGatewayId, childNode,process,bpmnModel,sequenceFlows,childNodeMap);
+            List<SequenceFlow> flows = sequenceFlows.stream().filter(flow -> StringUtils.equals(exclusiveGatewayId, flow.getSourceRef()))
+                    .collect(Collectors.toList());
+            flows.stream().forEach(
+                    e -> {
+                        if (StringUtils.isBlank(e.getName()) && StringUtils.isNotBlank(nodeName)) {
+                            e.setName(nodeName);
+                        }
+                        // 设置条件表达式
+                        if (Objects.isNull(e.getConditionExpression()) && StringUtils.isNotBlank(expression)) {
+                            e.setConditionExpression(expression);
+                        }
+                    }
+            );
+            if (Objects.nonNull(identifier)) {
+                incoming.add(identifier);
+            }
+        }
+
+
+        ChildNode childNode = flowNode.getChildren();
+
+        if (Objects.nonNull(childNode) &&StringUtils.isNotBlank(childNode.getId()) ) {
+            String parentId = childNode.getParentId();
+            ChildNode parentChildNode = childNodeMap.get(parentId);
+            boolean conFlag = Type.CONCURRENTS.type
+                    .equals(parentChildNode.getType());
+            if(!conFlag) {
+                String type = childNode.getType();
+                if(!Type.EMPTY.type.equals(type)){
+                }
+                else{
+                    if(Type.CONDITIONS.type.equals(parentChildNode.getType())){
+                        String endExId=  parentChildNode.getId()+"end";
+                        process.addFlowElement(createInclusiveGateWayEnd(endExId));
+                        if (incoming == null || incoming.isEmpty()) {
+                            return create(exclusiveGatewayId, childNode, process, bpmnModel, sequenceFlows,
+                                    childNodeMap);
+                        }
+                        else {
+                            JSONObject incomingObj = childNode.getIncoming();
+                            // 所有 service task 连接 end exclusive gateway
+                            incomingObj.put("incoming", incoming);
+                            FlowElement flowElement = bpmnModel.getFlowElement(incoming.get(0));
+                            // 1.0 先进行边连接, 暂存 nextNode
+                            ChildNode nextNode = childNode.getChildren();
+                            childNode.setChildren(null);
+                            String identifier = endExId;
+                            for (int i = 0; i < incoming.size(); i++) {
+                                process.addFlowElement(connect(incoming.get(i), identifier, sequenceFlows,childNodeMap,process));
+                            }
+
+                            //  针对 gateway 空任务分支 添加条件表达式
+                            if (!conditions.isEmpty()) {
+                                FlowElement flowElement1 = bpmnModel.getFlowElement(identifier);
+                                // 获取从 gateway 到目标节点 未设置条件表达式的节点
+                                List<SequenceFlow> flows = sequenceFlows.stream().filter(
+                                                flow -> StringUtils.equals(flowElement1.getId(), flow.getTargetRef()))
+                                        .filter(
+                                                flow -> StringUtils.equals(flow.getSourceRef(), exclusiveGatewayId))
+                                        .collect(Collectors.toList());
+                                flows.stream().forEach(sequenceFlow -> {
+                                    if (!conditions.isEmpty()) {
+                                        JSONObject condition = conditions.get(0);
+                                        String nodeName = condition.getString("nodeName");
+                                        String expression = condition.getString("expression");
+
+                                        if (StringUtils.isBlank(sequenceFlow.getName()) && StringUtils
+                                                .isNotBlank(nodeName)) {
+                                            sequenceFlow.setName(nodeName);
+                                        }
+                                        // 设置条件表达式
+                                        if (Objects.isNull(sequenceFlow.getConditionExpression())
+                                                && StringUtils.isNotBlank(expression)) {
+                                            sequenceFlow.setConditionExpression(expression);
+                                        }
+
+                                        FlowElement flowElement2 = process.getFlowElement(sequenceFlow.getId());
+                                        if(flowElement2!=null){
+                                            flowElement2.setId(condition.getString("elseSequenceFlowId"));
+                                            exclusiveGateway.setDefaultFlow(flowElement2.getId());;
+                                        }
+
+                                        conditions.remove(0);
+                                    }
+                                });
+
+                            }
+
+                            // 1.1 边连接完成后，在进行 nextNode 创建
+                            if (Objects.nonNull(nextNode) &&StringUtils.isNotBlank(nextNode.getId())) {
+                                return create(identifier, nextNode, process, bpmnModel, sequenceFlows,
+                                        childNodeMap);
+                            } else {
+                                return identifier;
+                            }
+                        }
+
+
+                    }
+                }
+            }
+            else{
+                System.err.println("-");
+            }
+        }
+        return exclusiveGatewayId;
+    }
+
+
+
     public static ExclusiveGateway createExclusiveGateWayEnd(String id){
         ExclusiveGateway exclusiveGateway=new ExclusiveGateway();
+        exclusiveGateway.setId(id);
+        return exclusiveGateway;
+    }
+
+    public static InclusiveGateway createInclusiveGateWayEnd(String id){
+        InclusiveGateway exclusiveGateway=new InclusiveGateway();
         exclusiveGateway.setId(id);
         return exclusiveGateway;
     }
@@ -688,10 +868,12 @@ public class    BpmnModelUtils {
          */
         CONDITION("CONDITION", ExclusiveGateway.class),
         CONDITIONS("CONDITIONS", ExclusiveGateway.class),
+        IN_CONDITIONS("IN_CONDITIONS", ExclusiveGateway.class),
         /**
          * 任务
          */
         USER_TASK("APPROVAL", UserTask.class),
+        APPROVE_USER_TASK("APPROVAL_TASK", UserTask.class),
         EMPTY("EMPTY", Object.class),
         ROOT("ROOT", UserTask.class),
         CC("CC", ServiceTask.class),
