@@ -236,6 +236,7 @@ public class    BpmnModelUtils {
         } else if (Type.CONDITIONS.isEqual(nodeType)) {
             return createExclusiveGatewayBuilder(fromId, flowNode,process,bpmnModel,sequenceFlows,childNodeMap);
         }
+        //包容网关 后端做了前端没做, 和排他网关一模一样,前端只更换一个type既可
         else if (Type.IN_CONDITIONS.isEqual(nodeType)) {
             return createInclusiveGatewayBuilder(fromId, flowNode,process,bpmnModel,sequenceFlows,childNodeMap);
         }
@@ -253,6 +254,7 @@ public class    BpmnModelUtils {
                 return id;
             }
         }
+        //办理人节点 后端做了前端没做, 和审批节点一模一样,前端只更换一个type既可
         else if (Type.APPROVE_USER_TASK.isEqual(nodeType)) {
             childNodeMap.put(flowNode.getId(),flowNode);
             JSONObject incoming = flowNode.getIncoming();
