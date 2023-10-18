@@ -16,6 +16,7 @@ import com.dingding.mid.dto.json.UserInfo;
 import com.dingding.mid.entity.Cc;
 import com.dingding.mid.entity.ProcessTemplates;
 import com.dingding.mid.entity.Users;
+import com.dingding.mid.enums.RefuseEnums;
 import com.dingding.mid.exception.WorkFlowException;
 import com.dingding.mid.service.CcService;
 import com.dingding.mid.service.ProcessTemplateService;
@@ -72,6 +73,7 @@ import java.util.stream.Collectors;
 import static com.dingding.mid.common.CommonConstants.*;
 import static com.dingding.mid.common.WorkFlowConstants.*;
 import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
+import static com.dingding.mid.utils.BpmnModelUtils.getChildNodeByNodeId;
 
 /**
  * @author : willian fu
@@ -597,7 +599,21 @@ public class WorkspaceProcessController {
         if(StringUtils.isNotBlank(handleDataDTO.getSignInfo())){
             taskService.addComment(task.getId(),task.getProcessInstanceId(),SIGN_COMMENT,handleDataDTO.getSignInfo());
         }
-        runtimeService.deleteProcessInstance(task.getProcessInstanceId(),"拒绝");
+
+        ChildNode childNodeByNodeId = getChildNodeByNodeId(task.getProcessDefinitionId(), task.getTaskDefinitionKey());
+        Map<String, Object> refuse = childNodeByNodeId.getProps().getRefuse();
+        String type = MapUtil.getStr(refuse, "type");
+        if(RefuseEnums.TO_END.getTypeName().equals(type)){
+            runtimeService.deleteProcessInstance(task.getProcessInstanceId(),"拒绝");
+        }
+        else if(RefuseEnums.TO_BEFORE.getTypeName().equals(type)){
+            throw new WorkFlowException("他没写,我也不写,嘿嘿");
+        }
+        else if(RefuseEnums.TO_NODE.getTypeName().equals(type)){
+            String target = MapUtil.getStr(refuse, "target");
+            runtimeService.createChangeActivityStateBuilder().moveActivityIdTo(task.getTaskDefinitionKey(),target).changeState();
+        }
+
         return Result.OK();
     }
 

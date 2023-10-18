@@ -3,6 +3,7 @@ package com.dingding.mid.utils;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingding.mid.dto.json.*;
 import com.dingding.mid.dto.json.Properties;
@@ -15,6 +16,7 @@ import com.google.common.collect.Maps;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.bpmn.model.*;
 import org.flowable.bpmn.model.Process;
+import org.flowable.engine.RepositoryService;
 import org.flowable.engine.TaskService;
 import org.flowable.engine.delegate.ExecutionListener;
 import org.flowable.engine.delegate.TaskListener;
@@ -900,6 +902,18 @@ public class    BpmnModelUtils {
             return this.type.equals(type);
         }
 
+    }
+
+    public static ChildNode getChildNodeByNodeId(String processDefinitionId,String currentActivityId){
+        RepositoryService repositoryService = SpringContextHolder.getBean(RepositoryService.class);
+        Process mainProcess = repositoryService.getBpmnModel(processDefinitionId).getMainProcess();
+        UserTask userTask = (UserTask) mainProcess.getFlowElement(currentActivityId);
+        String dingDing = mainProcess.getAttributeValue(FLOWABLE_NAME_SPACE, FLOWABLE_NAME_SPACE_NAME);
+        JSONObject jsonObject = JSONObject.parseObject(dingDing, new TypeReference<JSONObject>() {
+        });
+        String processJson = jsonObject.getString(VIEW_PROCESS_JSON_NAME);
+        ChildNode childNode = JSONObject.parseObject(processJson, new TypeReference<ChildNode>(){});
+        return getChildNode(childNode, currentActivityId);
     }
 
 
