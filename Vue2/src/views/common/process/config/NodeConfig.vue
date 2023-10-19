@@ -14,7 +14,9 @@
 
 <script>
 import Approval from './ApprovalNodeConfig.vue'
+import Task from './TaskNodeConfig.vue'
 import Condition from './ConditionNodeConfig.vue'
+import Inclusive from './InclusiveNodeConfig.vue'
 import Delay from './DelayNodeConfig.vue'
 import Cc from './CcNodeConfig.vue'
 import Trigger from './TriggerNodeConfig.vue'
@@ -25,7 +27,9 @@ export default {
   name: "NodeConfig",
   components: {
     Approval,
+    Task,
     Condition,
+    Inclusive,
     Trigger,
     Delay,
     Root,
@@ -50,6 +54,8 @@ export default {
           return '设置发起人';
         case 'APPROVAL':
           return '设置审批人';
+        case 'TASK':
+          return '设置办理人';
         case 'CC':
           return '设置抄送人';
         default:

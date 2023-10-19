@@ -1,9 +1,11 @@
 <script>
 //导入所有节点组件
 import Approval from '@/views/common/process/nodes/ApprovalNode.vue'
+import Task from '@/views/common/process/nodes/TaskNode.vue'
 import Cc from '@/views/common/process/nodes/CcNode.vue'
 import Concurrent from '@/views/common/process/nodes/ConcurrentNode.vue'
 import Condition from '@/views/common/process/nodes/ConditionNode.vue'
+import Inclusive from '@/views/common/process/nodes/InclusiveNode.vue'
 import Trigger from '@/views/common/process/nodes/TriggerNode.vue'
 import Delay from '@/views/common/process/nodes/DelayNode.vue'
 import Empty from '@/views/common/process/nodes/EmptyNode.vue'
@@ -14,7 +16,7 @@ import DefaultProps from "./DefaultNodeProps"
 
 export default {
   name: "ProcessTree",
-  components: {Node, Root, Approval, Cc, Trigger, Concurrent, Condition, Delay, Empty},
+  components: {Node, Root, Approval, Task, Cc, Trigger, Concurrent, Condition, Inclusive, Delay, Empty},
   data() {
     return {
       valid: true
@@ -143,12 +145,12 @@ export default {
     //判断是否为主要业务节点
     isPrimaryNode(node){
       return node &&
-          (node.type === 'ROOT' || node.type === 'APPROVAL'
+          (node.type === 'ROOT' || node.type === 'APPROVAL' || node.type === 'TASK'
           || node.type === 'CC' || node.type === 'DELAY'
               || node.type === 'TRIGGER');
     },
     isBranchNode(node){
-      return node && (node.type === 'CONDITIONS' || node.type === 'CONCURRENTS');
+      return node && (node.type === 'CONDITIONS' || node.type === 'CONCURRENTS' || node.type === 'INCLUSIVES');
     },
     isEmptyNode(node){
       return node && (node.type === 'EMPTY')
@@ -159,7 +161,10 @@ export default {
     },
     //是分支节点
     isBranchSubNode(node){
-      return node && (node.type === 'CONDITION' || node.type === 'CONCURRENT');
+      return node && (node.type === 'CONDITION' || node.type === 'CONCURRENT' || node.type === 'INCLUSIVE');
+    },
+    isInclusiveNode(node){
+      return node.type === 'INCLUSIVES'
     },
     isConcurrentNode(node){
       return node.type === 'CONCURRENTS'
@@ -186,10 +191,12 @@ export default {
       }
       switch (type){
         case 'APPROVAL': this.insertApprovalNode(parentNode, afterNode); break;
+        case 'TASK': this.insertTaskNode(parentNode); break;
         case 'CC': this.insertCcNode(parentNode); break;
         case 'DELAY': this.insertDelayNode(parentNode); break;
         case 'TRIGGER': this.insertTriggerNode(parentNode); break;
         case 'CONDITIONS': this.insertConditionsNode(parentNode); break;
+        case 'INCLUSIVES': this.insertInclusiveNode(parentNode); break;
         case 'CONCURRENTS': this.insertConcurrentsNode(parentNode); break;
         default: break;
       }
@@ -210,6 +217,10 @@ export default {
     insertApprovalNode(parentNode){
       this.$set(parentNode.children, "name", "审批人")
       this.$set(parentNode.children, "props", this.$deepCopy(DefaultProps.APPROVAL_PROPS))
+    },
+    insertTaskNode(parentNode){
+      this.$set(parentNode.children, "name", "办理人")
+      this.$set(parentNode.children, "props", this.$deepCopy(DefaultProps.TASK_PROPS))
     },
     insertCcNode(parentNode){
       this.$set(parentNode.children, "name", "抄送人")
@@ -244,6 +255,31 @@ export default {
           type: "CONDITION",
           props: this.$deepCopy(DefaultProps.CONDITION_PROPS),
           name: "条件2",
+          children:{}
+        }
+      ])
+    },
+    insertInclusiveNode(parentNode){
+      this.$set(parentNode.children, "name", "包容分支")
+      this.$set(parentNode.children, 'children', {
+        id: this.getRandomId(),
+        parentId: parentNode.children.id,
+        type: "EMPTY"
+      })
+      this.$set(parentNode.children, "branchs", [
+        {
+          id: this.getRandomId(),
+          parentId: parentNode.children.id,
+          type: "INCLUSIVE",
+          props: this.$deepCopy(DefaultProps.INCLUSIVE_PROPS),
+          name: "包容条件1",
+          children:{}
+        },{
+          id: this.getRandomId(),
+          parentId: parentNode.children.id,
+          type: "INCLUSIVE",
+          props: this.$deepCopy(DefaultProps.INCLUSIVE_PROPS),
+          name: "包容条件2",
           children:{}
         }
       ])
@@ -284,9 +320,9 @@ export default {
         node.branchs.push({
           id: this.getRandomId(),
           parentId: node.id,
-          name: (this.isConditionNode(node) ? '条件':'分支') + (node.branchs.length + 1),
-          props: this.isConditionNode(node) ? this.$deepCopy(DefaultProps.CONDITION_PROPS):{},
-          type: this.isConditionNode(node) ? "CONDITION":"CONCURRENT",
+          name: (this.isConditionNode(node) ? '条件':this.isInclusiveNode(node) ? '包容条件':'分支') + (node.branchs.length + 1),
+          props: this.isConditionNode(node) ? this.$deepCopy(DefaultProps.CONDITION_PROPS) : this.isInclusiveNode(node) ? this.$deepCopy(DefaultProps.INCLUSIVE_PROPS):{},
+          type: this.isConditionNode(node) ? "CONDITION": this.isInclusiveNode(node) ? "INCLUSIVE":"CONCURRENT",
           children:{}
         })
       }else {

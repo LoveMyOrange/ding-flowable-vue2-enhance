@@ -1,9 +1,11 @@
 <script>
 //导入所有节点组件
 import Approval from '@/views/common/process/nodes/ApprovalNode.vue'
+import Task from '@/views/common/process/nodes/TaskNode.vue'
 import Cc from '@/views/common/process/nodes/CcNode.vue'
 import Concurrent from '@/views/common/process/nodes/ConcurrentNode.vue'
 import Condition from '@/views/common/process/nodes/ConditionNode.vue'
+import Inclusive from '@/views/common/process/nodes/InclusiveNode.vue'
 import Trigger from '@/views/common/process/nodes/TriggerNode.vue'
 import Delay from '@/views/common/process/nodes/DelayNode.vue'
 import Empty from '@/views/common/process/nodes/EmptyNode.vue'
@@ -14,7 +16,7 @@ import DefaultProps from "./DefaultNodeProps"
 
 export default {
   name: "ProcessTreeViewer",
-  components: {Node, Root, Approval, Cc, Trigger, Concurrent, Condition, Delay, Empty},
+  components: {Node, Root, Approval, Task , Cc, Trigger, Concurrent, Condition, Inclusive, Delay, Empty},
   data() {
     return {
       valid: true
@@ -141,12 +143,12 @@ export default {
     //判断是否为主要业务节点
     isPrimaryNode(node){
       return node &&
-          (node.type === 'ROOT' || node.type === 'APPROVAL'
+          (node.type === 'ROOT' || node.type === 'APPROVAL' || node.type === 'TASK'
           || node.type === 'CC' || node.type === 'DELAY'
               || node.type === 'TRIGGER');
     },
     isBranchNode(node){
-      return node && (node.type === 'CONDITIONS' || node.type === 'CONCURRENTS');
+      return node && (node.type === 'CONDITIONS' || node.type === 'CONCURRENTS' || node.type === 'INCLUSIVES');
     },
     isEmptyNode(node){
       return node && (node.type === 'EMPTY')
@@ -157,7 +159,10 @@ export default {
     },
     //是分支节点
     isBranchSubNode(node){
-      return node && (node.type === 'CONDITION' || node.type === 'CONCURRENT');
+      return node && (node.type === 'CONDITION' || node.type === 'CONCURRENT' || node.type === 'INCLUSIVE');
+    },
+    isInclusiveNode(node){
+      return node.type === 'INCLUSIVES'
     },
     isConcurrentNode(node){
       return node.type === 'CONCURRENTS'

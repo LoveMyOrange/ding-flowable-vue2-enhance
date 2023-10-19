@@ -107,6 +107,62 @@ export const DELAY_PROPS = {
   dateTime: "" //如果当天没有超过设置的此时间点，就延时到这个指定的时间，到了就直接跳过不延时
 }
 
+//办理人节点默认属性
+export const TASK_PROPS = {
+  assignedType: "ASSIGN_USER",
+  mode: "AND",
+  sign: false,
+  nobody: {
+    handler: "TO_PASS",
+    assignedUser:[]
+  },
+  timeLimit:{
+    timeout:{
+      unit: "H",
+      value: 0
+    },
+    handler:{
+      type: "REFUSE",
+      notify:{
+        once: true,
+        hour: 1
+      }
+    }
+  },
+  assignedUser:[],
+  formPerms:[],
+  selfSelect: {
+    multiple: false
+  },
+  leaderTop: {
+    endCondition: "TOP",
+    endLevel: 1,
+  },
+  leader:{
+    level: 1
+  },
+  role:[],
+  refuse: {
+    type: 'TO_END', //驳回规则 TO_END  TO_NODE  TO_BEFORE
+    target: '' //驳回到指定ID的节点
+  },
+  formUser: ''
+}
+
+//包容节点默认属性
+export const INCLUSIVE_PROPS = {
+  groupsType:"OR", //条件组逻辑关系 OR、AND
+  groups:[
+    {
+      groupType:"AND", //条件组内条件关系 OR、AND
+      cids:[], //条件ID集合
+      conditions:[] //组内子条件
+    }
+  ],
+  expression: "" //自定义表达式，灵活构建逻辑关系
+}
+
+
 export default {
-  APPROVAL_PROPS, CC_PROPS, DELAY_PROPS, CONDITION_PROPS, ROOT_PROPS, TRIGGER_PROPS
+  APPROVAL_PROPS, TASK_PROPS, CC_PROPS, DELAY_PROPS, CONDITION_PROPS, ROOT_PROPS, TRIGGER_PROPS, INCLUSIVE_PROPS
 }
