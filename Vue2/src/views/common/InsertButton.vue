@@ -5,6 +5,10 @@
         <i class="el-icon-s-check" style="color:rgb(255, 148, 62);"></i>
         <span>审批人</span>
       </div>
+      <div @click="addTaskNode">
+        <i class="el-icon-s-check" style="color:rgb(230, 176, 57);"></i>
+        <span>办理人</span>
+      </div>
       <div @click="addCcNode">
         <i class="el-icon-s-promotion" style="color:rgb(50, 150, 250);"></i>
         <span>抄送人</span>
@@ -16,6 +20,10 @@
       <div @click="addConcurrentsNode">
         <i class="el-icon-s-operation" style="color:#718dff;"></i>
         <span>并行分支</span>
+      </div>
+      <div @click="addInclusivesNode">
+        <i class="el-icon-s-operation" style="color:#718dff;"></i>
+        <span>包容分支</span>
       </div>
       <div @click="addDelayNode">
         <i class="el-icon-time" style="color:#f25643;"></i>
@@ -46,6 +54,9 @@ export default {
     addApprovalNode(){
       this.$emit('insertNode', "APPROVAL")
     },
+    addTaskNode(){
+      this.$emit('insertNode', "TASK")
+    },
     addCcNode(){
       this.$emit('insertNode', "CC")
     },
@@ -57,6 +68,9 @@ export default {
     },
     addConcurrentsNode(){
       this.$emit('insertNode', "CONCURRENTS")
+    },
+    addInclusivesNode(){
+      this.$emit('insertNode', "INCLUSIVES")
     },
     addTriggerNode(){
       this.$emit('insertNode', "TRIGGER")
