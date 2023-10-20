@@ -50,14 +50,14 @@ public class    BpmnModelUtils {
     public static SequenceFlow connect(String from, String to,List<SequenceFlow> sequenceFlows,Map<String,ChildNode> childNodeMap,Process process) {
         SequenceFlow flow = new SequenceFlow();
         String  sequenceFlowId = id("sequenceFlow");
-        if(process.getFlowElement(from) !=null && process.getFlowElement(from) instanceof ExclusiveGateway){
+        if(process.getFlowElement(from) !=null && ((process.getFlowElement(from) instanceof ExclusiveGateway) || (process.getFlowElement(from) instanceof InclusiveGateway))){
             ChildNode childNode = childNodeMap.get(to);
             if(childNode!=null){
                 String parentId = childNode.getParentId();
                 if(StringUtils.isNotBlank(parentId)){
                     ChildNode parentNode = childNodeMap.get(parentId);
                     if(parentNode!=null){
-                        if(Type.CONDITION.type.equals(parentNode.getType()) ){
+                        if(Type.CONDITION.type.equals(parentNode.getType())  || Type.INCLUSIVE.type.equals(parentNode.getType()) ){
                             sequenceFlowId=parentNode.getId();
                             flow.setName(parentNode.getName());
 
@@ -536,7 +536,7 @@ public class    BpmnModelUtils {
                 if(!Type.EMPTY.type.equals(type)){
                 }
                 else{
-                    if(Type.CONDITIONS.type.equals(parentChildNode.getType())){
+                    if(Type.INCLUSIVES.type.equals(parentChildNode.getType())){
                         String endExId=  parentChildNode.getId()+"end";
                         process.addFlowElement(createInclusiveGateWayEnd(endExId));
                         if (incoming == null || incoming.isEmpty()) {
@@ -861,7 +861,8 @@ public class    BpmnModelUtils {
     }
 
     private enum Type {
-
+        INCLUSIVES("INCLUSIVES", InclusiveGateway.class),
+        INCLUSIVE("INCLUSIVE", InclusiveGateway.class),
         /**
          * 并行事件
          */
@@ -872,12 +873,12 @@ public class    BpmnModelUtils {
          */
         CONDITION("CONDITION", ExclusiveGateway.class),
         CONDITIONS("CONDITIONS", ExclusiveGateway.class),
-        IN_CONDITIONS("IN_CONDITIONS", ExclusiveGateway.class),
+        IN_CONDITIONS("INCLUSIVES", ExclusiveGateway.class),
         /**
          * 任务
          */
         USER_TASK("APPROVAL", UserTask.class),
-        APPROVE_USER_TASK("APPROVAL_TASK", UserTask.class),
+        APPROVE_USER_TASK("TASK", UserTask.class),
         EMPTY("EMPTY", Object.class),
         ROOT("ROOT", UserTask.class),
         CC("CC", ServiceTask.class),
