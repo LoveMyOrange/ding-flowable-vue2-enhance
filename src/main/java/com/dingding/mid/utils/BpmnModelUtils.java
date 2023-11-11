@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingding.mid.dto.json.*;
 import com.dingding.mid.dto.json.Properties;
 import com.dingding.mid.entity.Users;
+import com.dingding.mid.enums.AssigneeTypeEnums;
 import com.dingding.mid.enums.ModeEnums;
 import com.dingding.mid.exception.WorkFlowException;
 import com.dingding.mid.service.UserService;
@@ -796,7 +797,8 @@ public class    BpmnModelUtils {
                 if(ModeEnums.OR.getTypeName().equals(mode)){
                     multiInstanceLoopCharacteristics.setCompletionCondition("${nrOfCompletedInstances/nrOfInstances > 0}");
                 }
-                else if (ModeEnums.NEXT.getTypeName().equals(mode)){
+                //连续多级主管需要是顺序会签可以达到效果
+                else if (ModeEnums.NEXT.getTypeName().equals(mode) || AssigneeTypeEnums.LEADER_TOP.getTypeName().equalsIgnoreCase(props.getAssignedType())){
                     multiInstanceLoopCharacteristics.setSequential(true);
                 }
 

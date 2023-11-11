@@ -4,11 +4,16 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.map.MapUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingding.mid.dto.json.ChildNode;
 import com.dingding.mid.dto.json.Properties;
 import com.dingding.mid.dto.json.UserInfo;
+import com.dingding.mid.entity.Users;
 import com.dingding.mid.enums.AssigneeTypeEnums;
 import com.dingding.mid.exception.WorkFlowException;
+import com.dingding.mid.service.DepartmentsService;
+import com.dingding.mid.service.UserService;
+import com.dingding.mid.utils.SpringContextHolder;
 import org.flowable.bpmn.model.FlowElement;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.UserTask;
@@ -35,6 +40,10 @@ import static com.dingding.mid.utils.BpmnModelUtils.getChildNode;
 public class CounterSignListener implements ExecutionListener {
     @Resource
     private RepositoryService repositoryService;
+    @Resource
+    private DepartmentsService departmentsService;
+    @Resource
+    private UserService userService;
     @Override
     public void notify(DelegateExecution execution) {
         String currentActivityId = execution.getCurrentActivityId();
@@ -69,16 +78,52 @@ public class CounterSignListener implements ExecutionListener {
                 }
             }
             else if(AssigneeTypeEnums.LEADER_TOP.getTypeName().equals(assignedType)){
-                //来自于users表的admin列
-                throw new WorkFlowException("此项目没有RBAC功能,所以没法做这个功能,可以看一下我写的Ruoyi-Vue-Camunda的那个版本,里面有复杂的找人代码实现");
+                /**
+                 endCondition: "TOP", //结束条件 TOP 直到最上级主管、
+                 level 指定不超过多少级主管
+                 endLevel: 1, //指定级别主管审批后结束本节点
+                 */
+                Map<String, Object> leaderTop = props.getLeaderTop();
+                String endCondition = MapUtil.getStr(leaderTop, "endCondition");
+                Integer endLevel = MapUtil.getInt(leaderTop, "endLevel");
+                Integer level = MapUtil.getInt(leaderTop, "level");
+                UserService userService = SpringContextHolder.getBean(UserService.class);
+                String startUserJson = execution.getVariable(START_USER_INFO, String.class);
+                UserInfo userInfo = JSONObject.parseObject(startUserJson, new TypeReference<UserInfo>() {
+                });
+                String id = userInfo.getId();
+                Users users = userService.getById(id);
+                //todo 因为此项目没有级联结构,自行递归获取1~10级某一级,不会有人这都不会吧,嘤嘤嘤
+                Integer admin = users.getAdmin();
+                if(admin!=null){
+                    assigneeList.add(admin+"");
+                }
             }
             else if(AssigneeTypeEnums.LEADER.getTypeName().equals(assignedType)){
-                //向上找就行了
-                throw new WorkFlowException("此项目没有RBAC功能,所以没法做这个功能,可以看一下我写的Ruoyi-Vue-Camunda的那个版本,里面有复杂的找人代码实现");
+                Map<String, Object> leaderTop = props.getLeader();
+                Integer level = MapUtil.getInt(leaderTop, "level");
+                UserService userService = SpringContextHolder.getBean(UserService.class);
+                String startUserJson = execution.getVariable(START_USER_INFO, String.class);
+                List<UserInfo> userInfos = JSONObject.parseObject(startUserJson, new TypeReference<List<UserInfo>>() {
+                });
+                UserInfo userInfo = userInfos.get(0);
+                String id = userInfo.getId();
+                Users users = userService.getById(id);
+                //todo 因为此项目没有级联结构,自行递归获取1~10级某一级,不会有人这都不会吧,嘤嘤嘤
+                Integer admin = users.getAdmin();
+                if(admin!=null){
+                    assigneeList.add(admin+"");
+                }
             }
             else if(AssigneeTypeEnums.ROLE.getTypeName().equals(assignedType)){
-                //向上找就行了
-                throw new WorkFlowException("此项目没有RBAC功能,所以没法做这个功能,可以看一下我写的Ruoyi-Vue-Camunda的那个版本,里面有复杂的找人代码实现");
+                throw new WorkFlowException("前端现在角色选择器有问题,等待联调");
+//                LambdaQueryWrapper<Users> lambdaQueryWrapper=new LambdaQueryWrapper<>();
+//                lambdaQueryWrapper.in(Users::getDepartmentIds,roleIds);
+//                UserService userService = SpringContextHolder.getBean(UserService.class);
+//                List<Users> list = userService.list(lambdaQueryWrapper);
+//                for (Users users : list) {
+//                    flwHisTaskActors.add(FlwTaskActor.ofUser(users.getUserId()+"",users.getUserName()));
+//                }
             }
             else if(AssigneeTypeEnums.SELF.getTypeName().equals(assignedType)){
                 String startUserJson = execution.getVariable(START_USER_INFO, String.class);
