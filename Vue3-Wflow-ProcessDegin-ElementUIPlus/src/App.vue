@@ -1,0 +1,56 @@
+<template>
+  <div id="app">
+    <ProcessDesign />
+  </div>
+</template>
+
+<script>
+import ProcessDesign from "./views/process/ProcessDesign";
+
+export default {
+  name: "App",
+  components: { ProcessDesign },
+  data() {
+    return {};
+  },
+  mounted() {},
+  methods: {},
+};
+</script>
+<style lang="less">
+@import "@/assets/global";
+:focus {
+  outline: -webkit-focus-ring-color auto 0px;
+}
+body {
+  margin: 0;
+  min-width: 500px;
+  background-color: #f5f6f6;
+}
+body,
+html {
+  margin: 0;
+  height: 100%;
+}
+ul {
+  padding: 0;
+  margin: 0;
+
+  li {
+    list-style-type: none;
+  }
+}
+
+.ov-tip {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.item-desc {
+  font-size: small;
+  color: #5e5e5e;
+}
+</style>

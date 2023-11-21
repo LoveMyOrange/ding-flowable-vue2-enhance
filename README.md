@@ -51,7 +51,8 @@
 > - 2>https://gitee.com/crowncloud/smart-flow-design 提供了前端源码 保留版权信息 Apache2.0协议(此是AntDV2版本的)  
 > - 3>https://github.com/StavinLi/Workflow-Vue3 提供了前端源码 保留版权信息 MIT协议(此是Vue3版本的)  
 > - 4>https://github.com/cedrusweng/workflow-react 提供了前端源码 保留版权信息 无LICENSE文件,未对其进行二次开发,仅引用 保留版权信息 (此是React版本的)  
-> - 5>https://github.com/wangzhenggui/dingding-approval-flow 提供了前端源码 保留版权信息 无LICENSE文件,未对其进行二次开发,仅引用 保留版权信息 (此是React版本的)  
+> - 5>https://github.com/wangzhenggui/dingding-approval-flow 提供了前端源码 保留版权信息 无LICENSE文件,未对其进行二次开发,仅引用 保留版权信息 (此是React版本的)
+> - 6>https://github.com/miantj/workflow_vue3.git 提供了前端源码 保留版权信息 无LICENSE文件,未对其进行二次开发,仅引用 保留版权信息 (此是Vue3版本的)
 后台项目  
 > - 1>https://gitee.com/willianfu/jw-workflow-engine-server 提供了几个用户,部门表结构  Apache2.0协议  
 个人  

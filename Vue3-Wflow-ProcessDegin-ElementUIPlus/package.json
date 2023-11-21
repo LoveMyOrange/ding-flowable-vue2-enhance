@@ -1,0 +1,24 @@
+{
+  "name": "vite-project",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lib": "vite build --config vite-lib.config.js",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "element-plus": "^2.2.22",
+    "less": "^4.2.0",
+    "pinia": "^2.1.6",
+    "vue": "^3.3.4",
+    "vue-draggable-next": "^2.2.1"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^25.0.4",
+    "@vitejs/plugin-vue": "^4.2.3",
+    "vite": "^4.4.5"
+  }
+}

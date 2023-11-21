@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.dingding.mid.dto.json.UserInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.flowable.engine.delegate.DelegateExecution;
 import org.springframework.stereotype.Component;
@@ -21,25 +22,30 @@ import java.util.List;
  * @create 2022-10-16 22:13
  */
 @Component
+@Slf4j
 public class ExUtils {
     public Boolean strEqualsMethod(String controlId,String value){
         List<String> list = Arrays.asList(value);
             String s = list.get(0);
+            log.debug("进行字符串相等判断,用户填的值{},设计器输入的值{}",controlId,s);
             return s.equals(controlId);
     }
     public Boolean strEqualsMethod(String controlId,String...values){
         List<String> list = Arrays.asList(values);
         if(list.size()>1){
+            log.debug("进行字符串相等判断,用户填的值{},设计器输入的值{}",controlId,list);
             return Boolean.FALSE;
         }
         else{
             String s = list.get(0);
+            log.debug("进行字符串相等判断,用户填的值{},设计器输入的值{}",controlId,s);
             return s.equals(controlId);
         }
     }
 
     public Boolean strContains(String controlId,String...values){
         List<String> list = Arrays.asList(values);
+        log.debug("进行字符串包含判断,用户填的值{},设计器输入的值{}",controlId,list);
         return list.contains(controlId);
     }
 
@@ -51,6 +57,7 @@ public class ExUtils {
 
     public Boolean strContainsMethod(String controlId,String...values){
         List<String> strings = Arrays.asList(values);
+        log.debug("进行字符串包含判断,用户填的值{},设计器输入的值{}",controlId,strings);
         return strings.contains(controlId);
     }
 
