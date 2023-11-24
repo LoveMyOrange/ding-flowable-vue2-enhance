@@ -274,9 +274,8 @@ export default {
               return item;
             }
           });
-        }else{
-          this.conditionRecursion(process.children)
         }
+        this.conditionRecursion(process.children)
       }
     }
   }
