@@ -33,6 +33,10 @@
         <i class="el-icon-set-up" style="color:#15BC83;"></i>
         <span>触发器</span>
       </div>
+      <div @click="addSubprocessNode">
+        <i class="el-icon-set-up" style="color:#15BC93;"></i>
+        <span>子流程</span>
+      </div>
     </div>
     <el-button icon="el-icon-plus" slot="reference" type="primary" size="small" circle></el-button>
   </el-popover>
@@ -74,6 +78,9 @@ export default {
     },
     addTriggerNode(){
       this.$emit('insertNode', "TRIGGER")
+    },
+    addSubprocessNode(){
+      this.$emit('insertNode', "SUBPROCESS")
     }
   }
 }

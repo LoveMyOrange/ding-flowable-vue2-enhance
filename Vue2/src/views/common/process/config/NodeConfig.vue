@@ -22,6 +22,7 @@ import Cc from './CcNodeConfig.vue'
 import Trigger from './TriggerNodeConfig.vue'
 import FormAuthorityConfig from './FormAuthorityConfig.vue'
 import Root from './RootNodeConfig.vue'
+import Subprocess from './SubprocessNodeConfig.vue'
 
 export default {
   name: "NodeConfig",
@@ -34,6 +35,7 @@ export default {
     Delay,
     Root,
     Cc,
+    Subprocess,
     FormAuthorityConfig
   },
   data() {

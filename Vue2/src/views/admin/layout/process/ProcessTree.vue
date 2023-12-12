@@ -11,12 +11,13 @@ import Delay from '@/views/common/process/nodes/DelayNode.vue'
 import Empty from '@/views/common/process/nodes/EmptyNode.vue'
 import Root from '@/views/common/process/nodes/RootNode.vue'
 import Node from '@/views/common/process/nodes/Node.vue'
+import Subprocess from '@/views/common/process/nodes/SubprocessNode.vue'
 
 import DefaultProps from "./DefaultNodeProps"
 
 export default {
   name: "ProcessTree",
-  components: {Node, Root, Approval, Task, Cc, Trigger, Concurrent, Condition, Inclusive, Delay, Empty},
+  components: {Node, Root, Approval, Task, Cc, Trigger, Concurrent, Condition, Inclusive, Delay, Empty, Subprocess},
   data() {
     return {
       valid: true
@@ -146,7 +147,7 @@ export default {
     isPrimaryNode(node){
       return node &&
           (node.type === 'ROOT' || node.type === 'APPROVAL' || node.type === 'TASK'
-          || node.type === 'CC' || node.type === 'DELAY'
+          || node.type === 'CC' || node.type === 'DELAY' || node.type === 'SUBPROCESS'
               || node.type === 'TRIGGER');
     },
     isBranchNode(node){
@@ -191,6 +192,7 @@ export default {
       }
       switch (type){
         case 'APPROVAL': this.insertApprovalNode(parentNode, afterNode); break;
+        case 'SUBPROCESS' : this.insertApprovalNode(parentNode, afterNode); break;
         case 'TASK': this.insertTaskNode(parentNode); break;
         case 'CC': this.insertCcNode(parentNode); break;
         case 'DELAY': this.insertDelayNode(parentNode); break;
