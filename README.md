@@ -1,10 +1,27 @@
 # dingding-mid     中国式传统流程引擎开源标杆(Activiti 567 Flowable 56,Camunda7 )
 
 
- **本人可以确保,在Activiti&Flowable&Camunda工作流的方案下 且 不改动Activiti&Flowable&Camunda源码的情况下(特别是Camunda),**   
- **不可能有比本项目更好的实现方式(不管是开源项目还是收费项目),有你请找我,给我俩大耳光.**    
- **包含但不限于-> 会签实现逻辑,找人逻辑,条件表达式组装逻辑,自动通过逻辑..等这几块核心实现**       
- **由于本项目前端略简陋** ,学习后台代码请着重看上述我说的几个地方实现,像什么查代办\已办,这玩意接口有啥好看的.......... **学就学主要有亮点的地方**    
+```
+本项目属于聚合项目,因为不想分开成好几个项目,所以都放到了1个项目里面(内心OS),里面用到的开源项目非常多,本项目不会去贴没有LICENSE的项目(会引发争议)
+
+但本人可以确保,在Activiti&Flowable&Camunda工作流的方案下 且 不改动Activiti&Flowable&Camunda源码的情况下(特别是Camunda),
+不可能有比本项目更好的实现方式(不管是开源项目还是收费项目),有你请找我,给我俩大耳光.
+包含但不限于-> 会签实现逻辑,找人逻辑,条件表达式组装逻辑,自动通过逻辑..等这几块核心实现
+**由于本项目前端略简陋** ,学习后台代码请着重看上述我说的几个地方实现,像什么查代办\已办,这玩意接口有啥好看的.......... 学就学主要有亮点的地方
+下方是,用到的前端项目简介
+
+```
+
+| 项目名  |做的改动   | 代码位置  |
+|---|---|---|
+| wflow  | 在源作者基础上完善了部分前端&完整的后台实现  | Vue2文件夹  |
+| wflow-vue3  | 源作者没有写,另一个人写的,我仅仅引用  | 名字很长的文件夹  |
+| Workflow  | 稍微改动,  |  Vue3 |
+| smart-flow-design  | 稍微改动  | AntDeign  |
+| Workflow  | 稍微改动  | React下的03_stavnLi  |
+
+
+
 
 
 ### 大家可扫码加入交流群， 如果二维码失效了，可以加我微信 Doctor4JavaEE  备注 钉钉 拉你入群
@@ -15,10 +32,10 @@
   </tr>
 </table> 
 
-### 史上最全工作流社区文档 http://123.249.74.161:1024/
+### 史上最全工作流文档 http://123.249.74.161:1024/
 ### 演示地址: http://123.249.74.161/ 
-### Vue3完整版 演示地址: http://123.249.74.161:5200/
-### Vue3完整版 获取方式  http://123.249.74.161:1024/blogs/jianhua/00_demo.html
+### Vue3 演示地址: http://123.249.74.161:5200/
+### Vue3 get方式  http://123.249.74.161:1024/blogs/jianhua/00_demo.html
 
 
 
@@ -65,9 +82,9 @@
 > - 1>https://gitee.com/willianfu/jw-workflow-engine-server 提供了几个用户,部门表结构  Apache2.0协议  
 个人  
 > - 1>感谢如下个人    
-    李 銍 lzgabel  lz19960321lz@gmail.com  
-    于胜灵 yushengling@zhihuisystem.com  
-    Flowable群小白菜 18877811997  
+    李 銍 lzgabel  lz19960321lz@gmail.com  (已给)
+    于胜灵 yushengling@zhihuisystem.com  (已给)
+    Flowable群小白菜 18877811997  (已给)
     
 以上人员可以找我领取一套 本人珍藏的Flowable\Activiti\Camunda视频教程 感谢你们的付出!  
 
@@ -78,12 +95,8 @@
   
 # 👀本项目商业计划(本项目是2022年初先发布的商业版,目前也发了开源版)
 > - 0> 开源版和商业版不是一套东西 商业版用的也是仿钉钉流程设计器,功能更加强大,建议企业来采购,个人别来购买,用开源版就行,开源版也会持续更新滴!!!
-
 > - 1> 开源是因为发现很多个人开发者需要这样的系统,以及国内暂无可用的后台接Flowable的,开源版也是有其商业价值的!!!!  
 
-> - 2>本项目也有Ativiti5,6,7,Flowable5,6,Camunda7 的真正商业版本,功能比开源版更多,且重写了部分工作流框架源码进行优化,如有需要,可以联系我微信    
-
-> - 3>本人接公司培训工作流兼职  可以培训 如下内容: Activiti5,6,7,Flowable5,6,Camunda7 这些框架 或技术支持如有公司需要培训工作流框架,可以联系我
 
   
 
@@ -114,7 +127,7 @@
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1_1665560718233.png" alt="作者微信" style="zoom:20%;" />
 <img src="https://pro.cxygzl.com/wj//2023-09-18/36a3f20a346646cc87b32abc3c44d63d-918.jpg" alt="微信群" style="zoom:20%;" />
 <img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/QQ%E7%BE%A4_1667801471531.jpg" alt="QQ群更新" style="zoom:20%;" />
-<img src="https://jeecgdev.oss-cn-beijing.aliyuncs.com/upload/%E5%BE%AE%E4%BF%A1%E6%94%AF%E4%BB%98%E5%AE%9D%E5%90%88%E5%B9%B6_1666146178265.jpg" alt="打赏" style="zoom:20%;" />
+
 
 
 
