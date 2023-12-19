@@ -51,6 +51,19 @@ const router = new Router({
           name: 'about',
           component: () => import('@/views/workspace/about/index.vue'),
           meta: { title: "关于我的", viewport: viewport },
+        },
+        
+        {
+          path: "cc",
+          name: 'cc',
+          component: () => import('@/views/workspace/cc/index.vue'),
+          meta: { title: "抄送我的", viewport: viewport },
+        },
+        {
+          path: "submit",
+          name: 'submit',
+          component: () => import('@/views/workspace/submit/index.vue'),
+          meta: { title: "数据管理", viewport: viewport },
         }
       ]
     },

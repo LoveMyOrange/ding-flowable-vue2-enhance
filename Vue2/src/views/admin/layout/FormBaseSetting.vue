@@ -55,7 +55,7 @@
         </el-select>
       </el-form-item>
     </el-form>
-    <org-picker title="请选择可以管理此表单的人员" mtultiple ref="orgPicker" :selected="select" @ok="selected"></org-picker>
+    <org-picker title="请选择可以管理此表单的人员" multiple ref="orgPicker" :selected="select" @ok="selected"></org-picker>
   </div>
 </template>
 

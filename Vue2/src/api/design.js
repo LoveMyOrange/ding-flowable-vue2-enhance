@@ -105,6 +105,29 @@ export function todoList(data) {
     data,
   });
 }
+export function ccList(data) {
+  return request({
+    url: 'workspace/process/ccList',
+    method: 'POST',
+    data,
+  });
+}
+
+export function submitedTaskList(data) {
+  return request({
+    url: 'workspace/process/submitedTaskList',
+    method: 'POST',
+    data,
+  });
+}
+
+export function deleteProcessInstance(data) {
+  return request({
+    url: 'workspace/process/deleteProcessInstance',
+    method: 'POST',
+    data : { data}
+  });
+}
 
 // 查看我的已办
 export function doneList(data) {

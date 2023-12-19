@@ -1,6 +1,9 @@
 <template>
   <div>
     <el-form label-width="90px" v-if="form.name !== 'SpanLayout'">
+      <el-form-item label="表单id">
+        <el-input size="small" readonly="true"  v-model="form.id"/>
+      </el-form-item>
       <el-form-item label="表单名称">
         <el-input size="small" clearable v-model="form.title"/>
       </el-form-item>

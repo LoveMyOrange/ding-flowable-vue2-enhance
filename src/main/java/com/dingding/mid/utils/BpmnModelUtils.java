@@ -1,6 +1,8 @@
 package com.dingding.mid.utils;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -24,6 +26,7 @@ import org.flowable.engine.delegate.TaskListener;
 import org.flowable.spring.integration.Flowable;
 import org.springframework.util.CollectionUtils;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -283,10 +286,30 @@ public class    BpmnModelUtils {
             }
         }
         else if(Type.DELAY.isEqual(nodeType)){
-            throw new WorkFlowException("在github版本提供了延时节点的实现!(免费),请联系V:JavaWorkFlow 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
+            childNodeMap.put(flowNode.getId(),flowNode);
+            JSONObject incoming = flowNode.getIncoming();
+            incoming.put("incoming", Collections.singletonList(fromId));
+            String id = createDelayTask(process,flowNode,sequenceFlows,childNodeMap);
+            // 如果当前任务还有后续任务，则遍历创建后续任务
+            ChildNode children = flowNode.getChildren();
+            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
+                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
+            } else {
+                return id;
+            }
         }
         else if(Type.TRIGGER.isEqual(nodeType)){
-            throw new WorkFlowException("在github版本提供了触发器节点的实现!(免费),请联系V:JavaWorkFlow 提供公司名字以及GitHub 用户名后 拉你进仓库! 实际上吃透这个项目代码之后,也能自己写出来");
+            childNodeMap.put(flowNode.getId(),flowNode);
+            JSONObject incoming = flowNode.getIncoming();
+            incoming.put("incoming", Collections.singletonList(fromId));
+            String id = createTriggerTask(process,flowNode,sequenceFlows,childNodeMap);
+            // 如果当前任务还有后续任务，则遍历创建后续任务
+            ChildNode children = flowNode.getChildren();
+            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
+                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
+            } else {
+                return id;
+            }
         }
         else if(Type.CC.isEqual(nodeType)){
             childNodeMap.put(flowNode.getId(),flowNode);
@@ -301,10 +324,167 @@ public class    BpmnModelUtils {
                 return id;
             }
         }
-        else {
-            throw new RuntimeException("未知节点类型: nodeType=" + nodeType);
+        else if(Type.SUBPROCESS.type.equals(nodeType)){
+            childNodeMap.put(flowNode.getId(),flowNode);
+            JSONObject incoming = flowNode.getIncoming();
+            incoming.put("incoming", Collections.singletonList(fromId));
+            String id = createCallActivity(process,flowNode,sequenceFlows,childNodeMap);
+            // 如果当前任务还有后续任务，则遍历创建后续任务
+            ChildNode children = flowNode.getChildren();
+            if (Objects.nonNull(children) &&StringUtils.isNotBlank(children.getId())) {
+                return create(id, children,process,bpmnModel,sequenceFlows,childNodeMap);
+            } else {
+                return id;
+            }
+        }
+        else{
+            throw new WorkFlowException("哪有？？");
         }
     }
+
+    private static String createDelayTask(Process process,ChildNode flowNode,List<SequenceFlow> sequenceFlows,Map<String,ChildNode> childNodeMap) {
+        JSONObject incomingJson = flowNode.getIncoming();
+        List<String> incoming = incomingJson.getJSONArray("incoming").toJavaList(String.class);
+        // 自动生成id
+//        String id = id("serviceTask");
+        String id=flowNode.getId();
+        if (incoming != null && !incoming.isEmpty()) {
+            Properties props = flowNode.getProps();
+            String type = props.getType();
+            IntermediateCatchEvent intermediateCatchEvent = new IntermediateCatchEvent();
+            intermediateCatchEvent.setName(flowNode.getName());
+            intermediateCatchEvent.setId(id);
+            process.addFlowElement(intermediateCatchEvent);
+            process.addFlowElement(connect(incoming.get(0), id,sequenceFlows,childNodeMap,process));
+            TimerEventDefinition timerEventDefinition = new TimerEventDefinition();
+            if("FIXED".equals(type)){
+                Long time = props.getTime();
+                String unit = props.getUnit();
+
+                timerEventDefinition.setTimeDuration("PT"+time+unit);
+                timerEventDefinition.setId(id("timerEventDefinition"));
+                intermediateCatchEvent.addEventDefinition(timerEventDefinition);
+            }
+            else{
+                String dateTime = props.getDateTime();
+                Date date= new Date();
+                String format = DateUtil.format(date, "yyyy-MM-dd HH:mm:ss");
+                String[] split = format.split("-");
+                dateTime=split[0]+"-"+split[1]+"-"+split[2]+" "+dateTime;
+                timerEventDefinition.setTimeDate(dateTime);
+                intermediateCatchEvent.addEventDefinition(timerEventDefinition);
+            }
+        }
+        return id;
+    }
+    private static String createTriggerTask(Process process,ChildNode flowNode,List<SequenceFlow> sequenceFlows,Map<String,ChildNode> childNodeMap) {
+        JSONObject incomingJson = flowNode.getIncoming();
+        List<String> incoming = incomingJson.getJSONArray("incoming").toJavaList(String.class);
+        // 自动生成id
+//        String id = id("serviceTask");
+        String id=flowNode.getId();
+        if (incoming != null && !incoming.isEmpty()) {
+            Properties props = flowNode.getProps();
+            String type = props.getType();
+            if("WEBHOOK".equals(type)){
+                HttpInfo http = props.getHttp();
+                HttpServiceTask serviceTask= new HttpServiceTask();
+                serviceTask.setType("http");
+                List<FieldExtension> fieldExtensions= new ArrayList<>();
+                FieldExtension requestMethod= new FieldExtension();
+                requestMethod.setFieldName("requestMethod");
+                requestMethod.setStringValue(http.getMethod());
+                fieldExtensions.add(requestMethod);
+
+                FieldExtension requestUrl= new FieldExtension();
+                requestUrl.setFieldName("requestUrl");
+                requestUrl.setStringValue(http.getUrl());
+                fieldExtensions.add(requestUrl);
+
+                List<Map<String, Object>> headers = http.getHeaders();
+                Map<String,Object> header= new HashMap<>();
+                header.put("isField",false);
+                header.put("name","Content-Type");
+                header.put("value","application/json");
+                headers.add(header);
+
+                FieldExtension requestHeaders= new FieldExtension();
+                requestHeaders.setFieldName("requestHeaders");
+                String s = JSONObject.toJSONString(headers);
+                try {
+                    s = cn.hutool.core.codec.Base64.encode(s.getBytes("UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+                requestHeaders.setExpression("${"+EXPRESSION_CLASS+ "requestHeaders(execution,"+"'"+s+"'"+")"+"}");
+                fieldExtensions.add(requestHeaders);
+
+                List<Map<String, Object>> params = http.getParams();
+                FieldExtension requestBody= new FieldExtension();
+                requestBody.setFieldName("requestBody");
+                String bodyStr = JSONObject.toJSONString(params);
+                try {
+                    bodyStr = cn.hutool.core.codec.Base64.encode(bodyStr.getBytes("UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+                requestBody.setExpression("${"+EXPRESSION_CLASS+ "requestBody(execution,"+"'"+bodyStr+"'"+")"+"}");
+                fieldExtensions.add(requestBody);
+
+                FieldExtension requestCharset= new FieldExtension();
+                requestCharset.setFieldName("requestBodyEncoding");
+                requestCharset.setStringValue("UTF-8");
+                fieldExtensions.add(requestCharset);
+                serviceTask.setFieldExtensions(fieldExtensions);
+
+                serviceTask.setName(flowNode.getName());
+                serviceTask.setId(id);
+
+                process.addFlowElement(serviceTask);
+                process.addFlowElement(connect(incoming.get(0), id,sequenceFlows,childNodeMap,process));
+            }
+            else{
+                EmailInfo email = props.getEmail();
+                ServiceTask serviceTask=new ServiceTask();
+                serviceTask.setType("mail");
+                List<FieldExtension> fieldExtensions= new ArrayList<>();
+
+                FieldExtension emailFrom= new FieldExtension();
+                emailFrom.setFieldName("from");
+                emailFrom.setStringValue("2471089198@qq.com");
+                fieldExtensions.add(emailFrom);
+
+                FieldExtension emailTo= new FieldExtension();
+                emailTo.setFieldName("to");
+                emailTo.setStringValue(StrUtil.join(",",email.getTo()));
+                fieldExtensions.add(emailTo);
+
+                FieldExtension emailSubject= new FieldExtension();
+                emailSubject.setFieldName("subject");
+                emailSubject.setStringValue(email.getSubject());
+                fieldExtensions.add(emailSubject);
+
+                FieldExtension emailContent= new FieldExtension();
+                emailContent.setFieldName("text");
+                String content = email.getContent();
+                try {
+                    content = Base64.encode(content.getBytes("UTF-8"));
+                } catch (UnsupportedEncodingException e) {
+                    throw new RuntimeException(e);
+                }
+                emailContent.setExpression("${"+EXPRESSION_CLASS+ "mailContent(execution,"+"'"+content+"'"+")"+"}");
+                fieldExtensions.add(emailContent);
+                serviceTask.setName(flowNode.getName());
+                serviceTask.setId(id);
+                serviceTask.setFieldExtensions(fieldExtensions);
+                process.addFlowElement(serviceTask);
+                process.addFlowElement(connect(incoming.get(0), id,sequenceFlows,childNodeMap,process));
+            }
+
+        }
+        return id;
+    }
+
 
     private static String createExclusiveGatewayBuilder(String formId,  ChildNode flowNode,Process process,BpmnModel bpmnModel,List<SequenceFlow> sequenceFlows,Map<String,ChildNode> childNodeMap) throws InvocationTargetException, IllegalAccessException {
         childNodeMap.put(flowNode.getId(),flowNode);
@@ -861,6 +1041,26 @@ public class    BpmnModelUtils {
         }
         return id;
     }
+    private static String createCallActivity(Process process,ChildNode flowNode,List<SequenceFlow> sequenceFlows,Map<String,ChildNode> childNodeMap) {
+        JSONObject incomingJson = flowNode.getIncoming();
+        List<String> incoming = incomingJson.getJSONArray("incoming").toJavaList(String.class);
+        String id=flowNode.getId();
+        if (incoming != null && !incoming.isEmpty()) {
+            //TODO 待前段完善
+            Properties props = flowNode.getProps();
+            String type = props.getType();
+            CallActivity callActivity = new CallActivity();
+            callActivity.setName(flowNode.getName());
+            callActivity.setId(id);
+            callActivity.setCalledElementType("key");
+            callActivity.setCalledElement("");
+            process.addFlowElement(callActivity);
+            process.addFlowElement(connect(incoming.get(0), id,sequenceFlows,childNodeMap,process));
+            List<UserInfo> assignedUser = props.getAssignedUser();
+
+        }
+        return id;
+    }
 
     private enum Type {
         INCLUSIVES("INCLUSIVES", InclusiveGateway.class),
@@ -885,7 +1085,8 @@ public class    BpmnModelUtils {
         ROOT("ROOT", UserTask.class),
         CC("CC", ServiceTask.class),
         TRIGGER("TRIGGER", ServiceTask.class),
-        DELAY("DELAY", IntermediateCatchEvent.class);
+        DELAY("DELAY", IntermediateCatchEvent.class),
+        SUBPROCESS("SUBPROCESS", SubProcess.class);
         private String type;
 
         private Class<?> typeClass;

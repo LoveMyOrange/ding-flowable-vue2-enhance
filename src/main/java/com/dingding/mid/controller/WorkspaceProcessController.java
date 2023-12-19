@@ -957,6 +957,68 @@ public class WorkspaceProcessController {
         return Result.OK(taskDetailVOS);
     }
 
+    @ApiOperation("查看所有的流程")
+    @ApiOperationSupport(order = 3)
+    @PostMapping("process/submitedTaskList")
+    public Result< Page<HistoryProcessInstanceVO>> submitedTaskList(@RequestBody ApplyDTO applyDTO){
+        List<HistoricProcessInstance> historicProcessInstances =
+                historyService.createHistoricProcessInstanceQuery()
+                        .includeProcessVariables()
+                        .orderByProcessInstanceStartTime().desc()
+                        .listPage((applyDTO.getPageNo() - 1) * applyDTO.getPageSize(), applyDTO.getPageSize());
+        long count = historyService.createHistoricProcessInstanceQuery()
+                .startedBy(applyDTO.getCurrentUserInfo().getId()).count();
+        List<String> applyUserIds= new ArrayList<>();
+        for (HistoricProcessInstance historicProcessInstance : historicProcessInstances) {
+            Map<String, Object> processVariables = historicProcessInstance.getProcessVariables();
+            String id = JSONObject.parseObject(MapUtil.getStr(processVariables, START_USER_INFO), new TypeReference<UserInfo>() {
+            }).getId();
+            applyUserIds.add(id);
+        }
+        Map<Long, Users> collect=new HashMap<>();
+        if(CollUtil.isNotEmpty(applyUserIds)){
+            LambdaQueryWrapper<Users> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.in(Users::getUserId,applyUserIds);
+            List<Users> list = userService.list(lambdaQueryWrapper);
+            collect = list.stream().collect(Collectors.toMap(Users::getUserId, Function.identity()));
+        }
+
+        List<HistoryProcessInstanceVO> historyProcessInstanceVOS= new ArrayList<>();
+        Page<HistoryProcessInstanceVO> page=new Page<>();
+        for (HistoricProcessInstance historicProcessInstance : historicProcessInstances) {
+            Map<String, Object> processVariables = historicProcessInstance.getProcessVariables();
+            HistoryProcessInstanceVO historyProcessInstanceVO=new HistoryProcessInstanceVO();
+            historyProcessInstanceVO.setProcessInstanceId(historicProcessInstance.getId());
+            historyProcessInstanceVO.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
+            historyProcessInstanceVO.setStartUser(JSONObject.parseObject(MapUtil.getStr(processVariables,START_USER_INFO),new TypeReference<UserInfo>(){}));
+            historyProcessInstanceVO.setUsers(collect.get(Long.valueOf(historyProcessInstanceVO.getStartUser().getId())));
+            historyProcessInstanceVO.setStartTime(historicProcessInstance.getStartTime());
+            historyProcessInstanceVO.setEndTime(historicProcessInstance.getEndTime());
+            Boolean flag= historicProcessInstance.getEndTime() != null;
+            historyProcessInstanceVO.setCurrentActivityName(getCurrentName(historicProcessInstance.getId(),flag,historicProcessInstance.getProcessDefinitionId()));
+            historyProcessInstanceVO.setBusinessStatus(MapUtil.getStr(processVariables,PROCESS_STATUS));
+
+
+            long totalTimes = historicProcessInstance.getEndTime()==null?
+                    (Calendar.getInstance().getTimeInMillis()-historicProcessInstance.getStartTime().getTime()):
+                    (historicProcessInstance.getEndTime().getTime()-historicProcessInstance.getStartTime().getTime());
+            long dayCount = totalTimes /(1000*60*60*24);//计算天
+            long restTimes = totalTimes %(1000*60*60*24);//剩下的时间用于计于小时
+            long hourCount = restTimes/(1000*60*60);//小时
+            restTimes = restTimes % (1000*60*60);
+            long minuteCount = restTimes / (1000*60);
+
+            String spendTimes = dayCount+"天"+hourCount+"小时"+minuteCount+"分";
+            historyProcessInstanceVO.setDuration(spendTimes);
+            historyProcessInstanceVOS.add(historyProcessInstanceVO);
+        }
+        page.setRecords(historyProcessInstanceVOS);
+        page.setCurrent(applyDTO.getPageNo());
+        page.setSize(applyDTO.getPageSize());
+        page.setTotal(count);
+        return Result.OK(page);
+    }
+
     @ApiOperation("通过流程实例id查看详情")
     @PostMapping("process/instanceInfo")
     public Result<HandleDataVO> instanceInfo(@RequestBody HandleDataDTO HandleDataDTO){

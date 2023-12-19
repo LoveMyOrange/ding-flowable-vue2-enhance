@@ -38,6 +38,16 @@ export default {
           label: '关于我的',
           path: '/workspace/about'
         }
+        ,
+                {
+                  label: '抄送我的',
+                  path: '/workspace/cc'
+                }
+        ,
+                {
+                  label: '数据管理',
+                  path: '/workspace/submit'
+                }                
       ]
     }
   },

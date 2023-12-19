@@ -1,5 +1,10 @@
 <template>
   <div>
+    <el-button type="primary">触发器支持模板变量替换语法 ${变量名}， 变量名支持所有的<br/>
+      【表单字段ID】及【扩展变量】<br/>
+      扩展变量如下：[formName 审批表单名] [instanceId 审批实例ID]<br/>
+      [ownerId 发起人ID] [ownerName 发起人名]<br/>
+      [ownerDeptId 发起人部门ID] [ownerDeptName 发起人部门名]<br/></el-button>
     <el-form label-position="top" label-width="90px">
       <el-form-item label="选择触发的动作" prop="text" class="user-type">
         <el-radio-group v-model="config.type">
@@ -30,7 +35,7 @@
               <el-radio-button :label="false">固定</el-radio-button>
             </el-radio-group>
             <el-select v-if="header.isField" style="width: 180px;" v-model="header.value" size="small" placeholder="请选择表单字段">
-              <el-option v-for="form in forms" :key="form.id" :label="form.title" :value="form.title"></el-option>
+              <el-option v-for="form in forms" :key="form.id" :label="form.title" :value="form.id"></el-option>
             </el-select>
             <el-input v-else placeholder="请设置字段值" size="small" v-model="header.value" style="width: 180px;"/>
             <el-icon class="el-icon-delete" @click="delItem(config.http.headers, index)" style="margin-left: 5px; color: #c75450; cursor: pointer"/>
@@ -53,7 +58,7 @@
               <el-radio-button :label="false">固定</el-radio-button>
             </el-radio-group>
             <el-select v-if="param.isField" style="width: 180px;" v-model="param.value" size="small" placeholder="请选择表单字段">
-              <el-option v-for="form in forms" :key="form.id" :label="form.title" :value="form.title"></el-option>
+              <el-option v-for="form in forms" :key="form.id" :label="form.title" :value="form.id"></el-option>
             </el-select>
             <el-input v-else placeholder="请设置字段值" size="small" v-model="param.value" style="width: 180px;"/>
             <el-icon class="el-icon-delete" @click="delItem(config.http.params, index)" style="margin-left: 5px; color: #c75450; cursor: pointer"/>
@@ -95,9 +100,8 @@
           <el-input placeholder="请输入邮件主题" size="medium" v-model="config.email.subject" />
         </el-form-item>
         <el-form-item label="收件方" prop="text">
-          <el-select size="small" style="width: 100%;" v-model="config.email.to" filterable multiple allow-create default-first-option placeholder="请输入收件人">
-            <el-option v-for="item in config.email.to" :key="item" :label="item" :value="item"></el-option>
-          </el-select>
+          <el-input size="small" style="width: 100%;" v-model="config.email.to" filterable multiple allow-create default-first-option placeholder="请输入收件人">
+          </el-input>
         </el-form-item>
         <el-form-item label="邮件正文" prop="text">
           <el-input type="textarea" v-model="config.email.content" :rows="4" placeholder="邮件内容，支持变量提取表单数据 ${表单字段名} "></el-input>
