@@ -1,6 +1,8 @@
 package com.dingding.mid.utils;
 
+import cn.hutool.core.codec.Base64;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.NumberUtil;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -8,14 +10,18 @@ import com.alibaba.fastjson.TypeReference;
 import com.dingding.mid.dto.json.UserInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.flowable.common.engine.impl.de.odysseus.el.ExpressionFactoryImpl;
+import org.flowable.common.engine.impl.de.odysseus.el.util.SimpleContext;
+import org.flowable.common.engine.impl.javax.el.ExpressionFactory;
+import org.flowable.common.engine.impl.javax.el.ValueExpression;
+import org.flowable.engine.RepositoryService;
 import org.flowable.engine.delegate.DelegateExecution;
+import org.flowable.engine.repository.ProcessDefinition;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.nio.charset.Charset;
+import java.util.*;
 
 /**
  * @author LoveMyOrange
@@ -287,5 +293,74 @@ public class ExUtils {
         BigDecimal a2 = BigDecimal.valueOf(b);
         boolean greater = NumberUtil.isLessOrEqual(a1, a2);
         return greater;
+    }
+    public String mailContent(DelegateExecution execution,String mailContent){
+        byte[] decode = Base64.decode(mailContent.getBytes(Charset.defaultCharset()));
+        mailContent=new String(decode);
+        Map<String, Object> variables = execution.getVariables();
+        Map<String,Object> finalVariables = new HashMap<>();
+        finalVariables.putAll(variables);
+
+        RepositoryService repositoryService = SpringContextHolder.getBean(RepositoryService.class);
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(execution.getProcessDefinitionId()).singleResult();
+        finalVariables.put("formName",processDefinition.getName());
+        finalVariables.put("ownerId","10000");
+        finalVariables.put("ownerName","旅人");
+        finalVariables.put("ownerDeptId","9999");
+        finalVariables.put("ownerDeptName","研发部");
+        finalVariables.put("instanceId",execution.getProcessInstanceId());
+
+
+        ExpressionFactory factory = new ExpressionFactoryImpl();
+        SimpleContext context = new SimpleContext();
+        Set<String> strings = finalVariables.keySet();
+        for (String string : strings) {
+            context.setVariable(string,factory.createValueExpression(finalVariables.get(string),Object.class));
+        }
+        ValueExpression valueExpression = factory.createValueExpression(context, mailContent, String.class);
+        Object value = valueExpression.getValue(context);
+        return (String) value;
+    }
+    public String requestBody(DelegateExecution execution,String bodyStr){
+        byte[] decode = Base64.decode(bodyStr.getBytes(Charset.defaultCharset()));
+        bodyStr=new String(decode);
+        List<Map> list = JSONObject.parseObject(bodyStr, new TypeReference<List<Map>>() {
+        });
+        Map<String,Object> bodyMap = new HashMap<>();
+        for (Map map : list) {
+            Boolean isField = MapUtil.getBool(map, "isField");
+            String name = MapUtil.getStr(map, "name");
+            String value =MapUtil.getStr(map,"value");
+            if(isField){
+                String s = execution.getVariable(value).toString();
+                bodyMap.put(name,s);
+            }
+            else{
+                bodyMap.put(name,value);
+            }
+        }
+
+        return JSONObject.toJSONString(bodyMap);
+    }
+    public String requestHeaders(DelegateExecution execution,String headerStr){
+        byte[] decode = Base64.decode(headerStr.getBytes(Charset.defaultCharset()));
+        headerStr=new String(decode);
+        List<Map> list = JSONObject.parseObject(headerStr, new TypeReference<List<Map>>() {
+        });
+        String headerResultStr="";
+        for (Map map : list) {
+            Boolean isField = MapUtil.getBool(map, "isField");
+            String name = MapUtil.getStr(map, "name");
+            String value = MapUtil.getStr(map, "value");
+            headerResultStr+=(name+": ");
+            if(isField){
+                String s = execution.getVariable(value).toString();
+                headerResultStr+=s+" \n";
+            }
+            else{
+                headerResultStr+=value+" \n";
+            }
+        }
+        return headerResultStr;
     }
 }
