@@ -57,7 +57,7 @@
 
       <el-divider></el-divider>
       <el-form-item label="⚙子流程表单" prop="text" class="line-mode">
-        <el-cascader  style="width: 80%;" size="small" v-model="nodeProps.formId" placeholder="请选择子流程表单" :options="fromGroup" :props="{ expandTrigger: 'hover'}" :show-all-levels="false"
+        <el-cascader  style="width: 80%;" size="small" v-model="nodeProps.subprocessId" placeholder="请选择子流程表单" :options="fromGroup" :props="{ expandTrigger: 'hover'}" :show-all-levels="false"
         @change="handleChange">
         </el-cascader>
       </el-form-item>
